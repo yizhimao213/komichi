@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>komichi</title>
+    <meta name="description" content="komichi 的个人空间：前端与全栈、TypeScript、React、Next.js、AI 工程，以及旅途与生活。" />
+    <meta name="theme-color" content="#f7f0e4" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1e1d1c" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/assets/innei.svg" />
+    <script>
+      (function () {
+        try {
+            var t = localStorage.getItem("yohaku-theme");
+            if (t === "dark" || t === "light") document.documentElement.dataset.theme = t;
+            var s = localStorage.getItem("yohaku-season");
+            if (s === "spring" || s === "summer" || s === "autumn" || s === "winter") {
+              document.documentElement.dataset.season = s;
+            } else {
+              document.documentElement.dataset.season = "autumn";
+            }
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      html, body, #root { min-height: 100%; max-width: 100%; margin: 0; overflow-x: hidden; background: #f7f0e4; }
+      html[data-season="spring"], html[data-season="spring"] body, html[data-season="spring"] #root { background: #fbf6f4; }
+      html[data-season="summer"], html[data-season="summer"] body, html[data-season="summer"] #root { background: #eef6f2; }
+      html[data-season="winter"], html[data-season="winter"] body, html[data-season="winter"] #root { background: #f4f7fb; }
+      html[data-theme="dark"], html[data-theme="dark"] body, html[data-theme="dark"] #root { background: #1e1d1c; }
+      html[data-theme="dark"][data-season="spring"], html[data-theme="dark"][data-season="spring"] body, html[data-theme="dark"][data-season="spring"] #root { background: #1e1d1e; }
+      html[data-theme="dark"][data-season="summer"], html[data-theme="dark"][data-season="summer"] body, html[data-theme="dark"][data-season="summer"] #root { background: #1d1e1d; }
+      html[data-theme="dark"][data-season="winter"], html[data-theme="dark"][data-season="winter"] body, html[data-theme="dark"][data-season="winter"] #root { background: #1d1e1f; }
+      .boot-screen {
+        min-height: 60svh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 64px 24px;
+      }
+      .boot-inner { display: flex; flex-direction: column; align-items: center; max-width: 100vw; }
+      .boot-rings { position: relative; width: 11rem; height: 11rem; }
+      .boot-dot, .boot-ring, .boot-glow {
+        position: absolute; left: 50%; top: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+      }
+      .boot-dot {
+        width: 18px; height: 18px; background: #24231f;
+        animation: boot-dot 1.8s cubic-bezier(0.22,1,0.36,1) infinite;
+      }
+      html[data-theme="dark"] .boot-dot { background: #e5e5ea; }
+      .boot-ring { border: 1px solid rgba(36,35,31,0.15); }
+      html[data-theme="dark"] .boot-ring { border-color: rgba(229,229,234,0.15); }
+      .boot-ring-a { width: 78px; height: 78px; animation: boot-ring-a 2.4s cubic-bezier(0.22,1,0.36,1) infinite; }
+      .boot-ring-b { width: 116px; height: 116px; animation: boot-ring-b 2.8s cubic-bezier(0.22,1,0.36,1) infinite; }
+      .boot-glow {
+        width: 152px; height: 152px; background: rgba(36,35,31,0.07); filter: blur(24px);
+        animation: boot-glow 2.2s cubic-bezier(0.22,1,0.36,1) infinite;
+      }
+      html[data-theme="dark"] .boot-glow { background: rgba(229,229,234,0.08); }
+      .boot-copy {
+        margin-top: 8px; max-width: 28rem; text-align: center; font-size: 13px; line-height: 1.75;
+        color: #787670; white-space: pre; overflow: hidden;
+        animation: boot-copy 1.6s cubic-bezier(0.22,1,0.36,1) both;
+      }
+      html[data-theme="dark"] .boot-copy { color: #8e8e93; }
+      @keyframes boot-dot {
+        0%, 100% { opacity: 0; filter: blur(1px); transform: translate(-50%,-50%) scale(0.18); }
+        35% { opacity: 1; filter: blur(0); transform: translate(-50%,-50%) scale(1); }
+        70% { opacity: 0.55; }
+      }
+      @keyframes boot-ring-a {
+        0%, 100% { opacity: 0.28; transform: translate(-50%,-50%) scale(0.86); }
+        50% { opacity: 0.7; transform: translate(-50%,-50%) scale(1.04); }
+      }
+      @keyframes boot-ring-b {
+        0%, 100% { opacity: 0.18; transform: translate(-50%,-50%) scale(0.92); }
+        50% { opacity: 0.55; transform: translate(-50%,-50%) scale(1.06); }
+      }
+      @keyframes boot-glow {
+        0%, 100% { opacity: 0; transform: translate(-50%,-50%) scale(0.26); }
+        45% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+      }
+      @keyframes boot-copy {
+        0% { opacity: 0.24; filter: blur(8px); clip-path: inset(0 50% 0 50%); }
+        100% { opacity: 1; filter: blur(0); clip-path: inset(0 0 0 0); }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div class="boot-screen" aria-hidden="true">
+        <div class="boot-inner">
+          <div class="boot-rings">
+            <span class="boot-dot"></span>
+            <span class="boot-ring boot-ring-a"></span>
+            <span class="boot-ring boot-ring-b"></span>
+            <span class="boot-glow"></span>
+          </div>
+          <span class="boot-copy">稍候片刻，四十小路出没。</span>
+        </div>
+      </div>
+    </div>
+    <script>
+      (function () {
+        var p = location.pathname;
+        var content = /^\/posts\/[^/]+/.test(p) || (/^\/notes\/[^/]+/.test(p) && p.indexOf("/notes/series") !== 0);
+        if (!content) {
+          var boot = document.querySelector("#root .boot-screen");
+          if (boot) boot.remove();
+        }
+      })();
+    </script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
