@@ -245,25 +245,27 @@ export default function Header({
           return;
         }
         if (dy > 2) setDockMini(true);
+        else if (dy < -2) setDockMini(false);
         idleTimer.current = window.setTimeout(() => setDockMini(false), 1500);
         return;
       }
-      if (y < 24) {
+      if (y < 24 || megaOpen || menuOpen) {
         moveAcc.current = 0;
         setHeadHidden(false);
-      } else if (!megaOpen && dy !== 0) {
-        if (Math.sign(dy) !== Math.sign(moveAcc.current) && moveAcc.current !== 0) {
-          moveAcc.current = dy;
-        } else {
-          moveAcc.current += dy;
-        }
-        if (moveAcc.current > 12) {
-          setHeadHidden(true);
-          moveAcc.current = 0;
-        } else if (moveAcc.current < -12) {
-          setHeadHidden(false);
-          moveAcc.current = 0;
-        }
+        return;
+      }
+      if (dy === 0) return;
+      if (Math.sign(dy) !== Math.sign(moveAcc.current) && moveAcc.current !== 0) {
+        moveAcc.current = dy;
+      } else {
+        moveAcc.current += dy;
+      }
+      if (moveAcc.current > 8) {
+        setHeadHidden(true);
+        moveAcc.current = 0;
+      } else if (moveAcc.current < -8) {
+        setHeadHidden(false);
+        moveAcc.current = 0;
       }
     };
     lastY.current = window.scrollY;
@@ -476,6 +478,9 @@ export default function Header({
   useEffect(() => {
     megaMorphing.current = false;
     setMegaKind(null);
+    setHeadHidden(false);
+    lastY.current = typeof window !== "undefined" ? window.scrollY : 0;
+    moveAcc.current = 0;
     window.clearTimeout(megaTimer.current);
   }, [pathname, isDock]);
 
@@ -495,6 +500,8 @@ export default function Header({
   const dockLeft = menuOpen ? padOpen : dockMiniOn ? padOpen : (vw - dockClosedW) / 2;
 
   return (
+    <>
+    {!isDock ? <div className="header-spacer" aria-hidden="true" /> : null}
     <header
       className={[
         "site-header",
@@ -771,5 +778,6 @@ export default function Header({
         </AnimatePresence>
       )}
     </header>
+    </>
   );
 }

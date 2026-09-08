@@ -292,15 +292,17 @@ img.is-lazy.is-in {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow-x: clip;
   max-width: 100%;
 }
 .wrap { width: min(var(--max), calc(100% - 48px)); margin: 0 auto; }
 .wrap-wide { width: min(var(--wide), calc(100% - 48px)); margin: 0 auto; }
 
 .site-header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
   z-index: 40;
   background: transparent;
   border-bottom: 1px solid transparent;
@@ -312,6 +314,11 @@ img.is-lazy.is-in {
 }
 .site-header.is-head-hidden {
   transform: translateY(-100%);
+}
+.header-spacer {
+  height: 56px;
+  flex: none;
+  pointer-events: none;
 }
 .site-header > * { pointer-events: auto; }
 .site-header.is-overlay { color: #fff; }
@@ -4292,6 +4299,7 @@ html.is-peek-open { overflow: hidden; }
     cursor: pointer;
   }
   .toc-sheet-toggle:hover { color: var(--n-10); }
+  .header-spacer { display: none; }
   .site-header.is-dock {
     position: static;
     height: 0;
