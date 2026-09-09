@@ -82,9 +82,15 @@ function headingAt(markers, y) {
   return cur;
 }
 
+function titleLineTop() {
+  const title = document.querySelector(".article-head h1, .note-title-row h1");
+  if (!title) return 96;
+  return Math.round(title.getBoundingClientRect().bottom + 12);
+}
+
 function railSize() {
-  const avail = Math.max(160, window.innerHeight - 168);
-  return Math.round(Math.min(260, Math.max(160, avail * 0.32)));
+  const avail = Math.max(200, window.innerHeight - 168);
+  return Math.round(Math.min(340, Math.max(200, avail * 0.44)));
 }
 
 export default function Toc({ items, active }) {
@@ -105,7 +111,7 @@ export default function Toc({ items, active }) {
   const markersRef = useRef([]);
   const overContentRef = useRef(false);
   const lastPct = useRef(-1);
-  const railHRef = useRef(200);
+  const railHRef = useRef(260);
   const lastAy = useRef(PAD);
   const lastT = useRef(0);
   const velRef = useRef(0);
@@ -123,7 +129,7 @@ export default function Toc({ items, active }) {
   const [markers, setMarkers] = useState([]);
   const [overContent, setOverContent] = useState(false);
   const [hover, setHover] = useState(false);
-  const [railH, setRailH] = useState(200);
+  const [railH, setRailH] = useState(260);
   const [heading, setHeading] = useState("");
   const [currentIdx, setCurrentIdx] = useState(0);
   const [vw, setVw] = useState(() => (typeof window !== "undefined" ? window.innerWidth : 800));
@@ -215,10 +221,12 @@ export default function Toc({ items, active }) {
       const sticky = stickyRef.current;
       if (!col || !sticky) return;
       sticky.style.left = `${Math.round(col.getBoundingClientRect().left)}px`;
+      sticky.style.top = `${Math.max(72, titleLineTop())}px`;
     };
 
     const layout = () => {
       const prose = proseEl();
+      pinCol();
       const h = railSize();
       railHRef.current = h;
       setRailH(h);
@@ -238,6 +246,7 @@ export default function Toc({ items, active }) {
     };
 
     const readTarget = () => {
+      pinCol();
       const prose = proseEl();
       if (!prose) return;
       const h = railHRef.current;
@@ -327,6 +336,7 @@ export default function Toc({ items, active }) {
       const sticky = stickyRef.current;
       if (!col || !sticky) return;
       sticky.style.left = `${Math.round(col.getBoundingClientRect().left)}px`;
+      sticky.style.top = `${Math.max(72, titleLineTop())}px`;
     };
     pin();
     window.addEventListener("resize", pin);
