@@ -411,8 +411,11 @@ export const catalog = [
   { title: "分类", href: "/categories", kind: "页面" },
   ...tagList.map((t) => ({ title: `#${t.name}`, href: `/posts/tag/${t.slug}`, kind: "标签" })),
   { title: "关于我", href: "/about", kind: "页面" },
+  { title: "关于本站", href: "/about-site", kind: "页面" },
   { title: "友人帐", href: "/friends", kind: "页面" },
   { title: "项目", href: "/projects", kind: "页面" },
+  { title: "一言", href: "/says", kind: "页面" },
+  { title: "留言", href: "/message", kind: "页面" },
   { title: "时光", href: "/timeline", kind: "页面" },
   { title: "思考", href: "/thinking", kind: "页面" },
 ];

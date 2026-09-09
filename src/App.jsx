@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import { Link, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { catalog } from "./content.js";
+import { aboutPage, aboutSitePage, catalog, getCategory, getNote, getPost, getSeries, getTag } from "./content.js";
 import Home from "./pages/Home.jsx";
 import Posts from "./pages/Posts.jsx";
 import Notes from "./pages/Notes.jsx";
@@ -61,6 +61,52 @@ function isContentPage(path) {
   if (/^\/posts\/[^/]+/.test(path)) return true;
   if (/^\/notes\/series/.test(path)) return false;
   return /^\/notes\/[^/]+/.test(path);
+}
+
+const STATIC_TITLES = {
+  "/posts": "文稿",
+  "/notes": "手记",
+  "/timeline": "时光",
+  "/thinking": "思考",
+  "/says": "一言",
+  "/friends": "友人帐",
+  "/projects": "项目",
+  "/message": "留言",
+  "/categories": "分类",
+  "/notes/series": "专栏",
+};
+
+function pageTitle(pathname) {
+  if (pathname === "/") return "komichi";
+  if (STATIC_TITLES[pathname]) return `${STATIC_TITLES[pathname]} · komichi`;
+  if (pathname === "/about") return `${aboutPage.title || "关于我"} · komichi`;
+  if (pathname === "/about-site") return `${aboutSitePage.title || "关于本站"} · komichi`;
+  const tagM = pathname.match(/^\/posts\/tag\/([^/]+)$/);
+  if (tagM) {
+    const tag = getTag(tagM[1]);
+    return `${tag ? `#${tag.name}` : "标签"} · komichi`;
+  }
+  const catM = pathname.match(/^\/categories\/([^/]+)$/);
+  if (catM) {
+    const cat = getCategory(catM[1]);
+    return `${cat?.name || "分类"} · komichi`;
+  }
+  const seriesM = pathname.match(/^\/notes\/series\/([^/]+)$/);
+  if (seriesM) {
+    const series = getSeries(seriesM[1]);
+    return `${series?.name || "专栏"} · komichi`;
+  }
+  const postM = pathname.match(/^\/posts\/([^/]+)$/);
+  if (postM) {
+    const post = getPost(postM[1]);
+    return `${post?.title || "文稿"} · komichi`;
+  }
+  const noteM = pathname.match(/^\/notes\/([^/]+)$/);
+  if (noteM) {
+    const note = getNote(noteM[1]);
+    return `${note?.title || "手记"} · komichi`;
+  }
+  return "komichi";
 }
 
 function AppRoutes({ location }) {
@@ -127,6 +173,10 @@ export default function App() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    document.title = pageTitle(location.pathname);
+  }, [location.pathname]);
 
   useEffect(() => {
     setMenuOpen(false);

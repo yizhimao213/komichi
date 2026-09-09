@@ -83,8 +83,8 @@ function headingAt(markers, y) {
 }
 
 function railSize() {
-  const avail = Math.max(200, window.innerHeight - 168);
-  return Math.round(Math.min(340, Math.max(200, avail * 0.44)));
+  const avail = Math.max(160, window.innerHeight - 168);
+  return Math.round(Math.min(260, Math.max(160, avail * 0.32)));
 }
 
 export default function Toc({ items, active }) {
@@ -105,7 +105,7 @@ export default function Toc({ items, active }) {
   const markersRef = useRef([]);
   const overContentRef = useRef(false);
   const lastPct = useRef(-1);
-  const railHRef = useRef(260);
+  const railHRef = useRef(200);
   const lastAy = useRef(PAD);
   const lastT = useRef(0);
   const velRef = useRef(0);
@@ -123,7 +123,7 @@ export default function Toc({ items, active }) {
   const [markers, setMarkers] = useState([]);
   const [overContent, setOverContent] = useState(false);
   const [hover, setHover] = useState(false);
-  const [railH, setRailH] = useState(260);
+  const [railH, setRailH] = useState(200);
   const [heading, setHeading] = useState("");
   const [currentIdx, setCurrentIdx] = useState(0);
   const [vw, setVw] = useState(() => (typeof window !== "undefined" ? window.innerWidth : 800));

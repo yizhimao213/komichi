@@ -132,6 +132,8 @@ docs/                   DEPLOY / IMPLEMENTATION / CONTENT
 桌面顶栏：
 
 - 五项：首页 / 文稿 / 手记 / 时光 / 思考
+- 从首页 mega 进子页（一言、友人帐、项目、关于、留言、分类等）时，首页胶囊文案改成当前页名，滑块按新宽度重测
+- `document.title` 随路由变：首页 `komichi`，其它页 `页名 · komichi`；文稿/手记/专栏/分类/标签用内容标题
 - 激活滑块量 `left` / `width`，弹簧 `stiffness 380 / damping 36`；未激活图标宽度收到 0，不占空槽
 - 下滑累计位移超过 12px：顶栏 `translateY(-100%)` 藏起；上滑超过 12px：滑回。过渡 `0.48s cubic-bezier(0.22, 1, 0.36, 1)`
 - `y < 24` 时强制显示
@@ -199,14 +201,14 @@ haklex 默认内容宽 `--rc-max-width: 700px`。站点在 `.article-page` / `.n
 
 - 鼠标不在正文上：完整目录列表
 - 鼠标在正文上：SVG 凸起轨道，跟随当前标题；目录条本身不动
-- 轨道高度约窗口可用高度的 44%，约 200–340px
+- 轨道高度约窗口可用高度的 32%，约 160–260px
 - 空闲微呼吸/波浪；滑动时弹簧带过冲，凸起随方向拉长
 - 悬停轨道：展开完整列表
 - 鼠标离开正文：收回成「目录」列表
 - `max-width: 1100px`：右下角目录钮 + 底部目录 sheet；打开时 dock 加 `is-toc-hidden`，不锁 `body position: fixed`
 - 窄屏停掉桌面轨的 `requestAnimationFrame` 绘制，也不再量 `listH` 做高度弹簧
 - sheet 只动 `transform: translateY` 和 `opacity`；尺寸用 CSS `left/right: 12px` + `max-height: min(70vh, calc(100dvh - 96px))`
-- 关掉时去掉 `backdrop-filter`，避免透明层继续模糊
+- 关掉时 `visibility: hidden` 延迟 0.22s，等位移和透明度播完再藏；同时去掉 `backdrop-filter`
 
 ## 时光 peek
 

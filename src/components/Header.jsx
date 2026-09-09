@@ -3,7 +3,7 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { BookOpen, ChevronDown, Clock, Feather, House, Lightbulb, Menu, X } from "lucide-react";
 import { SEASON_LIST, useHeaderState } from "../context.jsx";
-import { categoryList, seriesList } from "../content.js";
+import { categoryList, getCategory, seriesList } from "../content.js";
 import HomeMega from "./HomeMega.jsx";
 import NotesMega from "./NotesMega.jsx";
 import PostsMega from "./PostsMega.jsx";
@@ -37,6 +37,39 @@ const MEGA_PANEL = {
 
 function activeIndex(pathname) {
   return NAV.findIndex(([to]) => (to === "/" ? pathname === "/" : pathname === to || pathname.startsWith(`${to}/`)));
+}
+
+const PAGE_CHIPS = [
+  ["/says", "一言"],
+  ["/friends", "友人帐"],
+  ["/projects", "项目"],
+  ["/about-site", "关于本站"],
+  ["/about", "关于我"],
+  ["/message", "留言"],
+  ["/categories", "分类"],
+];
+
+function clipChip(text) {
+  const s = String(text || "").trim();
+  if (!s) return "";
+  return s.length > 8 ? `${s.slice(0, 8)}…` : s;
+}
+
+function navOwned(pathname) {
+  return NAV.some(([to]) => to !== "/" && (pathname === to || pathname.startsWith(`${to}/`)));
+}
+
+function homeChipLabel(pathname) {
+  if (pathname === "/" || navOwned(pathname)) return "首页";
+  for (const [to, label] of PAGE_CHIPS) {
+    if (pathname === to) return label;
+  }
+  const catM = pathname.match(/^\/categories\/([^/]+)$/);
+  if (catM) {
+    const cat = getCategory(catM[1]);
+    return clipChip(cat?.name) || "分类";
+  }
+  return "首页";
 }
 
 function DockFold({ to, label, open, setOpen, height, innerRef, onClose }) {
@@ -183,7 +216,9 @@ export default function Header({
   const megaPaneRefs = useRef({});
   const megaCache = useRef({});
   const megaMorphing = useRef(false);
-  const current = activeIndex(pathname);
+  const navIdx = activeIndex(pathname);
+  const current = navIdx >= 0 ? navIdx : 0;
+  const homeLabel = homeChipLabel(pathname);
   const megaOpen = Boolean(megaKind);
 
   const applyMegaSize = (kind) => {
@@ -440,7 +475,7 @@ export default function Header({
       window.removeEventListener("resize", measure);
       ro?.disconnect();
     };
-  }, [current, scrolled, menuOpen, meta.hasCover, overCover, isDock]);
+  }, [current, homeLabel, scrolled, menuOpen, meta.hasCover, overCover, isDock]);
 
   useLayoutEffect(() => {
     if (isDock) return;
@@ -541,6 +576,7 @@ export default function Header({
             ) : null}
             {NAV.map(([to, label, Icon], i) => {
               const mega = to === "/" ? "home" : to === "/notes" ? "notes" : to === "/posts" ? "posts" : to === "/timeline" ? "timeline" : null;
+              const text = to === "/" ? homeLabel : label;
               return (
               <span
                 key={to}
@@ -552,7 +588,7 @@ export default function Header({
                 <NavLink
                   to={to}
                   end={to === "/"}
-                  className={({ isActive }) => (isActive ? "is-active" : "")}
+                  className={({ isActive }) => (to === "/" ? (homeLabel !== "首页" || isActive ? "is-active" : "") : isActive ? "is-active" : "")}
                   onClick={() => setMenuOpen(false)}
                 >
                   <span
@@ -564,7 +600,7 @@ export default function Header({
                     <span className="nav-ico-wrap" aria-hidden="true">
                       <Icon className="nav-ico" size={13} strokeWidth={1.8} />
                     </span>
-                    <span className="nav-label">{label}</span>
+                    <span className="nav-label">{text}</span>
                   </span>
                 </NavLink>
               </span>

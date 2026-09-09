@@ -4218,9 +4218,14 @@ html.is-peek-open { overflow: hidden; }
     backdrop-filter: blur(28px) saturate(1.4);
     -webkit-backdrop-filter: blur(28px) saturate(1.4);
     will-change: transform, opacity;
+    visibility: hidden;
+    transition: visibility 0s linear 0.22s;
+  }
+  .toc-sheet.is-open {
+    visibility: visible;
+    transition: visibility 0s;
   }
   .toc-sheet:not(.is-open) {
-    visibility: hidden;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
