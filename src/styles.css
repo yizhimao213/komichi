@@ -16,10 +16,20 @@
 @property --accent-soft { syntax: "<color>"; inherits: true; initial-value: oklch(0.68 0.15 60 / 0.14); }
 @property --border { syntax: "<color>"; inherits: true; initial-value: oklch(0.15 0.0049 230 / 0.1); }
 @property --glow { syntax: "<color>"; inherits: true; initial-value: oklch(0.68 0.15 60 / 0.36); }
+@property --glass { syntax: "<color>"; inherits: true; initial-value: oklch(0.96 0.0049 232 / 0.86); }
+@property --glass-border { syntax: "<color>"; inherits: true; initial-value: oklch(0.15 0.0049 230 / 0.08); }
+@property --glass-line { syntax: "<color>"; inherits: true; initial-value: oklch(0.15 0.0049 230 / 0.06); }
+@property --glass-hover { syntax: "<color>"; inherits: true; initial-value: oklch(0.15 0.0049 230 / 0.06); }
+@property --ok-green { syntax: "<color>"; inherits: true; initial-value: oklch(0.67 0.15 155); }
 
 :root {
   --pastel-bg: oklch(0.99 0.0049 230);
   --pastel-bg-dark: oklch(0.22 0.0049 230);
+  --glass: oklch(0.96 0.0049 232 / 0.86);
+  --glass-border: oklch(0.15 0.0049 230 / 0.08);
+  --glass-line: oklch(0.15 0.0049 230 / 0.06);
+  --glass-hover: oklch(0.15 0.0049 230 / 0.06);
+  --ok-green: oklch(0.67 0.15 155);
   --n-1: oklch(0.99 0.0049 230);
   --n-2: oklch(0.98 0.0049 230);
   --n-3: oklch(0.97 0.0049 230);
@@ -35,8 +45,8 @@
   --accent: oklch(0.68 0.15 60);
   --accent-soft: color-mix(in oklab, var(--accent) 14%, transparent);
   --border: oklch(0.15 0.0049 230 / 0.1);
-  --glow: color-mix(in oklab, var(--accent) 36%, transparent);
-  --wash: radial-gradient(ellipse 42% 28% at 50% 48%, color-mix(in oklab, var(--accent) 22%, transparent) 0%, transparent 70%);
+  --glow: color-mix(in oklab, var(--accent) 24%, transparent);
+  --wash: radial-gradient(ellipse 42% 28% at 50% 48%, color-mix(in oklab, var(--accent) 8%, transparent) 0%, transparent 70%);
   --sans: "Instrument Sans", MiSans, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", system-ui, sans-serif;
   --serif: "Noto Serif SC", "Noto Serif CJK SC", "Source Han Serif SC", "Source Han Serif", "SongTi SC", SimSun, Georgia, serif;
   --logo-cjk: "Noto Serif JP", "Source Han Serif", "Source Han Serif SC", "Noto Serif CJK SC", serif;
@@ -57,78 +67,83 @@ html[data-theme="dark"] {
   --n-8: oklch(0.75 0.0049 230);
   --n-9: oklch(0.85 0.0049 230);
   --n-10: oklch(0.95 0.0049 230);
+  --glass: oklch(0.20 0.0049 232 / 0.85);
+  --glass-border: oklch(0.95 0.0049 230 / 0.08);
+  --glass-line: oklch(0.95 0.0049 230 / 0.06);
+  --glass-hover: oklch(0.95 0.0049 230 / 0.08);
+  --ok-green: oklch(0.72 0.16 155);
   --paper: var(--pastel-bg-dark);
   --paper-soft: color-mix(in oklab, var(--paper) 84%, transparent);
   --accent: oklch(0.73 0.16 60);
   --accent-soft: color-mix(in oklab, var(--accent) 16%, transparent);
   --border: oklch(0.95 0.0049 230 / 0.1);
-  --glow: color-mix(in oklab, var(--accent) 12%, transparent);
-  --wash: radial-gradient(ellipse 40% 26% at 50% 48%, color-mix(in oklab, var(--accent) 8%, transparent) 0%, transparent 74%);
+  --glow: color-mix(in oklab, var(--accent) 10%, transparent);
+  --wash: radial-gradient(ellipse 40% 26% at 50% 48%, color-mix(in oklab, var(--accent) 5%, transparent) 0%, transparent 74%);
 }
 
 html[data-season="spring"] {
-  --paper: color-mix(in oklab, var(--pastel-bg) 88%, oklch(0.78 0.16 350));
+  --paper: oklch(0.99 0.008 350);
   --paper-soft: color-mix(in oklab, var(--paper) 80%, transparent);
   --accent: oklch(0.68 0.22 350);
   --accent-soft: color-mix(in oklab, var(--accent) 14%, transparent);
-  --glow: color-mix(in oklab, var(--accent) 42%, transparent);
-  --wash: radial-gradient(ellipse 36% 22% at 50% 48%, color-mix(in oklab, var(--accent) 28%, transparent) 0%, transparent 72%);
+  --glow: color-mix(in oklab, var(--accent) 28%, transparent);
+  --wash: radial-gradient(ellipse 36% 22% at 50% 48%, color-mix(in oklab, var(--accent) 10%, transparent) 0%, transparent 72%);
 }
 html[data-theme="dark"][data-season="spring"] {
-  --paper: color-mix(in oklab, var(--pastel-bg-dark) 92%, oklch(0.73 0.2 350));
+  --paper: oklch(0.22 0.006 350);
   --paper-soft: color-mix(in oklab, var(--paper) 84%, transparent);
   --accent: oklch(0.73 0.2 350);
   --accent-soft: color-mix(in oklab, var(--accent) 18%, transparent);
   --glow: color-mix(in oklab, var(--accent) 8%, transparent);
-  --wash: radial-gradient(ellipse 34% 20% at 50% 48%, color-mix(in oklab, var(--accent) 6%, transparent) 0%, transparent 74%);
+  --wash: radial-gradient(ellipse 34% 20% at 50% 48%, color-mix(in oklab, var(--accent) 4%, transparent) 0%, transparent 74%);
 }
 html[data-season="summer"] {
-  --paper: color-mix(in oklab, var(--pastel-bg) 88%, oklch(0.76 0.12 155));
+  --paper: oklch(0.99 0.008 155);
   --paper-soft: color-mix(in oklab, var(--paper) 82%, transparent);
   --accent: oklch(0.67 0.15 155);
   --accent-soft: color-mix(in oklab, var(--accent) 14%, transparent);
-  --glow: color-mix(in oklab, var(--accent) 36%, transparent);
-  --wash: radial-gradient(ellipse 36% 22% at 50% 48%, color-mix(in oklab, var(--accent) 24%, transparent) 0%, transparent 72%);
+  --glow: color-mix(in oklab, var(--accent) 24%, transparent);
+  --wash: radial-gradient(ellipse 36% 22% at 50% 48%, color-mix(in oklab, var(--accent) 8%, transparent) 0%, transparent 72%);
 }
 html[data-theme="dark"][data-season="summer"] {
-  --paper: color-mix(in oklab, var(--pastel-bg-dark) 92%, oklch(0.72 0.16 155));
+  --paper: oklch(0.22 0.006 155);
   --paper-soft: color-mix(in oklab, var(--paper) 84%, transparent);
   --accent: oklch(0.72 0.16 155);
   --accent-soft: color-mix(in oklab, var(--accent) 16%, transparent);
   --glow: color-mix(in oklab, var(--accent) 8%, transparent);
-  --wash: radial-gradient(ellipse 34% 20% at 50% 48%, color-mix(in oklab, var(--accent) 6%, transparent) 0%, transparent 74%);
+  --wash: radial-gradient(ellipse 34% 20% at 50% 48%, color-mix(in oklab, var(--accent) 4%, transparent) 0%, transparent 74%);
 }
 html[data-season="autumn"] {
-  --paper: color-mix(in oklab, var(--pastel-bg) 88%, oklch(0.77 0.12 60));
+  --paper: oklch(0.99 0.010 60);
   --paper-soft: color-mix(in oklab, var(--paper) 80%, transparent);
   --accent: oklch(0.68 0.15 60);
   --accent-soft: color-mix(in oklab, var(--accent) 14%, transparent);
-  --glow: color-mix(in oklab, var(--accent) 36%, transparent);
-  --wash: radial-gradient(ellipse 42% 28% at 50% 48%, color-mix(in oklab, var(--accent) 22%, transparent) 0%, transparent 70%);
+  --glow: color-mix(in oklab, var(--accent) 24%, transparent);
+  --wash: radial-gradient(ellipse 42% 28% at 50% 48%, color-mix(in oklab, var(--accent) 8%, transparent) 0%, transparent 70%);
 }
 html[data-theme="dark"][data-season="autumn"] {
-  --paper: color-mix(in oklab, var(--pastel-bg-dark) 92%, oklch(0.73 0.16 60));
+  --paper: oklch(0.22 0.008 60);
   --paper-soft: color-mix(in oklab, var(--paper) 84%, transparent);
   --accent: oklch(0.73 0.16 60);
   --accent-soft: color-mix(in oklab, var(--accent) 16%, transparent);
-  --glow: color-mix(in oklab, var(--accent) 12%, transparent);
-  --wash: radial-gradient(ellipse 40% 26% at 50% 48%, color-mix(in oklab, var(--accent) 8%, transparent) 0%, transparent 74%);
+  --glow: color-mix(in oklab, var(--accent) 10%, transparent);
+  --wash: radial-gradient(ellipse 40% 26% at 50% 48%, color-mix(in oklab, var(--accent) 5%, transparent) 0%, transparent 74%);
 }
 html[data-season="winter"] {
-  --paper: color-mix(in oklab, var(--pastel-bg) 88%, oklch(0.78 0.11 210));
+  --paper: oklch(0.99 0.008 210);
   --paper-soft: color-mix(in oklab, var(--paper) 82%, transparent);
   --accent: oklch(0.70 0.14 210);
   --accent-soft: color-mix(in oklab, var(--accent) 14%, transparent);
-  --glow: color-mix(in oklab, var(--accent) 50%, transparent);
-  --wash: radial-gradient(ellipse 36% 22% at 50% 48%, color-mix(in oklab, var(--accent) 32%, transparent) 0%, transparent 72%);
+  --glow: color-mix(in oklab, var(--accent) 28%, transparent);
+  --wash: radial-gradient(ellipse 36% 22% at 50% 48%, color-mix(in oklab, var(--accent) 10%, transparent) 0%, transparent 72%);
 }
 html[data-theme="dark"][data-season="winter"] {
-  --paper: color-mix(in oklab, var(--pastel-bg-dark) 92%, oklch(0.75 0.13 210));
+  --paper: oklch(0.22 0.006 210);
   --paper-soft: color-mix(in oklab, var(--paper) 84%, transparent);
   --accent: oklch(0.75 0.13 210);
   --accent-soft: color-mix(in oklab, var(--accent) 16%, transparent);
   --glow: color-mix(in oklab, var(--accent) 7%, transparent);
-  --wash: radial-gradient(ellipse 34% 20% at 50% 48%, color-mix(in oklab, var(--accent) 6%, transparent) 0%, transparent 74%);
+  --wash: radial-gradient(ellipse 34% 20% at 50% 48%, color-mix(in oklab, var(--accent) 4%, transparent) 0%, transparent 74%);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -152,8 +167,12 @@ html {
     --paper-soft 0.72s cubic-bezier(0.22, 1, 0.36, 1),
     --accent 0.72s cubic-bezier(0.22, 1, 0.36, 1),
     --accent-soft 0.72s cubic-bezier(0.22, 1, 0.36, 1),
-    --border 0.72s cubic-bezier(0.22, 1, 0.36, 1),
-    --glow 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+     --border 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+     --glow 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+     --glass 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+     --glass-border 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+     --glass-line 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+     --glass-hover 0.72s cubic-bezier(0.22, 1, 0.36, 1),
     background-color 0.72s cubic-bezier(0.22, 1, 0.36, 1);
 }
 html[data-theme="dark"] { color-scheme: dark; }
@@ -394,12 +413,12 @@ img.is-lazy.is-in {
   position: relative;
   overflow: hidden;
   border-radius: 16px;
-  background: rgba(22, 22, 24, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.55);
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 24px 48px -20px oklch(0.15 0.0049 230 / 0.28);
   backdrop-filter: blur(22px) saturate(1.3);
   -webkit-backdrop-filter: blur(22px) saturate(1.3);
-  color: #ececec;
+  color: var(--n-10);
   will-change: width, height;
 }
 .mega-pane {
@@ -455,15 +474,14 @@ img.is-lazy.is-in {
   gap: 6px;
   margin-top: 4px;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.48);
+  color: var(--n-6);
 }
-html[data-theme="light"] .home-mega-status { color: var(--n-6); }
 .home-mega-status span {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #5cbf6a;
-  box-shadow: 0 0 0 3px rgba(92, 191, 106, 0.16);
+  background: var(--ok-green);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ok-green) 16%, transparent);
 }
 .home-mega-stats {
   display: flex;
@@ -483,9 +501,8 @@ html[data-theme="light"] .home-mega-status { color: var(--n-6); }
 .home-mega-stats em {
   font-style: normal;
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.42);
+  color: var(--n-6);
 }
-html[data-theme="light"] .home-mega-stats em { color: var(--n-6); }
 .home-mega-socials {
   display: flex;
   gap: 10px;
@@ -498,15 +515,10 @@ html[data-theme="light"] .home-mega-stats em { color: var(--n-6); }
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  color: rgba(255, 255, 255, 0.62);
+  color: var(--n-7);
 }
 .home-mega-socials a:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-}
-html[data-theme="light"] .home-mega-socials a { color: var(--n-7); }
-html[data-theme="light"] .home-mega-socials a:hover {
-  background: var(--n-2);
+  background: var(--glass-hover);
   color: var(--n-10);
 }
 .home-mega-pages { min-width: 0; }
@@ -527,17 +539,9 @@ html[data-theme="light"] .home-mega-socials a:hover {
   display: block;
   padding: 7px 0;
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.86);
+  color: var(--n-9);
 }
-.home-mega-cols a:hover { color: #fff; }
-html[data-theme="light"] .home-mega-cols a { color: var(--n-9); }
-html[data-theme="light"] .home-mega-cols a:hover { color: var(--n-10); }
-html[data-theme="light"] .notes-mega {
-  background: rgba(250, 247, 240, 0.96);
-  border-color: rgba(24, 24, 27, 0.08);
-  box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.18);
-  color: var(--n-10);
-}
+.home-mega-cols a:hover { color: var(--n-10); }
 .mega-cols {
   display: grid;
   grid-template-columns: 168px 1fr;
@@ -546,11 +550,10 @@ html[data-theme="light"] .notes-mega {
 }
 .mega-kicker {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.42);
+  color: var(--n-6);
   margin-bottom: 10px;
   letter-spacing: 0.04em;
 }
-html[data-theme="light"] .mega-kicker { color: var(--n-6); }
 .mega-series {
   display: flex;
   flex-direction: column;
@@ -565,13 +568,11 @@ html[data-theme="light"] .mega-kicker { color: var(--n-6); }
   gap: 8px;
   padding: 6px 6px;
   border-radius: 8px;
-  color: rgba(255, 255, 255, 0.88);
+  color: var(--n-9);
   font-size: 13px;
   font-weight: 500;
 }
-.mega-series a:hover { background: rgba(255, 255, 255, 0.06); }
-html[data-theme="light"] .mega-series a { color: var(--n-9); }
-html[data-theme="light"] .mega-series a:hover { background: var(--n-2); }
+.mega-series a:hover { background: var(--glass-hover); }
 .posts-mega { width: min(560px, calc(100vw - 48px)); }
 .mega-cats {
   display: flex;
@@ -588,7 +589,7 @@ html[data-theme="light"] .mega-series a:hover { background: var(--n-2); }
   gap: 12px;
   padding: 8px 10px;
   border-radius: 10px;
-  color: rgba(255, 255, 255, 0.88);
+  color: var(--n-9);
   font-size: 13px;
   font-weight: 500;
 }
@@ -596,20 +597,14 @@ html[data-theme="light"] .mega-series a:hover { background: var(--n-2); }
   font-style: normal;
   font-size: 12px;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.38);
+  color: var(--n-5);
 }
 .mega-cats a:hover,
 .mega-cats a.is-on {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--glass-hover);
 }
-.mega-cats a.is-on em { color: rgba(255, 255, 255, 0.55); }
-html[data-theme="light"] .mega-cats a { color: var(--n-9); }
-html[data-theme="light"] .mega-cats a em { color: var(--n-5); }
-html[data-theme="light"] .mega-cats a:hover,
-html[data-theme="light"] .mega-cats a.is-on { background: var(--n-2); }
-html[data-theme="light"] .mega-cats a.is-on em { color: var(--n-6); }
-.mega-foot span { color: rgba(255, 255, 255, 0.42); }
-html[data-theme="light"] .mega-foot span { color: var(--n-6); }
+.mega-cats a.is-on em { color: var(--n-6); }
+.mega-foot span { color: var(--n-6); }
 .mega-mark {
   width: 20px;
   height: 20px;
@@ -617,7 +612,7 @@ html[data-theme="light"] .mega-foot span { color: var(--n-6); }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: rgba(20, 16, 12, 0.72);
+  color: oklch(0.22 0.02 45 / 0.78);
   flex: none;
 }
 .mega-notes {
@@ -629,14 +624,10 @@ html[data-theme="light"] .mega-foot span { color: var(--n-6); }
   display: block;
   padding: 10px 12px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--glass-hover);
   color: inherit;
 }
-.mega-note:hover { background: rgba(255, 255, 255, 0.09); }
-html[data-theme="light"] .mega-note {
-  background: var(--n-2);
-}
-html[data-theme="light"] .mega-note:hover { background: var(--n-3); }
+.mega-note:hover { background: color-mix(in oklab, var(--n-10) 10%, transparent); }
 .mega-note h3 {
   font-size: 13px;
   font-weight: 500;
@@ -648,23 +639,19 @@ html[data-theme="light"] .mega-note:hover { background: var(--n-3); }
 .mega-note p {
   margin-top: 4px;
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.42);
+  color: var(--n-6);
 }
-html[data-theme="light"] .mega-note p { color: var(--n-6); }
 .mega-foot {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 12px;
   padding: 10px 4px 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--glass-line);
   font-size: 12px;
 }
-html[data-theme="light"] .mega-foot { border-top-color: var(--border); }
-.mega-foot a { color: rgba(255, 255, 255, 0.55); }
-.mega-foot a:hover { color: #fff; }
-html[data-theme="light"] .mega-foot a { color: var(--n-7); }
-html[data-theme="light"] .mega-foot a:hover { color: var(--n-10); }
+.mega-foot a { color: var(--n-7); }
+.mega-foot a:hover { color: var(--n-10); }
 .tl-mega {
   width: min(420px, calc(100vw - 48px));
   padding: 12px 12px 10px;
@@ -683,17 +670,11 @@ html[data-theme="light"] .mega-foot a:hover { color: var(--n-10); }
   border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.62);
+  color: var(--n-6);
 }
 .tl-mega-tabs a:hover,
 .tl-mega-tabs a.is-on {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-}
-html[data-theme="light"] .tl-mega-tabs a { color: var(--n-6); }
-html[data-theme="light"] .tl-mega-tabs a:hover,
-html[data-theme="light"] .tl-mega-tabs a.is-on {
-  background: var(--n-2);
+  background: var(--glass-hover);
   color: var(--n-10);
 }
 .tl-mega-feed {
@@ -708,11 +689,9 @@ html[data-theme="light"] .tl-mega-tabs a.is-on {
   gap: 12px;
   padding: 10px 12px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--glass-hover);
 }
-.tl-mega-row:hover { background: rgba(255, 255, 255, 0.09); }
-html[data-theme="light"] .tl-mega-row { background: var(--n-2); }
-html[data-theme="light"] .tl-mega-row:hover { background: var(--n-3); }
+.tl-mega-row:hover { background: color-mix(in oklab, var(--n-10) 10%, transparent); }
 .tl-mega-main {
   min-width: 0;
   flex: 1;
@@ -728,41 +707,31 @@ html[data-theme="light"] .tl-mega-row:hover { background: var(--n-3); }
 .tl-mega-row p {
   margin-top: 4px;
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.42);
+  color: var(--n-6);
 }
-html[data-theme="light"] .tl-mega-row p { color: var(--n-6); }
 .tl-mega-row em {
   flex: none;
   margin-top: 2px;
   font-style: normal;
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.38);
+  color: var(--n-5);
 }
-html[data-theme="light"] .tl-mega-row em { color: var(--n-5); }
 .pill-nav {
   position: relative;
   display: flex;
   align-items: center;
   padding: 4px 8px;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.38);
+  background: color-mix(in oklab, var(--paper) 38%, transparent);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(200, 180, 160, 0.08);
+  border: 1px solid var(--glass-border);
   transition: background 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   view-transition-name: none;
 }
 .pill-nav.is-solid {
-  background: #fff;
-  box-shadow: 0 6px 20px -10px rgba(0, 0, 0, 0.12), 0 2px 6px -3px rgba(0, 0, 0, 0.06);
-}
-html[data-theme="dark"] .pill-nav {
-  background: rgba(24, 24, 27, 0.38);
-  border-color: rgba(64, 64, 64, 0.2);
-}
-html[data-theme="dark"] .pill-nav.is-solid {
-  background: #171717;
-  box-shadow: 0 6px 20px -10px rgba(0, 0, 0, 0.4), 0 2px 6px -3px rgba(0, 0, 0, 0.25);
+  background: var(--paper);
+  box-shadow: 0 6px 20px -10px oklch(0.15 0.0049 230 / 0.18), 0 2px 6px -3px oklch(0.15 0.0049 230 / 0.08);
 }
 .site-header.is-overlay .pill-nav {
   background: transparent;
@@ -778,11 +747,8 @@ html[data-theme="dark"] .pill-nav.is-solid {
   width: 1px;
   height: 14px;
   margin: 0 2px;
-  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.06), transparent);
+  background: linear-gradient(to bottom, transparent, var(--glass-line), transparent);
   flex: none;
-}
-html[data-theme="dark"] .pill-sep {
-  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.06), transparent);
 }
 .site-header.is-overlay .pill-sep {
   background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.22), transparent);
@@ -2690,12 +2656,11 @@ html[data-theme="dark"] .ni-ribbon-pop-card {
   pointer-events: none;
 }
 .toc-path {
-  stroke: color-mix(in srgb, var(--n-8) 16%, transparent);
+  stroke: color-mix(in oklab, var(--n-8) 16%, transparent);
   stroke-width: 1.15;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-html[data-theme="dark"] .toc-path { stroke: rgba(255, 255, 255, 0.16); }
 .toc-hit {
   fill: transparent;
   cursor: pointer;
@@ -2703,19 +2668,11 @@ html[data-theme="dark"] .toc-path { stroke: rgba(255, 255, 255, 0.16); }
 }
 .toc-node {
   fill: var(--paper);
-  stroke: color-mix(in srgb, var(--n-10) 42%, transparent);
+  stroke: color-mix(in oklab, var(--n-10) 42%, transparent);
   stroke-width: 1;
   pointer-events: none;
 }
-html[data-theme="dark"] .toc-node {
-  fill: var(--paper);
-  stroke: rgba(255, 255, 255, 0.38);
-}
 .toc-node.is-on {
-  fill: var(--accent);
-  stroke: var(--accent);
-}
-html[data-theme="dark"] .toc-node.is-on {
   fill: var(--accent);
   stroke: var(--accent);
 }
@@ -2728,7 +2685,7 @@ html[data-theme="dark"] .toc-node.is-on {
   stroke: var(--paper);
   stroke-width: 1.4;
   pointer-events: none;
-  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 70%, transparent));
+  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--accent) 70%, transparent));
 }
 .toc-now {
   position: absolute;
@@ -2793,7 +2750,7 @@ html[data-theme="dark"] .toc-node.is-on {
 .toc-now-ring svg { display: block; transform: rotate(-90deg); }
 .toc-now-ring-bg {
   fill: none;
-  stroke: color-mix(in srgb, var(--n-6) 35%, transparent);
+  stroke: color-mix(in oklab, var(--n-6) 35%, transparent);
   stroke-width: 1.6;
 }
 .toc-now-ring-fg {
@@ -2802,7 +2759,6 @@ html[data-theme="dark"] .toc-node.is-on {
   stroke-width: 1.6;
   stroke-linecap: round;
 }
-html[data-theme="dark"] .toc-now-ring-fg { stroke: rgba(255, 255, 255, 0.82); }
 .toc-now-pct {
   font-size: 11px;
   color: var(--n-6);
@@ -4253,9 +4209,9 @@ html.is-peek-open { overflow: hidden; }
     overflow: hidden;
     pointer-events: auto;
     border-radius: 20px;
-    background: rgba(32, 32, 34, 0.78);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 18px 48px -24px rgba(0, 0, 0, 0.55);
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 18px 48px -24px oklch(0.15 0.0049 230 / 0.28);
     backdrop-filter: blur(28px) saturate(1.4);
     -webkit-backdrop-filter: blur(28px) saturate(1.4);
     will-change: transform, opacity;
@@ -4264,11 +4220,6 @@ html.is-peek-open { overflow: hidden; }
     visibility: hidden;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-  }
-  html[data-theme="light"] .toc-sheet {
-    background: rgba(250, 247, 240, 0.86);
-    border-color: rgba(0, 0, 0, 0.06);
-    box-shadow: 0 18px 48px -24px rgba(0, 0, 0, 0.22);
   }
   .toc-sheet-clip {
     flex: 1 1 auto;
@@ -4384,9 +4335,9 @@ html.is-peek-open { overflow: hidden; }
     flex-direction: column;
     overflow: hidden;
     pointer-events: auto;
-    background: rgba(32, 32, 34, 0.78);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 18px 48px -24px rgba(0, 0, 0, 0.55);
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 18px 48px -24px oklch(0.15 0.0049 230 / 0.28);
     backdrop-filter: blur(28px) saturate(1.4);
     -webkit-backdrop-filter: blur(28px) saturate(1.4);
   }
@@ -4396,16 +4347,8 @@ html.is-peek-open { overflow: hidden; }
     transition: opacity 0.2s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.2s;
   }
   .dock-shell.is-collapsed {
-    border-color: rgba(255, 255, 255, 0.16);
+    border-color: var(--glass-border);
     height: 44px;
-  }
-  html[data-theme="light"] .dock-shell.is-collapsed {
-    border-color: rgba(0, 0, 0, 0.08);
-  }
-  html[data-theme="light"] .dock-shell {
-    background: rgba(250, 247, 240, 0.86);
-    border-color: rgba(0, 0, 0, 0.06);
-    box-shadow: 0 18px 48px -24px rgba(0, 0, 0, 0.22);
   }
   .dock-bar {
     display: flex;
@@ -4476,18 +4419,15 @@ html.is-peek-open { overflow: hidden; }
     height: 8px;
     border-radius: 50%;
     background: var(--accent);
-    box-shadow: 0 0 0 0 rgba(197, 100, 115, 0.45);
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 45%, transparent);
     animation: dock-orb-pulse 2.2s ease-in-out infinite;
-  }
-  html[data-theme="dark"] .dock-orb {
-    box-shadow: 0 0 0 0 rgba(212, 122, 134, 0.5);
   }
   .dock-orb::after {
     content: "";
     position: absolute;
     inset: -7px;
     border-radius: 50%;
-    background: radial-gradient(circle, color-mix(in srgb, var(--accent) 42%, transparent) 0%, transparent 70%);
+    background: radial-gradient(circle, color-mix(in oklab, var(--accent) 42%, transparent) 0%, transparent 70%);
     animation: dock-orb-glow 2.2s ease-in-out infinite;
   }
   @keyframes dock-orb-pulse {
@@ -4512,7 +4452,7 @@ html.is-peek-open { overflow: hidden; }
     min-height: 48px;
     padding: 0 14px;
     border: 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--glass-line);
     background: transparent;
     color: var(--n-9);
     font-size: 15px;
@@ -4523,10 +4463,7 @@ html.is-peek-open { overflow: hidden; }
   .dock-row {
     display: flex;
     align-items: stretch;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  }
-  html[data-theme="light"] .dock-row {
-    border-bottom-color: rgba(0, 0, 0, 0.06);
+    border-bottom: 1px solid var(--glass-line);
   }
   .dock-row > a {
     flex: 1;
@@ -4566,24 +4503,14 @@ html.is-peek-open { overflow: hidden; }
   }
   .dock-sub a:hover,
   .dock-sub a.is-active {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--glass-hover);
     color: var(--n-10);
-  }
-  html[data-theme="light"] .dock-sub a:hover,
-  html[data-theme="light"] .dock-sub a.is-active {
-    background: rgba(0, 0, 0, 0.05);
-  }
-  html[data-theme="light"] .dock-menu a {
-    border-bottom-color: rgba(0, 0, 0, 0.06);
   }
   .dock-menu a svg { color: var(--n-5); }
   .dock-menu a.is-active { color: var(--n-10); }
   .dock-more {
     padding: 12px 14px 14px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  }
-  html[data-theme="light"] .dock-more {
-    border-bottom-color: rgba(0, 0, 0, 0.06);
+    border-bottom: 1px solid var(--glass-line);
   }
   .dock-more p {
     font-size: 11px;
@@ -4666,7 +4593,7 @@ html.is-peek-open { overflow: hidden; }
     position: fixed;
     inset: 0;
     z-index: 90;
-    background: rgba(20, 19, 18, 0.36);
+    background: color-mix(in oklab, var(--n-10) 36%, transparent);
     align-items: stretch;
     justify-content: flex-start;
   }

@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>komichi</title>
     <meta name="description" content="komichi 的个人空间：前端与全栈、TypeScript、React、Next.js、AI 工程，以及旅途与生活。" />
-    <meta name="theme-color" content="#f7f0e4" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#1e1d1c" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f7f8f9" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1c1d1f" media="(prefers-color-scheme: dark)" />
     <link rel="icon" href="/assets/innei.svg" />
     <script>
       (function () {
@@ -23,14 +23,16 @@
       })();
     </script>
     <style>
-      html, body, #root { min-height: 100%; max-width: 100%; margin: 0; background: #f7f0e4; }
-      html[data-season="spring"], html[data-season="spring"] body, html[data-season="spring"] #root { background: #fbf6f4; }
-      html[data-season="summer"], html[data-season="summer"] body, html[data-season="summer"] #root { background: #eef6f2; }
-      html[data-season="winter"], html[data-season="winter"] body, html[data-season="winter"] #root { background: #f4f7fb; }
-      html[data-theme="dark"], html[data-theme="dark"] body, html[data-theme="dark"] #root { background: #1e1d1c; }
-      html[data-theme="dark"][data-season="spring"], html[data-theme="dark"][data-season="spring"] body, html[data-theme="dark"][data-season="spring"] #root { background: #1e1d1e; }
-      html[data-theme="dark"][data-season="summer"], html[data-theme="dark"][data-season="summer"] body, html[data-theme="dark"][data-season="summer"] #root { background: #1d1e1d; }
-      html[data-theme="dark"][data-season="winter"], html[data-theme="dark"][data-season="winter"] body, html[data-theme="dark"][data-season="winter"] #root { background: #1d1e1f; }
+      html, body, #root { min-height: 100%; max-width: 100%; margin: 0; background: oklch(0.99 0.0049 230); }
+      html[data-season="spring"], html[data-season="spring"] body, html[data-season="spring"] #root { background: oklch(0.99 0.008 350); }
+      html[data-season="summer"], html[data-season="summer"] body, html[data-season="summer"] #root { background: oklch(0.99 0.008 155); }
+      html[data-season="autumn"], html[data-season="autumn"] body, html[data-season="autumn"] #root { background: oklch(0.99 0.010 60); }
+      html[data-season="winter"], html[data-season="winter"] body, html[data-season="winter"] #root { background: oklch(0.99 0.008 210); }
+      html[data-theme="dark"], html[data-theme="dark"] body, html[data-theme="dark"] #root { background: oklch(0.22 0.0049 230); }
+      html[data-theme="dark"][data-season="spring"], html[data-theme="dark"][data-season="spring"] body, html[data-theme="dark"][data-season="spring"] #root { background: oklch(0.22 0.006 350); }
+      html[data-theme="dark"][data-season="summer"], html[data-theme="dark"][data-season="summer"] body, html[data-theme="dark"][data-season="summer"] #root { background: oklch(0.22 0.006 155); }
+      html[data-theme="dark"][data-season="autumn"], html[data-theme="dark"][data-season="autumn"] body, html[data-theme="dark"][data-season="autumn"] #root { background: oklch(0.22 0.008 60); }
+      html[data-theme="dark"][data-season="winter"], html[data-theme="dark"][data-season="winter"] body, html[data-theme="dark"][data-season="winter"] #root { background: oklch(0.22 0.006 210); }
       .boot-screen {
         min-height: 60svh;
         display: flex;
@@ -46,25 +48,25 @@
         border-radius: 50%;
       }
       .boot-dot {
-        width: 18px; height: 18px; background: #24231f;
+        width: 18px; height: 18px; background: oklch(0.15 0.0049 230);
         animation: boot-dot 1.8s cubic-bezier(0.22,1,0.36,1) infinite;
       }
-      html[data-theme="dark"] .boot-dot { background: #e5e5ea; }
-      .boot-ring { border: 1px solid rgba(36,35,31,0.15); }
-      html[data-theme="dark"] .boot-ring { border-color: rgba(229,229,234,0.15); }
+      html[data-theme="dark"] .boot-dot { background: oklch(0.95 0.0049 230); }
+      .boot-ring { border: 1px solid oklch(0.15 0.0049 230 / 0.15); }
+      html[data-theme="dark"] .boot-ring { border-color: oklch(0.95 0.0049 230 / 0.15); }
       .boot-ring-a { width: 78px; height: 78px; animation: boot-ring-a 2.4s cubic-bezier(0.22,1,0.36,1) infinite; }
       .boot-ring-b { width: 116px; height: 116px; animation: boot-ring-b 2.8s cubic-bezier(0.22,1,0.36,1) infinite; }
       .boot-glow {
-        width: 152px; height: 152px; background: rgba(36,35,31,0.07); filter: blur(24px);
+        width: 152px; height: 152px; background: oklch(0.15 0.0049 230 / 0.07); filter: blur(24px);
         animation: boot-glow 2.2s cubic-bezier(0.22,1,0.36,1) infinite;
       }
-      html[data-theme="dark"] .boot-glow { background: rgba(229,229,234,0.08); }
+      html[data-theme="dark"] .boot-glow { background: oklch(0.95 0.0049 230 / 0.08); }
       .boot-copy {
         margin-top: 8px; max-width: 28rem; text-align: center; font-size: 13px; line-height: 1.75;
-        color: #787670; white-space: pre; overflow: hidden;
+        color: oklch(0.55 0.0049 230); white-space: pre; overflow: hidden;
         animation: boot-copy 1.6s cubic-bezier(0.22,1,0.36,1) both;
       }
-      html[data-theme="dark"] .boot-copy { color: #8e8e93; }
+      html[data-theme="dark"] .boot-copy { color: oklch(0.65 0.0049 230); }
       @keyframes boot-dot {
         0%, 100% { opacity: 0; filter: blur(1px); transform: translate(-50%,-50%) scale(0.18); }
         35% { opacity: 1; filter: blur(0); transform: translate(-50%,-50%) scale(1); }

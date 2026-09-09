@@ -3,7 +3,15 @@ import { BookOpen } from "lucide-react";
 import { notes, seriesList } from "../content.js";
 
 const WEEK = ["日", "一", "二", "三", "四", "五", "六"];
-const TONES = ["#c4a574", "#b8a0c8", "#c9b8a8", "#d4c4a8", "#c4a090", "#c08070", "#8aa0b0"];
+const TONES = [
+  "oklch(0.68 0.22 350)",
+  "oklch(0.65 0.2 280)",
+  "oklch(0.62 0.12 45)",
+  "oklch(0.75 0.13 85)",
+  "oklch(0.63 0.21 15)",
+  "oklch(0.68 0.15 60)",
+  "oklch(0.7 0.14 210)",
+];
 
 function toneOf(slug) {
   let n = 0;
