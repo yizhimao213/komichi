@@ -5,37 +5,42 @@ import { ChevronUp, List, X } from "lucide-react";
 import { useHeaderState } from "../context.jsx";
 
 const LX = 10;
-const BULGE = 24;
-const RADIUS = 90;
-const PAD = 22;
+const BULGE = 20;
+const RADIUS = 52;
+const PAD = 16;
 const ease = [0.22, 1, 0.36, 1];
-const followSpring = { stiffness: 78, damping: 18, mass: 0.46 };
-const labelSpring = { stiffness: 58, damping: 20, mass: 0.55 };
+const followSpring = { stiffness: 128, damping: 12, mass: 0.7 };
+const labelSpring = { stiffness: 92, damping: 14, mass: 0.86 };
 const RING_R = 6.5;
 const RING_C = 2 * Math.PI * RING_R;
 
 function bumpX(y, ay, radius, bulge) {
-  const t = (y - ay) / radius;
+  const t = (y - ay) / Math.max(18, radius);
   if (Math.abs(t) >= 1) return LX;
   return LX + bulge * 0.5 * (1 + Math.cos(t * Math.PI));
 }
 
 function waveX(y, t, motion) {
-  const idle = 0.72 + Math.sin(t * 1.05) * 0.22;
-  const amp = idle + motion * 1.6;
-  return Math.sin(y * 0.042 + t * 1.55) * amp + Math.sin(y * 0.088 - t * 1.12) * amp * 0.32;
+  const idle = 1.08 + Math.sin(t * 1.32) * 0.38;
+  const amp = idle + motion * 2.35;
+  return (
+    Math.sin(y * 0.058 + t * 1.92) * amp +
+    Math.sin(y * 0.118 - t * 1.4) * amp * 0.42 +
+    Math.sin(y * 0.03 + t * 0.74) * amp * 0.2
+  );
 }
 
-function xAt(y, ay, radius, bulge, t, motion) {
+function xAt(y, ay, radiusUp, radiusDown, bulge, t, motion) {
+  const radius = y < ay ? radiusUp : radiusDown;
   return bumpX(y, ay, radius, bulge) + waveX(y, t, motion);
 }
 
-function bulgePath(h, ay, radius, bulge, t, motion) {
-  const steps = Math.max(96, Math.round(h / 3.2));
+function bulgePath(h, ay, radiusUp, radiusDown, bulge, t, motion) {
+  const steps = Math.max(80, Math.round(h / 2.4));
   let d = "";
   for (let i = 0; i <= steps; i++) {
     const y = (i / steps) * h;
-    d += `${i ? "L" : "M"}${xAt(y, ay, radius, bulge, t, motion).toFixed(2)} ${y.toFixed(2)} `;
+    d += `${i ? "L" : "M"}${xAt(y, ay, radiusUp, radiusDown, bulge, t, motion).toFixed(2)} ${y.toFixed(2)} `;
   }
   return d.trim();
 }
@@ -78,7 +83,8 @@ function headingAt(markers, y) {
 }
 
 function railSize() {
-  return Math.round(Math.min(560, Math.max(380, window.innerHeight * 0.64)));
+  const avail = Math.max(200, window.innerHeight - 168);
+  return Math.round(Math.min(340, Math.max(200, avail * 0.44)));
 }
 
 export default function Toc({ items, active }) {
@@ -95,10 +101,11 @@ export default function Toc({ items, active }) {
   const skipHover = useRef(false);
   const enterTimer = useRef(0);
   const leaveTimer = useRef(0);
+  const contentLeaveTimer = useRef(0);
   const markersRef = useRef([]);
-  const readingRef = useRef(false);
+  const overContentRef = useRef(false);
   const lastPct = useRef(-1);
-  const railHRef = useRef(420);
+  const railHRef = useRef(260);
   const lastAy = useRef(PAD);
   const lastT = useRef(0);
   const velRef = useRef(0);
@@ -114,9 +121,9 @@ export default function Toc({ items, active }) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [progress, setProgress] = useState(0);
   const [markers, setMarkers] = useState([]);
-  const [reading, setReading] = useState(false);
+  const [overContent, setOverContent] = useState(false);
   const [hover, setHover] = useState(false);
-  const [railH, setRailH] = useState(420);
+  const [railH, setRailH] = useState(260);
   const [heading, setHeading] = useState("");
   const [currentIdx, setCurrentIdx] = useState(0);
   const [vw, setVw] = useState(() => (typeof window !== "undefined" ? window.innerWidth : 800));
@@ -130,33 +137,38 @@ export default function Toc({ items, active }) {
     if (!startT.current) startT.current = now;
     const dt = Math.max(8, now - (lastT.current || now));
     const raw = ((ay - lastAy.current) / dt) * 1000;
-    velRef.current = velRef.current * 0.86 + raw * 0.14;
+    velRef.current = velRef.current * 0.76 + raw * 0.24;
     lastAy.current = ay;
     lastT.current = now;
-    const stretch = Math.min(1, Math.abs(velRef.current) / 620);
-    motionRef.current += (stretch - motionRef.current) * 0.08;
+    const vel = velRef.current;
+    const stretch = Math.min(1, Math.abs(vel) / 380);
+    motionRef.current += (stretch - motionRef.current) * 0.18;
     const motion = motionRef.current;
     const t = (now - startT.current) / 1000;
-    const breathe = Math.sin(t * 0.95) * 1.05;
-    const radius = RADIUS + motion * 28;
-    const bulge = BULGE + breathe + motion * 3.2;
-      pathRef.current.setAttribute("d", bulgePath(h, ay, radius, bulge, t, motion));
+    const breathe = Math.sin(t * 1.18) * 1.4;
+    const trail = Math.max(-34, Math.min(34, vel * 0.05));
+    const by = ay - trail;
+    const baseR = RADIUS + motion * 16;
+    const radiusUp = baseR * (1 + (vel < 0 ? motion * 1.05 : motion * 0.22));
+    const radiusDown = baseR * (1 + (vel > 0 ? motion * 1.05 : motion * 0.22));
+    const bulge = BULGE + breathe + motion * 6.2;
+      pathRef.current.setAttribute("d", bulgePath(h, by, radiusUp, radiusDown, bulge, t, motion));
       const current = headingAt(list, ay);
-      const tipX = xAt(ay, ay, radius, bulge, t, motion);
-      const pulse = 1 + Math.sin(t * 2.2) * 0.08;
+      const tipX = xAt(ay, by, radiusUp, radiusDown, bulge, t, motion);
+      const pulse = 1 + Math.sin(t * 2.35) * 0.1;
       if (glowRef.current) {
         glowRef.current.setAttribute("cx", String(tipX));
         glowRef.current.setAttribute("cy", String(ay));
-        glowRef.current.setAttribute("r", String((11 + motion * 4) * pulse));
-        glowRef.current.setAttribute("opacity", String(0.22 + (1 - motion) * 0.08));
+        glowRef.current.setAttribute("r", String((10 + motion * 5.5) * pulse));
+        glowRef.current.setAttribute("opacity", String(0.2 + motion * 0.16));
       }
       if (beadRef.current) {
         beadRef.current.setAttribute("cx", String(tipX));
         beadRef.current.setAttribute("cy", String(ay));
-        beadRef.current.setAttribute("r", String(3.4 * pulse));
+        beadRef.current.setAttribute("r", String((3.2 + motion * 0.7) * pulse));
       }
       list.forEach((m) => {
-        const cx = xAt(m.y, ay, radius, bulge, t, motion);
+        const cx = xAt(m.y, by, radiusUp, radiusDown, bulge, t, motion);
         const hit = hitRefs.current[m.id];
         const node = nodeRefs.current[m.id];
         if (hit) {
@@ -166,11 +178,11 @@ export default function Toc({ items, active }) {
         if (node) {
           const dist = Math.abs(m.y - ay);
           const on = current?.id === m.id;
-          const near = Math.max(0, 1 - dist / (radius * 1.15));
+          const near = Math.max(0, 1 - dist / (baseR * 1.2));
           node.setAttribute("cx", String(cx));
           node.setAttribute("cy", String(m.y));
-          node.setAttribute("r", on ? "2.2" : (1.25 + near * 0.55).toFixed(2));
-          node.setAttribute("opacity", on ? "1" : String(0.28 + near * 0.45));
+          node.setAttribute("r", on ? "2.2" : (1.2 + near * 0.6).toFixed(2));
+          node.setAttribute("opacity", on ? "1" : String(0.26 + near * 0.5));
           node.classList.toggle("is-on", on);
         }
       });
@@ -249,15 +261,34 @@ export default function Toc({ items, active }) {
         setProgress(rounded);
       }
 
-      let nextReading = readingRef.current;
-      if (atEnd) nextReading = false;
-      else if (rect.top < 96) nextReading = true;
-      else if (rect.top > 168) nextReading = false;
-      if (nextReading !== readingRef.current) {
-        readingRef.current = nextReading;
-        setReading(nextReading);
-        if (!nextReading) setHover(false);
+    };
+
+    const setFocus = (on) => {
+      if (on === overContentRef.current) return;
+      overContentRef.current = on;
+      setOverContent(on);
+      if (!on) setHover(false);
+    };
+
+    const hitContent = (x, y) => {
+      const prose = proseEl();
+      if (!prose) return false;
+      const r = prose.getBoundingClientRect();
+      return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+    };
+
+    const onPointerMove = (e) => {
+      window.clearTimeout(contentLeaveTimer.current);
+      if (hitContent(e.clientX, e.clientY)) {
+        setFocus(true);
+        return;
       }
+      contentLeaveTimer.current = window.setTimeout(() => setFocus(false), 80);
+    };
+
+    const onPointerLeave = () => {
+      window.clearTimeout(contentLeaveTimer.current);
+      contentLeaveTimer.current = window.setTimeout(() => setFocus(false), 80);
     };
 
     const onResize = () => {
@@ -277,17 +308,36 @@ export default function Toc({ items, active }) {
     raf = requestAnimationFrame(tick);
     window.addEventListener("scroll", readTarget, { passive: true });
     window.addEventListener("resize", onResize);
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    document.addEventListener("pointerleave", onPointerLeave);
     return () => {
       cancelAnimationFrame(raf);
+      window.clearTimeout(contentLeaveTimer.current);
       window.removeEventListener("scroll", readTarget);
       window.removeEventListener("resize", onResize);
+      window.removeEventListener("pointermove", onPointerMove);
+      document.removeEventListener("pointerleave", onPointerLeave);
     };
   }, [items, targetY, compact]);
+
+  useLayoutEffect(() => {
+    if (compact) return undefined;
+    const pin = () => {
+      const col = colRef.current;
+      const sticky = stickyRef.current;
+      if (!col || !sticky) return;
+      sticky.style.left = `${Math.round(col.getBoundingClientRect().left)}px`;
+    };
+    pin();
+    window.addEventListener("resize", pin);
+    return () => window.removeEventListener("resize", pin);
+  }, [items, vw, railH, compact]);
 
   useEffect(
     () => () => {
       window.clearTimeout(enterTimer.current);
       window.clearTimeout(leaveTimer.current);
+      window.clearTimeout(contentLeaveTimer.current);
     },
     []
   );
@@ -312,20 +362,7 @@ export default function Toc({ items, active }) {
     };
   }, []);
 
-  useLayoutEffect(() => {
-    if (compact) return undefined;
-    const pin = () => {
-      const col = colRef.current;
-      const sticky = stickyRef.current;
-      if (!col || !sticky) return;
-      sticky.style.left = `${Math.round(col.getBoundingClientRect().left)}px`;
-    };
-    pin();
-    window.addEventListener("resize", pin);
-    return () => window.removeEventListener("resize", pin);
-  }, [items, vw, railH, compact]);
-
-  const showList = !reading || hover;
+  const showList = !overContent || hover;
 
   const jump = (id) => {
     skipHover.current = true;
@@ -343,7 +380,7 @@ export default function Toc({ items, active }) {
 
   const onEnter = () => {
     window.clearTimeout(leaveTimer.current);
-    if (skipHover.current || !reading) return;
+    if (skipHover.current || !overContentRef.current) return;
     window.clearTimeout(enterTimer.current);
     enterTimer.current = window.setTimeout(() => {
       if (!skipHover.current) setHover(true);

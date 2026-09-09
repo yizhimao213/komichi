@@ -158,7 +158,9 @@ html[data-theme="dark"] { color-scheme: dark; }
 html, body, #root {
   min-height: 100%;
   max-width: 100%;
-  overflow-x: hidden;
+  overflow: visible;
+  transform: none;
+  filter: none;
   overscroll-behavior-x: none;
 }
 html.is-scroll-lock,
@@ -171,8 +173,10 @@ body {
   background: var(--paper);
   color: var(--n-9);
   line-height: 1.57;
-  overflow-x: hidden;
+  overflow: visible;
   overscroll-behavior-x: none;
+  transform: none;
+  filter: none;
   transition: background-color 0.72s cubic-bezier(0.22, 1, 0.36, 1), color 0.72s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .app,
@@ -293,6 +297,7 @@ img.is-lazy.is-in {
   display: flex;
   flex-direction: column;
   max-width: 100%;
+  overflow-x: clip;
 }
 .wrap { width: min(var(--max), calc(100% - 48px)); margin: 0 auto; }
 .wrap-wide { width: min(var(--wide), calc(100% - 48px)); margin: 0 auto; }
@@ -2602,16 +2607,18 @@ html[data-theme="dark"] .ni-ribbon-pop-card {
 .toc-sticky {
   position: fixed;
   top: 96px;
+  left: auto;
   z-index: 8;
   width: 200px;
-  min-height: var(--toc-rail-h, 420px);
+  min-height: var(--toc-rail-h, 260px);
   padding-left: 8px;
   margin-left: -8px;
   pointer-events: auto;
   user-select: none;
+  transform: none;
 }
 .toc-sticky.is-rail {
-  height: var(--toc-rail-h, 420px);
+  height: var(--toc-rail-h, 260px);
 }
 .toc-full {
   position: relative;
@@ -2627,7 +2634,7 @@ html[data-theme="dark"] .ni-ribbon-pop-card {
   left: 0;
   z-index: 1;
   width: 200px;
-  height: var(--toc-rail-h, 420px);
+  height: var(--toc-rail-h, 260px);
 }
 .toc-kicker {
   font-size: 11px;
@@ -3900,10 +3907,16 @@ html[data-theme="dark"] .note-series-end-card {
 
 .empty { padding: 48px 0 90px; color: var(--n-7); text-align: center; }
 
-.page-stage { position: relative; flex: 1; }
+.page-stage {
+  position: relative;
+  flex: 1;
+  max-width: 100%;
+  overflow-x: clip;
+}
 .page-enter { will-change: transform, opacity, filter; }
-.page-enter:has(.haklex-comment) {
-  will-change: opacity;
+.page-enter:has(.haklex-comment),
+.page-enter:has(.toc-col) {
+  will-change: auto;
   transform: none;
 }
 

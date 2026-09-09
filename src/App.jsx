@@ -212,7 +212,7 @@ export default function App() {
               >
                 <PageLoader />
               </motion.div>
-            ) : location.pathname === "/message" ? (
+            ) : location.pathname === "/message" || isContentPage(location.pathname) ? (
               <div key={location.pathname} className="page-enter">
                 <AppRoutes location={location} />
               </div>

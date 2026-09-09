@@ -195,11 +195,12 @@ haklex 默认内容宽 `--rc-max-width: 700px`。站点在 `.article-page` / `.n
 
 右侧 `Toc.jsx`，portal 到 `fixed; top: 96px`：
 
-- 未滚动：完整目录列表
-- 阅读中：SVG 凸起轨道，跟随当前标题；目录条本身不动
-- 空闲微呼吸/波浪，移动时轻微跟随
+- 鼠标不在正文上：完整目录列表
+- 鼠标在正文上：SVG 凸起轨道，跟随当前标题；目录条本身不动
+- 轨道高度约窗口可用高度的 44%，约 200–340px
+- 空闲微呼吸/波浪；滑动时弹簧带过冲，凸起随方向拉长
 - 悬停轨道：展开完整列表
-- 滚到底或进度 100%（`atEnd`）：收回成「目录」列表；再往上滚变回阅读条
+- 鼠标离开正文：收回成「目录」列表
 - `max-width: 1100px`：右下角目录钮 + 底部目录 sheet；打开时 dock 加 `is-toc-hidden`，不锁 `body position: fixed`
 - 窄屏停掉桌面轨的 `requestAnimationFrame` 绘制，也不再量 `listH` 做高度弹簧
 - sheet 只动 `transform: translateY` 和 `opacity`；尺寸用 CSS `left/right: 12px` + `max-height: min(70vh, calc(100dvh - 96px))`
