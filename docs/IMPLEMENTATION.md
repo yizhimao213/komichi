@@ -8,10 +8,11 @@
 - React 19
 - React Router 7
 - framer-motion ^13
-- marked
+- `@haklex/rich-compose` / `@haklex/rich-editor` / `@haklex/rich-editor-ui` 0.39.1
+- Lexical 0.49
 - lucide-react
 
-没有后端、没有数据库。构建时用 `import.meta.glob` 把 `content/` 下的 Markdown 打进前端包。
+纯静态站点。构建时用 `import.meta.glob` 把 `content/` 下的 Markdown 打进前端包。正文经 haklex 转成 Lexical JSON 再静态渲染。
 
 ## 目录
 
@@ -20,11 +21,16 @@ src/
   main.jsx              入口，BrowserRouter，启动图片懒加载
   App.jsx               壳：顶栏、路由过渡、页脚、搜索、主题/季节
   content.js            读 Markdown，导出 posts / notes / series / friends / projects / pages / thoughts / says / quotes
-  lazyImages.js         全站图片懒加载 + Markdown 图片渲染
+  haklex/               正文渲染与留言编辑器封装
+    HaklexContent.jsx   只读渲染：Markdown → Lexical → composeRenderer
+    HaklexEditor.jsx    留言编辑器：composeEditor，默认 variant=comment
+    markdown.js         markdownToLexical、extractToc
+    theme.js            跟随 html[data-theme]
+  lazyImages.js         全站图片懒加载
   peek.js               时光页 peek 路径解析
   context.jsx           顶栏 meta、季节、目录 sheet 开关
   styles.css            全局样式
-  pages/                页面
+  pages/                页面（Editor.jsx 是空 stub，没有路由）
   components/           Header、Toc、PeekModal、DeckleFilter、Background、TypewriterQuote、PageLoader、*Mega
 content/                可编辑内容，见 docs/CONTENT.md
 public/                 头像、封面、图标
@@ -55,7 +61,9 @@ docs/                   DEPLOY / IMPLEMENTATION / CONTENT
 | `/timeline` | 时光 | 文稿 + 手记按日期合并 |
 | `/friends` | 友人帐 | `content/friends.md` |
 | `/projects` | 项目 | `content/projects.md` |
-| `/message` | 留言 | 页面组件 |
+| `/message` | 留言 | `HaklexEditor` 评论框，无 slash / playground |
+
+站点用 npm 上的 `@haklex/*`，官方 demo 单独跑。
 
 `vite.config.js` 的 `spaHtmlGuard` 会把上表路径改写到 `index.html`。
 
@@ -107,7 +115,7 @@ docs/                   DEPLOY / IMPLEMENTATION / CONTENT
 
 ## 页面切换
 
-`App.jsx` 用 `AnimatePresence` + `motion.div` 做淡入上移，时长 0.62s。链接带 `viewTransition`。顶栏 `view-transition-name: none`，不参与页面切换动画。
+`App.jsx` 用 `AnimatePresence` + `motion.div` 做淡入上移，时长 0.62s。`/message` 不走 `y` transform，避免留言框被父级位移带偏。链接带 `viewTransition`。顶栏 `view-transition-name: none`，不参与页面切换动画。
 
 文稿/手记正文进入时闪一次预加载：中心点 + 两圈描边 + 光晕，文案「稍候片刻，四十小路出没。」首页、列表页直接进。实现：`src/components/PageLoader.jsx`，`App.jsx` 对 `/posts/:slug`、`/notes/:nid` 先 hold 约 980ms。`/notes/series` 不算正文，不 hold。
 
@@ -132,13 +140,38 @@ docs/                   DEPLOY / IMPLEMENTATION / CONTENT
 - 打开：左右几乎贴边（左右各留 12px），高度用弹簧向上长开，圆角仍是 20
 - 弹簧 `stiffness 360 / damping 34 / mass 0.72`
 - 菜单项：首页、文稿、手记、时光、思考；「更多」一行：友人帐、项目、一言、关于我
-- 打开时锁 `html/body overflow: hidden`；关掉恢复
+- 打开菜单时锁 `html/body overflow: hidden`，并用 `body position: fixed` 冻滚动位置；关掉恢复
+- 打开目录 sheet 只藏 dock
 - 打开菜单时强制显示
 - 没有「回到顶部」悬浮钮
 
+## haklex 正文
+
+站点用 npm 包接入 haklex。
+
+封装在 `src/haklex/`：
+
+| 文件 | 作用 |
+| --- | --- |
+| `HaklexContent.jsx` | `composeRenderer({ modules: allRendererModules })`，class 为 `haklex-body` |
+| `HaklexEditor.jsx` | `composeEditor({ modules: allEditorModules })`，留言默认 `variant="comment"`，`slash` 默认关 |
+| `markdown.js` | `createHeadlessEditor` + `allEditNodes` + `ALL_TRANSFORMERS` 把 Markdown 转 Lexical JSON，带内存缓存；`extractToc` 扫 `##` / `###` |
+| `theme.js` | `MutationObserver` 读 `document.documentElement.dataset.theme` |
+
+接入点：
+
+- 文稿：`HaklexContent` `variant="article"`
+- 手记、peek 手记：`variant="note"`
+- 关于我 / 关于本站：`variant="article"`
+- 留言：`HaklexEditor`，`slash` 默认 false，slash 插件走稳定 children
+
+haklex 默认内容宽 `--rc-max-width: 700px`。站点在 `.article-page` / `.note-paper` / `.peek-paper` 的 `.haklex-body` 上覆盖为 `none`，铺满 900px 栏。目录锚点对着 `.rich-content` 里的标题 id。
+
+官方 [Innei/haklex](https://github.com/Innei/haklex) 是独立 pnpm monorepo（demo 端口 5188）。改 haklex 源码用 `pnpm link`。
+
 ## 文稿页
 
-`Article.jsx` 用 marked 把 Markdown 转 HTML。`##` / `###` 会抽成目录。图片走 `markdownImage`（`loading=lazy`）。
+`Article.jsx` 把 `doc.body` 交给 `HaklexContent`。`##` / `###` 由 `extractToc` 抽成目录。
 
 布局 `.article-layout`：`minmax(0, 900px) 200px`，总宽 `min(1144px, calc(100% - 48px))`。页头 `.article-head`，摘要进「关键洞察」。封面图不铺满屏。
 
@@ -163,7 +196,10 @@ docs/                   DEPLOY / IMPLEMENTATION / CONTENT
 - 空闲微呼吸/波浪，移动时轻微跟随
 - 悬停轨道：展开完整列表
 - 滚到底或进度 100%（`atEnd`）：收回成「目录」列表；再往上滚变回阅读条
-- `max-width: 1100px`：右下角目录钮 + 底部目录 sheet，打开时隐藏 dock
+- `max-width: 1100px`：右下角目录钮 + 底部目录 sheet；打开时 dock 加 `is-toc-hidden`，不锁 `body position: fixed`
+- 窄屏停掉桌面轨的 `requestAnimationFrame` 绘制，也不再量 `listH` 做高度弹簧
+- sheet 只动 `transform: translateY` 和 `opacity`；尺寸用 CSS `left/right: 12px` + `max-height: min(70vh, calc(100dvh - 96px))`
+- 关掉时去掉 `backdrop-filter`，避免透明层继续模糊
 
 ## 时光 peek
 
@@ -202,6 +238,8 @@ docs/                   DEPLOY / IMPLEMENTATION / CONTENT
 - 首页打字机与年线：`src/pages/Home.jsx`、`src/components/TypewriterQuote.jsx`
 - 文章、手记、专栏飘带/左栏：`src/pages/Article.jsx`
 - 目录：`src/components/Toc.jsx`
+- haklex：`src/haklex/HaklexContent.jsx`、`src/haklex/HaklexEditor.jsx`、`src/haklex/markdown.js`
+- 留言：`src/pages/Message.jsx`
 - 时光 peek：`src/pages/Timeline.jsx`、`src/components/PeekModal.jsx`、`src/peek.js`
 - 懒加载：`src/lazyImages.js`
 - 毛边滤镜：`src/components/DeckleFilter.jsx`

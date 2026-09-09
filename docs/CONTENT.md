@@ -57,6 +57,7 @@ public/covers/            封面图，Markdown 里写 /covers/文件名
 5. 友人帐、项目用 `##` 分段，不用 front matter，也不要再往 `content/friends/`、`content/projects/` 放单文件
 6. 保存后开发服务器会刷新
 7. 标题用 `##` 和 `###`，文稿/手记正文右侧才会出目录
+8. 正文由 haklex 渲染（代码块、公式、图片等走编辑器节点），写法和普通 Markdown 一样
 
 日期统一写成 `YYYY-MM-DD`，例如 `2026-09-07`。思考页也可以写成 `2026.09.07`。
 
