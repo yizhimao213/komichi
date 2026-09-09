@@ -21,6 +21,8 @@
     "@lexical/react": "^0.49.0",
     "@lexical/rich-text": "^0.49.0",
     "@lexical/table": "^0.49.0",
+    "@pastel-palette/colors": "1.0.0-canary.3",
+    "@pastel-palette/tailwindcss": "^1.0.0-canary.3",
     "framer-motion": "^13.2.0",
     "katex": "^0.18.7",
     "lexical": "^0.49.0",

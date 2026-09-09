@@ -1,40 +1,42 @@
 @import url("https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+JP:wght@400;500;600&family=Noto+Serif+SC:wght@400;500&display=swap");
 
-@property --n-1 { syntax: "<color>"; inherits: true; initial-value: #f9f8f5; }
-@property --n-2 { syntax: "<color>"; inherits: true; initial-value: #f0efeb; }
-@property --n-3 { syntax: "<color>"; inherits: true; initial-value: #e3e1db; }
-@property --n-4 { syntax: "<color>"; inherits: true; initial-value: #d0cec6; }
-@property --n-5 { syntax: "<color>"; inherits: true; initial-value: #a8a69f; }
-@property --n-6 { syntax: "<color>"; inherits: true; initial-value: #787670; }
-@property --n-7 { syntax: "<color>"; inherits: true; initial-value: #5c5a55; }
-@property --n-8 { syntax: "<color>"; inherits: true; initial-value: #403f3a; }
-@property --n-9 { syntax: "<color>"; inherits: true; initial-value: #24231f; }
-@property --n-10 { syntax: "<color>"; inherits: true; initial-value: #141312; }
-@property --paper { syntax: "<color>"; inherits: true; initial-value: #f7f0e4; }
-@property --paper-soft { syntax: "<color>"; inherits: true; initial-value: rgba(247, 240, 228, 0.8); }
-@property --accent { syntax: "<color>"; inherits: true; initial-value: #c67a3a; }
-@property --accent-soft { syntax: "<color>"; inherits: true; initial-value: rgba(198, 122, 58, 0.14); }
-@property --border { syntax: "<color>"; inherits: true; initial-value: rgba(24, 24, 27, 0.1); }
-@property --glow { syntax: "<color>"; inherits: true; initial-value: rgba(255, 186, 110, 0.36); }
+@property --n-1 { syntax: "<color>"; inherits: true; initial-value: oklch(0.99 0.0049 230); }
+@property --n-2 { syntax: "<color>"; inherits: true; initial-value: oklch(0.98 0.0049 230); }
+@property --n-3 { syntax: "<color>"; inherits: true; initial-value: oklch(0.97 0.0049 230); }
+@property --n-4 { syntax: "<color>"; inherits: true; initial-value: oklch(0.92 0.0049 228); }
+@property --n-5 { syntax: "<color>"; inherits: true; initial-value: oklch(0.70 0.0049 230); }
+@property --n-6 { syntax: "<color>"; inherits: true; initial-value: oklch(0.55 0.0049 230); }
+@property --n-7 { syntax: "<color>"; inherits: true; initial-value: oklch(0.45 0.0049 230); }
+@property --n-8 { syntax: "<color>"; inherits: true; initial-value: oklch(0.32 0.0049 230); }
+@property --n-9 { syntax: "<color>"; inherits: true; initial-value: oklch(0.22 0.0049 230); }
+@property --n-10 { syntax: "<color>"; inherits: true; initial-value: oklch(0.15 0.0049 230); }
+@property --paper { syntax: "<color>"; inherits: true; initial-value: oklch(0.99 0.0049 230); }
+@property --paper-soft { syntax: "<color>"; inherits: true; initial-value: oklch(0.99 0.0049 230 / 0.8); }
+@property --accent { syntax: "<color>"; inherits: true; initial-value: oklch(0.68 0.15 60); }
+@property --accent-soft { syntax: "<color>"; inherits: true; initial-value: oklch(0.68 0.15 60 / 0.14); }
+@property --border { syntax: "<color>"; inherits: true; initial-value: oklch(0.15 0.0049 230 / 0.1); }
+@property --glow { syntax: "<color>"; inherits: true; initial-value: oklch(0.68 0.15 60 / 0.36); }
 
 :root {
-  --n-1: #f9f8f5;
-  --n-2: #f0efeb;
-  --n-3: #e3e1db;
-  --n-4: #d0cec6;
-  --n-5: #a8a69f;
-  --n-6: #787670;
-  --n-7: #5c5a55;
-  --n-8: #403f3a;
-  --n-9: #24231f;
-  --n-10: #141312;
-  --paper: #f7f0e4;
-  --paper-soft: rgba(247, 240, 228, 0.8);
-  --accent: #c67a3a;
-  --accent-soft: rgba(198, 122, 58, 0.14);
-  --border: rgba(24, 24, 27, 0.1);
-  --glow: rgba(255, 186, 110, 0.36);
-  --wash: radial-gradient(ellipse 42% 28% at 50% 48%, rgba(255, 196, 120, 0.22) 0%, rgba(247, 240, 228, 0) 70%);
+  --pastel-bg: oklch(0.99 0.0049 230);
+  --pastel-bg-dark: oklch(0.22 0.0049 230);
+  --n-1: oklch(0.99 0.0049 230);
+  --n-2: oklch(0.98 0.0049 230);
+  --n-3: oklch(0.97 0.0049 230);
+  --n-4: oklch(0.92 0.0049 228);
+  --n-5: oklch(0.70 0.0049 230);
+  --n-6: oklch(0.55 0.0049 230);
+  --n-7: oklch(0.45 0.0049 230);
+  --n-8: oklch(0.32 0.0049 230);
+  --n-9: oklch(0.22 0.0049 230);
+  --n-10: oklch(0.15 0.0049 230);
+  --paper: var(--pastel-bg);
+  --paper-soft: color-mix(in oklab, var(--paper) 80%, transparent);
+  --accent: oklch(0.68 0.15 60);
+  --accent-soft: color-mix(in oklab, var(--accent) 14%, transparent);
+  --border: oklch(0.15 0.0049 230 / 0.1);
+  --glow: color-mix(in oklab, var(--accent) 36%, transparent);
+  --wash: radial-gradient(ellipse 42% 28% at 50% 48%, color-mix(in oklab, var(--accent) 22%, transparent) 0%, transparent 70%);
   --sans: "Instrument Sans", MiSans, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", system-ui, sans-serif;
   --serif: "Noto Serif SC", "Noto Serif CJK SC", "Source Han Serif SC", "Source Han Serif", "SongTi SC", SimSun, Georgia, serif;
   --logo-cjk: "Noto Serif JP", "Source Han Serif", "Source Han Serif SC", "Noto Serif CJK SC", serif;
@@ -45,88 +47,88 @@
 }
 
 html[data-theme="dark"] {
-  --n-1: #141414;
-  --n-2: #1c1c1e;
-  --n-3: #2a2a2c;
-  --n-4: #3a3a3c;
-  --n-5: #6e6e73;
-  --n-6: #8e8e93;
-  --n-7: #aeaeb2;
-  --n-8: #d1d1d6;
-  --n-9: #e5e5ea;
-  --n-10: #f5f5f7;
-  --paper: #1e1d1c;
-  --paper-soft: rgba(30, 29, 28, 0.84);
-  --accent: #e0a05a;
-  --accent-soft: rgba(224, 160, 90, 0.16);
-  --border: rgba(255, 255, 255, 0.1);
-  --glow: rgba(232, 168, 80, 0.12);
-  --wash: radial-gradient(ellipse 40% 26% at 50% 48%, rgba(120, 72, 24, 0.08) 0%, rgba(30, 29, 28, 0) 74%);
+  --n-1: oklch(0.22 0.0049 230);
+  --n-2: oklch(0.26 0.0049 230);
+  --n-3: oklch(0.30 0.0049 230);
+  --n-4: oklch(0.34 0.0049 230);
+  --n-5: oklch(0.451 0.0049 230);
+  --n-6: oklch(0.55 0.0049 226);
+  --n-7: oklch(0.65 0.0049 230);
+  --n-8: oklch(0.75 0.0049 230);
+  --n-9: oklch(0.85 0.0049 230);
+  --n-10: oklch(0.95 0.0049 230);
+  --paper: var(--pastel-bg-dark);
+  --paper-soft: color-mix(in oklab, var(--paper) 84%, transparent);
+  --accent: oklch(0.73 0.16 60);
+  --accent-soft: color-mix(in oklab, var(--accent) 16%, transparent);
+  --border: oklch(0.95 0.0049 230 / 0.1);
+  --glow: color-mix(in oklab, var(--accent) 12%, transparent);
+  --wash: radial-gradient(ellipse 40% 26% at 50% 48%, color-mix(in oklab, var(--accent) 8%, transparent) 0%, transparent 74%);
 }
 
 html[data-season="spring"] {
-  --paper: #fbf6f4;
-  --paper-soft: rgba(251, 246, 244, 0.8);
-  --accent: #c45d7a;
-  --accent-soft: rgba(196, 93, 122, 0.14);
-  --glow: rgba(255, 196, 214, 0.42);
-  --wash: radial-gradient(ellipse 36% 22% at 50% 48%, rgba(255, 214, 226, 0.28) 0%, rgba(251, 246, 244, 0) 72%);
+  --paper: color-mix(in oklab, var(--pastel-bg) 88%, oklch(0.78 0.16 350));
+  --paper-soft: color-mix(in oklab, var(--paper) 80%, transparent);
+  --accent: oklch(0.68 0.22 350);
+  --accent-soft: color-mix(in oklab, var(--accent) 14%, transparent);
+  --glow: color-mix(in oklab, var(--accent) 42%, transparent);
+  --wash: radial-gradient(ellipse 36% 22% at 50% 48%, color-mix(in oklab, var(--accent) 28%, transparent) 0%, transparent 72%);
 }
 html[data-theme="dark"][data-season="spring"] {
-  --paper: #1e1d1e;
-  --paper-soft: rgba(30, 29, 30, 0.84);
-  --accent: #e08aa3;
-  --accent-soft: rgba(224, 138, 163, 0.18);
-  --glow: rgba(232, 140, 168, 0.08);
-  --wash: radial-gradient(ellipse 34% 20% at 50% 48%, rgba(120, 48, 78, 0.06) 0%, rgba(30, 29, 30, 0) 74%);
+  --paper: color-mix(in oklab, var(--pastel-bg-dark) 92%, oklch(0.73 0.2 350));
+  --paper-soft: color-mix(in oklab, var(--paper) 84%, transparent);
+  --accent: oklch(0.73 0.2 350);
+  --accent-soft: color-mix(in oklab, var(--accent) 18%, transparent);
+  --glow: color-mix(in oklab, var(--accent) 8%, transparent);
+  --wash: radial-gradient(ellipse 34% 20% at 50% 48%, color-mix(in oklab, var(--accent) 6%, transparent) 0%, transparent 74%);
 }
 html[data-season="summer"] {
-  --paper: #eef6f2;
-  --paper-soft: rgba(238, 246, 242, 0.82);
-  --accent: #2f8f78;
-  --accent-soft: rgba(47, 143, 120, 0.14);
-  --glow: rgba(120, 214, 186, 0.36);
-  --wash: radial-gradient(ellipse 36% 22% at 50% 48%, rgba(160, 230, 206, 0.24) 0%, rgba(238, 246, 242, 0) 72%);
+  --paper: color-mix(in oklab, var(--pastel-bg) 88%, oklch(0.76 0.12 155));
+  --paper-soft: color-mix(in oklab, var(--paper) 82%, transparent);
+  --accent: oklch(0.67 0.15 155);
+  --accent-soft: color-mix(in oklab, var(--accent) 14%, transparent);
+  --glow: color-mix(in oklab, var(--accent) 36%, transparent);
+  --wash: radial-gradient(ellipse 36% 22% at 50% 48%, color-mix(in oklab, var(--accent) 24%, transparent) 0%, transparent 72%);
 }
 html[data-theme="dark"][data-season="summer"] {
-  --paper: #1d1e1d;
-  --paper-soft: rgba(29, 30, 29, 0.84);
-  --accent: #5ec9a8;
-  --accent-soft: rgba(94, 201, 168, 0.16);
-  --glow: rgba(70, 180, 150, 0.08);
-  --wash: radial-gradient(ellipse 34% 20% at 50% 48%, rgba(24, 80, 64, 0.06) 0%, rgba(29, 30, 29, 0) 74%);
+  --paper: color-mix(in oklab, var(--pastel-bg-dark) 92%, oklch(0.72 0.16 155));
+  --paper-soft: color-mix(in oklab, var(--paper) 84%, transparent);
+  --accent: oklch(0.72 0.16 155);
+  --accent-soft: color-mix(in oklab, var(--accent) 16%, transparent);
+  --glow: color-mix(in oklab, var(--accent) 8%, transparent);
+  --wash: radial-gradient(ellipse 34% 20% at 50% 48%, color-mix(in oklab, var(--accent) 6%, transparent) 0%, transparent 74%);
 }
 html[data-season="autumn"] {
-  --paper: #f7f0e4;
-  --paper-soft: rgba(247, 240, 228, 0.8);
-  --accent: #c67a3a;
-  --accent-soft: rgba(198, 122, 58, 0.14);
-  --glow: rgba(255, 186, 110, 0.36);
-  --wash: radial-gradient(ellipse 42% 28% at 50% 48%, rgba(255, 196, 120, 0.22) 0%, rgba(247, 240, 228, 0) 70%);
+  --paper: color-mix(in oklab, var(--pastel-bg) 88%, oklch(0.77 0.12 60));
+  --paper-soft: color-mix(in oklab, var(--paper) 80%, transparent);
+  --accent: oklch(0.68 0.15 60);
+  --accent-soft: color-mix(in oklab, var(--accent) 14%, transparent);
+  --glow: color-mix(in oklab, var(--accent) 36%, transparent);
+  --wash: radial-gradient(ellipse 42% 28% at 50% 48%, color-mix(in oklab, var(--accent) 22%, transparent) 0%, transparent 70%);
 }
 html[data-theme="dark"][data-season="autumn"] {
-  --paper: #1e1d1c;
-  --paper-soft: rgba(30, 29, 28, 0.84);
-  --accent: #e0a05a;
-  --accent-soft: rgba(224, 160, 90, 0.16);
-  --glow: rgba(232, 168, 80, 0.12);
-  --wash: radial-gradient(ellipse 40% 26% at 50% 48%, rgba(120, 72, 24, 0.08) 0%, rgba(30, 29, 28, 0) 74%);
+  --paper: color-mix(in oklab, var(--pastel-bg-dark) 92%, oklch(0.73 0.16 60));
+  --paper-soft: color-mix(in oklab, var(--paper) 84%, transparent);
+  --accent: oklch(0.73 0.16 60);
+  --accent-soft: color-mix(in oklab, var(--accent) 16%, transparent);
+  --glow: color-mix(in oklab, var(--accent) 12%, transparent);
+  --wash: radial-gradient(ellipse 40% 26% at 50% 48%, color-mix(in oklab, var(--accent) 8%, transparent) 0%, transparent 74%);
 }
 html[data-season="winter"] {
-  --paper: #f4f7fb;
-  --paper-soft: rgba(244, 247, 251, 0.82);
-  --accent: #5b7c9a;
-  --accent-soft: rgba(91, 124, 154, 0.14);
-  --glow: rgba(210, 228, 245, 0.5);
-  --wash: radial-gradient(ellipse 36% 22% at 50% 48%, rgba(214, 232, 248, 0.32) 0%, rgba(244, 247, 251, 0) 72%);
+  --paper: color-mix(in oklab, var(--pastel-bg) 88%, oklch(0.78 0.11 210));
+  --paper-soft: color-mix(in oklab, var(--paper) 82%, transparent);
+  --accent: oklch(0.70 0.14 210);
+  --accent-soft: color-mix(in oklab, var(--accent) 14%, transparent);
+  --glow: color-mix(in oklab, var(--accent) 50%, transparent);
+  --wash: radial-gradient(ellipse 36% 22% at 50% 48%, color-mix(in oklab, var(--accent) 32%, transparent) 0%, transparent 72%);
 }
 html[data-theme="dark"][data-season="winter"] {
-  --paper: #1d1e1f;
-  --paper-soft: rgba(29, 30, 31, 0.84);
-  --accent: #8eb4d4;
-  --accent-soft: rgba(142, 180, 212, 0.16);
-  --glow: rgba(150, 190, 230, 0.07);
-  --wash: radial-gradient(ellipse 34% 20% at 50% 48%, rgba(40, 70, 110, 0.06) 0%, rgba(29, 30, 31, 0) 74%);
+  --paper: color-mix(in oklab, var(--pastel-bg-dark) 92%, oklch(0.75 0.13 210));
+  --paper-soft: color-mix(in oklab, var(--paper) 84%, transparent);
+  --accent: oklch(0.75 0.13 210);
+  --accent-soft: color-mix(in oklab, var(--accent) 16%, transparent);
+  --glow: color-mix(in oklab, var(--accent) 7%, transparent);
+  --wash: radial-gradient(ellipse 34% 20% at 50% 48%, color-mix(in oklab, var(--accent) 6%, transparent) 0%, transparent 74%);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }

@@ -11,6 +11,7 @@
 - `@haklex/rich-compose` / `@haklex/rich-editor` / `@haklex/rich-editor-ui` / `@haklex/rich-litexml` 0.39.1
 - Lexical 0.49
 - lucide-react
+- `@pastel-palette/colors` / `@pastel-palette/tailwindcss` 1.0.0-canary.3（OKLCH token，映射到现有 CSS 变量）
 
 纯静态站点。构建时用 `import.meta.glob` 把 `content/` 下的 Markdown 打进前端包。正文经 haklex 转成 Lexical JSON 再静态渲染。
 
@@ -222,6 +223,8 @@ haklex 默认内容宽 `--rc-max-width: 700px`。站点在 `.article-page` / `.n
 - `localStorage` 键 `yohaku-bg`：背景粒子开/关
 - `localStorage` 键 `yohaku-season`：`spring` / `summer` / `autumn` / `winter`，默认 `autumn`
 - `html[data-theme]`、`html[data-season]` 驱动 CSS 变量
+- 中性色、纸色、强调色来自 Pastel regular：`--n-1`～`--n-10` 用 background / fill / text；季节 accent 为 pink / green / orange / sky
+- 不引入 Tailwind；官方 `theme-oklch.css` 依赖 `@import "tailwindcss"`，站点直接写 OKLCH
 - `#bg-canvas.is-on` 控制粒子淡入淡出
 - 深色 `--paper` 接近同灰；首页光晕只在头像上
 
