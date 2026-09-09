@@ -11,7 +11,6 @@ const PAD = 22;
 const ease = [0.22, 1, 0.36, 1];
 const followSpring = { stiffness: 78, damping: 18, mass: 0.46 };
 const labelSpring = { stiffness: 58, damping: 20, mass: 0.55 };
-const dockSpring = { type: "spring", stiffness: 360, damping: 34, mass: 0.72 };
 const RING_R = 6.5;
 const RING_C = 2 * Math.PI * RING_R;
 
@@ -121,7 +120,6 @@ export default function Toc({ items, active }) {
   const [heading, setHeading] = useState("");
   const [currentIdx, setCurrentIdx] = useState(0);
   const [vw, setVw] = useState(() => (typeof window !== "undefined" ? window.innerWidth : 800));
-  const [listH, setListH] = useState(0);
   const listRef = useRef(null);
   const { setTocOpen } = useHeaderState();
 
@@ -193,10 +191,12 @@ export default function Toc({ items, active }) {
     if (nowRef.current) nowRef.current.style.transform = `translate3d(0, ${ay}px, 0) translateY(-50%)`;
   });
 
-  useEffect(() => {
-    if (!items.length) return undefined;
+  const compact = vw <= 1100;
 
-    const proseEl = () => document.querySelector(".note-paper .prose, .article-page .prose");
+  useEffect(() => {
+    if (!items.length || compact) return undefined;
+
+    const proseEl = () => document.querySelector(".note-paper .rich-content, .article-page .rich-content");
 
     const pinCol = () => {
       const col = colRef.current;
@@ -282,7 +282,7 @@ export default function Toc({ items, active }) {
       window.removeEventListener("scroll", readTarget);
       window.removeEventListener("resize", onResize);
     };
-  }, [items, targetY]);
+  }, [items, targetY, compact]);
 
   useEffect(
     () => () => {
@@ -313,6 +313,7 @@ export default function Toc({ items, active }) {
   }, []);
 
   useLayoutEffect(() => {
+    if (compact) return undefined;
     const pin = () => {
       const col = colRef.current;
       const sticky = stickyRef.current;
@@ -322,20 +323,7 @@ export default function Toc({ items, active }) {
     pin();
     window.addEventListener("resize", pin);
     return () => window.removeEventListener("resize", pin);
-  }, [items, vw, railH]);
-
-  useLayoutEffect(() => {
-    const el = listRef.current;
-    if (!el) return undefined;
-    const apply = () => {
-      const cap = Math.max(96, Math.round(window.innerHeight - 88));
-      setListH(Math.min(el.scrollHeight, cap));
-    };
-    apply();
-    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(apply) : null;
-    ro?.observe(el);
-    return () => ro?.disconnect();
-  }, [items, sheetOpen, vw]);
+  }, [items, vw, railH, compact]);
 
   const showList = !reading || hover;
 
@@ -393,12 +381,7 @@ export default function Toc({ items, active }) {
   const nowItem = list[idx] || first;
   const nextItem = list[idx + 1];
   const ringOff = RING_C * (1 - Math.round(progress) / 100);
-  const padOpen = 12;
-  const dockClosedW = Math.round(vw * 0.7);
-  const dockW = sheetOpen ? Math.max(dockClosedW, vw - padOpen * 2) : dockClosedW;
-  const dockLeft = sheetOpen ? padOpen : (vw - dockClosedW) / 2;
-
-  const panel = (
+  const panel = compact ? null : (
         <div
           ref={stickyRef}
           className={`toc-sticky ${showList ? "is-list" : "is-rail"}`}
@@ -553,13 +536,10 @@ export default function Toc({ items, active }) {
             className={`toc-sheet ${sheetOpen ? "is-open" : ""}`}
             initial={false}
             animate={{
-              left: dockLeft,
-              width: dockW,
-              y: sheetOpen ? 0 : 88,
+              y: sheetOpen ? 0 : 18,
               opacity: sheetOpen ? 1 : 0,
-              borderRadius: 20,
             }}
-            transition={dockSpring}
+            transition={{ duration: 0.22, ease }}
             style={{ pointerEvents: sheetOpen ? "auto" : "none" }}
           >
             <div className="toc-sheet-bar">
@@ -573,15 +553,7 @@ export default function Toc({ items, active }) {
                 <X size={16} strokeWidth={1.8} />
               </button>
             </div>
-            <motion.div
-              className="toc-sheet-clip"
-              initial={false}
-              animate={{ height: sheetOpen ? listH : 0, opacity: sheetOpen ? 1 : 0 }}
-              transition={{
-                height: dockSpring,
-                opacity: { duration: 0.18, delay: sheetOpen ? 0.06 : 0 },
-              }}
-            >
+            <div className="toc-sheet-clip">
               <div ref={listRef} className="toc-sheet-list">
                 {items.map((item) => (
                   <button
@@ -594,7 +566,7 @@ export default function Toc({ items, active }) {
                   </button>
                 ))}
               </div>
-            </motion.div>
+            </div>
           </motion.div>
           <button
             className="toc-fab"

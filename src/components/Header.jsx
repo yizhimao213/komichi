@@ -291,8 +291,8 @@ export default function Header({
   useEffect(() => {
     const html = document.documentElement;
     const body = document.body;
-    const locked = isDock && (menuOpen || tocOpen);
-    const allowSel = ".dock-menu-clip, .toc-sheet-clip";
+    const locked = isDock && menuOpen;
+    const allowSel = ".dock-menu-clip";
     const freeze = (node) => {
       node.style.overflow = "hidden";
       node.style.overscrollBehavior = "none";
@@ -344,7 +344,7 @@ export default function Header({
       document.removeEventListener("touchmove", block);
       document.removeEventListener("wheel", block);
     };
-  }, [isDock, menuOpen, tocOpen]);
+  }, [isDock, menuOpen]);
 
   useLayoutEffect(() => {
     const el = menuInnerRef.current;
@@ -633,13 +633,11 @@ export default function Header({
           </AnimatePresence>
 
           <motion.div
-            className={`dock-shell ${menuOpen ? "is-open" : ""} ${dockMiniOn ? "is-collapsed" : ""}`}
+            className={`dock-shell ${menuOpen ? "is-open" : ""} ${dockMiniOn ? "is-collapsed" : ""} ${tocOpen ? "is-toc-hidden" : ""}`}
             initial={false}
             animate={{
               left: dockLeft,
               width: dockW,
-              y: tocOpen ? 88 : 0,
-              opacity: tocOpen ? 0 : 1,
               borderRadius: dockMiniOn ? 22 : 20,
             }}
             transition={dockSpring}

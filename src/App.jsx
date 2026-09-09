@@ -63,6 +63,31 @@ function isContentPage(path) {
   return /^\/notes\/[^/]+/.test(path);
 }
 
+function AppRoutes({ location }) {
+  return (
+    <Routes location={location}>
+      <Route path="/" element={<Home />} />
+      <Route path="/posts" element={<Posts />} />
+      <Route path="/posts/tag/:slug" element={<Tag />} />
+      <Route path="/posts/:slug" element={<Article kind="post" />} />
+      <Route path="/categories" element={<Categories />} />
+      <Route path="/categories/:slug" element={<Category />} />
+      <Route path="/notes" element={<Notes />} />
+      <Route path="/notes/series" element={<Series />} />
+      <Route path="/notes/series/:slug" element={<SeriesDetail />} />
+      <Route path="/notes/:nid" element={<Article kind="note" />} />
+      <Route path="/friends" element={<Friends />} />
+      <Route path="/projects" element={<Projects />} />
+      <Route path="/says" element={<Says />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/about-site" element={<AboutSite />} />
+      <Route path="/message" element={<Message />} />
+      <Route path="/timeline" element={<Timeline />} />
+      <Route path="/thinking" element={<Thinking />} />
+    </Routes>
+  );
+}
+
 export default function App() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -187,35 +212,20 @@ export default function App() {
               >
                 <PageLoader />
               </motion.div>
+            ) : location.pathname === "/message" ? (
+              <div key={location.pathname} className="page-enter">
+                <AppRoutes location={location} />
+              </div>
             ) : (
               <motion.div
                 key={location.pathname}
                 className="page-enter"
                 initial={location.pathname === "/" ? false : { opacity: 0, y: 22 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 0.62, ease: easeOut }}
               >
-                <Routes location={location}>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/posts" element={<Posts />} />
-                  <Route path="/posts/tag/:slug" element={<Tag />} />
-                  <Route path="/posts/:slug" element={<Article kind="post" />} />
-                  <Route path="/categories" element={<Categories />} />
-                  <Route path="/categories/:slug" element={<Category />} />
-                  <Route path="/notes" element={<Notes />} />
-                  <Route path="/notes/series" element={<Series />} />
-                  <Route path="/notes/series/:slug" element={<SeriesDetail />} />
-                  <Route path="/notes/:nid" element={<Article kind="note" />} />
-                  <Route path="/friends" element={<Friends />} />
-                  <Route path="/projects" element={<Projects />} />
-                  <Route path="/says" element={<Says />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/about-site" element={<AboutSite />} />
-                  <Route path="/message" element={<Message />} />
-                  <Route path="/timeline" element={<Timeline />} />
-                  <Route path="/thinking" element={<Thinking />} />
-                </Routes>
+                <AppRoutes location={location} />
               </motion.div>
             )}
           </AnimatePresence>

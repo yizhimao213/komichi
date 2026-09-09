@@ -1,34 +1,15 @@
-import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Maximize2, X } from "lucide-react";
-import { marked } from "marked";
 import { categorySlug, countWords, getNote, getPost, seriesSlug } from "../content.js";
 import { parsePeekPath } from "../peek.js";
-import { markdownImage } from "../lazyImages.js";
+import HaklexContent from "../haklex/HaklexContent.jsx";
 
 const PEEK_EXIT_MS = 340;
 const EASE_OUT = "cubic-bezier(0.22, 1, 0.36, 1)";
 const EASE_IO = "cubic-bezier(0.4, 0, 0.2, 1)";
-
-function slugify(text) {
-  return String(text)
-    .toLowerCase()
-    .replace(/[^\w\u4e00-\u9fff]+/g, "-")
-    .replace(/^-|-$/g, "");
-}
-
-function renderMarkdown(markdown) {
-  const renderer = new marked.Renderer();
-  renderer.heading = function ({ tokens, depth, text }) {
-    const label = text || this.parser.parseInline(tokens);
-    const id = slugify(String(label).replace(/<[^>]+>/g, ""));
-    return `<h${depth} id="${id}">${label}</h${depth}>`;
-  };
-  renderer.image = markdownImage;
-  return marked.parse(markdown, { renderer, gfm: true, breaks: false });
-}
 
 function seriesHue(name) {
   let n = 0;
@@ -170,7 +151,6 @@ function playPeekEnter(paper, shadow, origin) {
 }
 
 function PeekNote({ doc }) {
-  const html = useMemo(() => renderMarkdown(doc.body), [doc]);
   const words = countWords(doc.body);
   const hue = seriesHue(doc.series);
   const seriesName = doc.series || "手记";
@@ -216,14 +196,13 @@ function PeekNote({ doc }) {
             <p>{doc.summary}</p>
           </section>
         ) : null}
-        <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
+        <HaklexContent markdown={doc.body} variant="note" />
       </div>
     </div>
   );
 }
 
 function PeekPost({ doc }) {
-  const html = useMemo(() => renderMarkdown(doc.body), [doc]);
   const words = countWords(doc.body);
   const catName = doc.category || "文稿";
   const catHref = doc.category ? `/categories/${categorySlug(doc.category)}` : "";
@@ -272,7 +251,7 @@ function PeekPost({ doc }) {
           <p>{doc.summary}</p>
         </section>
       ) : null}
-      <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
+      <HaklexContent markdown={doc.body} variant="article" />
     </div>
   );
 }

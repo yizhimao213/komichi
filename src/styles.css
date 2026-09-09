@@ -2347,12 +2347,11 @@ html[data-theme="dark"] .note-series-chip {
   line-height: 1.9;
   color: var(--n-7);
 }
-.note-paper .prose {
+.note-paper .haklex-body {
   margin-top: 40px;
-  font-family: var(--serif);
-  background: transparent;
 }
-.note-paper[data-note-font="sans"] .prose {
+.note-paper[data-note-font="sans"] .rich-content {
+  --rc-font-family: var(--sans);
   font-family: var(--sans);
 }
 .note-font-switch {
@@ -2814,41 +2813,53 @@ html[data-theme="dark"] .toc-now-ring-fg { stroke: rgba(255, 255, 255, 0.82); }
 .toc-sheet-mask,
 .toc-sheet { display: none; }
 
-.prose { font-size: 15px; line-height: 1.8; }
-.prose p { margin: 0 0 1.15em; color: var(--n-9); }
-.prose h2 {
-  margin: 1.8em 0 0.7em;
-  font-size: 20px;
-  font-weight: 500;
-  color: var(--n-10);
+.article-page .haklex-body,
+.note-paper .haklex-body,
+.peek-paper .haklex-body {
+  --rc-max-width: none;
+  max-width: none;
+  width: 100%;
+}
+.haklex-body.rich-content h1,
+.haklex-body.rich-content h2,
+.haklex-body.rich-content h3,
+.haklex-body.rich-content h4,
+.haklex-body .rich-heading-h1,
+.haklex-body .rich-heading-h2,
+.haklex-body .rich-heading-h3,
+.haklex-body .rich-heading-h4 {
   scroll-margin-top: 84px;
 }
-.prose h3 {
-  margin: 1.4em 0 0.6em;
-  font-size: 16px;
-  font-weight: 500;
-  scroll-margin-top: 84px;
+.haklex-comment .haklex-editor {
+  margin-bottom: 12px;
 }
-.prose blockquote {
-  margin: 1.4em 0;
-  padding: 4px 0 4px 16px;
-  border-left: 2px solid var(--accent);
+.haklex-editor {
+  width: 100%;
+  min-height: 160px;
+}
+.haklex-editor .rich-editor {
+  min-height: 160px;
+}
+.haklex-editor .rich-editor__content-wrapper {
+  flex: none;
+  min-height: 160px;
+  margin: 0;
+  max-width: none;
+}
+.haklex-editor .rich-editor__content {
+  min-height: 160px;
+  color: var(--n-9);
+}
+.haklex-editor .rich-editor__placeholder {
+  color: var(--n-6);
+}
+.haklex-editor-error {
+  min-height: 120px;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px dashed var(--border);
   color: var(--n-7);
-}
-.prose a { color: var(--accent); }
-.prose img {
-  margin: 1.4em 0;
-  border-radius: 12px;
-  box-shadow: 0 12px 40px rgba(20, 19, 18, 0.12);
-}
-.prose ul, .prose ol { margin: 0 0 1.15em 1.2em; }
-.prose li { margin: 0.3em 0; }
-.prose code {
-  font-family: var(--mono);
   font-size: 13px;
-  background: var(--n-2);
-  padding: 1px 5px;
-  border-radius: 4px;
 }
 .meta-row {
   display: flex;
@@ -3891,6 +3902,10 @@ html[data-theme="dark"] .note-series-end-card {
 
 .page-stage { position: relative; flex: 1; }
 .page-enter { will-change: transform, opacity, filter; }
+.page-enter:has(.haklex-comment) {
+  will-change: opacity;
+  transform: none;
+}
 
 .peek-root {
   position: fixed;
@@ -4215,22 +4230,38 @@ html.is-peek-open { overflow: hidden; }
     display: flex;
     flex-direction: column;
     position: absolute;
+    left: 12px;
+    right: 12px;
     bottom: max(18px, env(safe-area-inset-bottom, 0px));
     z-index: 57;
+    max-height: min(70vh, calc(100dvh - 96px));
     overflow: hidden;
     pointer-events: auto;
+    border-radius: 20px;
     background: rgba(32, 32, 34, 0.78);
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 18px 48px -24px rgba(0, 0, 0, 0.55);
     backdrop-filter: blur(28px) saturate(1.4);
     -webkit-backdrop-filter: blur(28px) saturate(1.4);
+    will-change: transform, opacity;
+  }
+  .toc-sheet:not(.is-open) {
+    visibility: hidden;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
   html[data-theme="light"] .toc-sheet {
     background: rgba(250, 247, 240, 0.86);
     border-color: rgba(0, 0, 0, 0.06);
     box-shadow: 0 18px 48px -24px rgba(0, 0, 0, 0.22);
   }
-  .toc-sheet-clip { overflow: hidden auto; scrollbar-width: none; }
+  .toc-sheet-clip {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
   .toc-sheet-clip::-webkit-scrollbar { display: none; }
   .toc-sheet-list {
     display: flex;
@@ -4343,6 +4374,11 @@ html.is-peek-open { overflow: hidden; }
     box-shadow: 0 18px 48px -24px rgba(0, 0, 0, 0.55);
     backdrop-filter: blur(28px) saturate(1.4);
     -webkit-backdrop-filter: blur(28px) saturate(1.4);
+  }
+  .dock-shell.is-toc-hidden {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.2s;
   }
   .dock-shell.is-collapsed {
     border-color: rgba(255, 255, 255, 0.16);

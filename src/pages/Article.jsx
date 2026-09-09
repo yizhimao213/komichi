@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { marked } from "marked";
 import { ChevronUp } from "lucide-react";
 import { categorySlug, countWords, getNote, getPost, getSeries, notes, seriesSlug } from "../content.js";
 import { Link, useParams } from "react-router-dom";
 import Toc from "../components/Toc.jsx";
 import { useHeaderMeta } from "../context.jsx";
-import { markdownImage } from "../lazyImages.js";
+import HaklexContent from "../haklex/HaklexContent.jsx";
+import { extractToc } from "../haklex/markdown.js";
 
 const NOTE_FONT_KEY = "yohaku-note-font";
 
@@ -254,39 +254,10 @@ function NoteFontSwitch({ value, onChange }) {
   );
 }
 
-function slugify(text) {
-  return String(text)
-    .toLowerCase()
-    .replace(/[^\w\u4e00-\u9fff]+/g, "-")
-    .replace(/^-|-$/g, "");
-}
-
-function extractToc(markdown) {
-  return markdown
-    .split("\n")
-    .filter((line) => /^#{2,3} /.test(line))
-    .map((line) => {
-      const level = line.startsWith("###") ? 3 : 2;
-      const text = line.replace(/^#{2,3} /, "").trim();
-      return { level, text, id: slugify(text) };
-    });
-}
-
 function seriesHue(name) {
   let n = 0;
   for (const ch of String(name || "")) n = (n + ch.charCodeAt(0) * 17) % 360;
   return n;
-}
-
-function renderMarkdown(markdown) {
-  const renderer = new marked.Renderer();
-  renderer.heading = function ({ tokens, depth, text }) {
-    const label = text || this.parser.parseInline(tokens);
-    const id = slugify(String(label).replace(/<[^>]+>/g, ""));
-    return `<h${depth} id="${id}">${label}</h${depth}>`;
-  };
-  renderer.image = markdownImage;
-  return marked.parse(markdown, { renderer, gfm: true, breaks: false });
 }
 
 export default function Article({ kind }) {
@@ -304,7 +275,6 @@ export default function Article({ kind }) {
   useHeaderMeta(doc ? { title: doc.title, hasCover: false } : {});
 
   const toc = useMemo(() => (doc ? extractToc(doc.body) : []), [doc]);
-  const html = useMemo(() => (doc ? renderMarkdown(doc.body) : ""), [doc]);
 
   useEffect(() => {
     if (!toc.length) return;
@@ -320,7 +290,7 @@ export default function Article({ kind }) {
     );
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, [toc, html]);
+  }, [toc, doc]);
 
   if (!doc) {
     return (
@@ -430,7 +400,7 @@ export default function Article({ kind }) {
                   <p>{doc.summary}</p>
                 </section>
               ) : null}
-              <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
+              <HaklexContent markdown={doc.body} variant="note" />
               {doc.series ? (
                 <NoteSeriesEnd series={series} href={seriesHref} name={seriesName} />
               ) : null}
@@ -462,7 +432,7 @@ export default function Article({ kind }) {
               <p>{doc.summary}</p>
             </section>
           ) : null}
-          <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
+          <HaklexContent markdown={doc.body} variant="article" />
           {comment}
         </article>
         <Toc items={toc} active={active} />
