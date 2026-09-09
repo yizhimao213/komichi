@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Rss } from "lucide-react";
-import { notes, posts, quotes, says, siteDays, siteLead, siteWords, thoughts } from "../content.js";
+import { citeOf, notes, posts, quotes, says, siteDays, siteLead, siteWords, thoughts } from "../content.js";
 import TypewriterQuote from "../components/TypewriterQuote.jsx";
 
 function daysAgo(iso) {
@@ -317,7 +317,7 @@ export default function Home() {
                 {says.slice(0, 2).map((s) => (
                   <Link className="letter" to="/says" viewTransition key={s.slug}>
                     <q>{s.text}</q>
-                    <cite>{s.source || s.author}</cite>
+                    <cite>{citeOf(s)}</cite>
                   </Link>
                 ))}
               </div>

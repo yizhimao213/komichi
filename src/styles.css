@@ -2891,10 +2891,11 @@ html[data-theme="dark"] .ni-ribbon-pop-card {
 }
 .says-head h1 {
   font-family: var(--serif);
-  font-size: 26px;
-  font-weight: 500;
+  font-size: 36px;
+  font-weight: 700;
   color: var(--n-10);
-  letter-spacing: 0.06em;
+  letter-spacing: 0;
+  line-height: 1.1;
 }
 .says-rss {
   display: grid;
@@ -2902,33 +2903,35 @@ html[data-theme="dark"] .ni-ribbon-pop-card {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  color: var(--n-6);
-  background: color-mix(in oklab, var(--n-10) 4%, var(--paper));
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-  transition: color 0.25s cubic-bezier(0.22, 1, 0.36, 1), background 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  color: #ee802f;
+  background: transparent;
+  transition: opacity 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .says-rss:hover {
-  color: var(--n-10);
-  background: color-mix(in oklab, var(--n-10) 8%, var(--paper));
+  opacity: 0.72;
 }
 .says-board {
-  column-count: 2;
-  column-gap: 16px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.says-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 .says-card {
   position: relative;
-  display: inline-block;
   width: 100%;
-  margin-bottom: 16px;
   overflow: hidden;
-  break-inside: avoid;
   padding: 14px 20px 18px;
   border-radius: 12px;
-  background: color-mix(in oklab, #fff 78%, var(--paper));
+  background: var(--paper);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 html[data-theme="dark"] .says-card {
-  background: color-mix(in oklab, var(--n-10) 7%, var(--paper));
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.28);
 }
 .says-mark {
@@ -4671,7 +4674,8 @@ html.is-peek-open { overflow: hidden; }
     padding-top: 40px;
   }
   .says-head { margin-bottom: 40px; }
-  .says-board { column-count: 1; }
+  .says-head h1 { font-size: 28px; }
+  .says-board { flex-direction: column; }
   .tl-skim-total strong { font-size: 56px; }
   .tl-skim-nums { gap: 20px; }
   .tl-skim-nums b { font-size: 22px; }

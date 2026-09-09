@@ -213,6 +213,12 @@ export const says = Object.entries(sayFiles)
     return byDate || String(b.slug).localeCompare(String(a.slug));
   });
 
+export function citeOf(s) {
+  const source = s.source ? `出自「${s.source}」` : "";
+  const author = s.author || "";
+  return [source, author].filter(Boolean).join(" · ");
+}
+
 export function getPost(slug) {
   return posts.find((p) => p.slug === slug);
 }

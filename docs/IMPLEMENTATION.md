@@ -101,7 +101,8 @@ docs/                   DEPLOY / IMPLEMENTATION / CONTENT
 - 打字机名言 = `content/quotes/*.md`，由 `TypewriterQuote` 打出，停 5 秒，擦掉，再打下一句
 - 左栏「近期笔墨」按 `date` 取文稿和手记最新 5 条（文稿显示「文章」，手记显示「笔记」）
 - 右栏「碎念」= `content/thinking/*.md` 最新 4 条，链到 `/thinking`
-- 右栏「一言」= `content/says/*.md` 最新 2 条，链到 `/says`
+- 右栏「一言」= `content/says/*.md` 最新 2 条，链到 `/says`；出处同 `/says` 卡片（`出自「source」 · author`）
+- `/says`：Yohaku 纸色卡片 + 双列砌体（`max-width: 1100px` 一列），标题旁橙色 RSS，卡片左上大引号，底栏左日期、右出处
 - 「笔耕不辍」= 近 1 年文稿+手记时间轴，悬停标题出现在轨道上方
 - 宽屏 `.home-split` 双栏；`max-width: 1100px` 改成一列
 - 社交只留 B站和 RSS
