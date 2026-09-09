@@ -225,7 +225,7 @@ haklex 默认内容宽 `--rc-max-width: 700px`。站点在 `.article-page` / `.n
 - `html[data-theme]`、`html[data-season]` 驱动 CSS 变量
 - 中性色、纸色、强调色来自 Pastel regular：`--n-1`～`--n-10` 用 background / fill / text；季节 accent 为 pink / green / orange / sky
 - 玻璃层 `--glass` / `--glass-border` / `--glass-line` / `--glass-hover` 来自 Pastel material，接到目录条、dock、mega、顶栏胶囊
-- 季节纸色只用低 chroma（浅色约 `0.008–0.010`，深色约 `0.006–0.008`），wash 约 accent 的 8%–10%；强调色保持 Pastel 原饱和度
+- 季节纸色只用低 chroma：浅色约 `0.008–0.010`，深色约 `0.002–0.0025`（深色 wash 约 accent 的 2%）；强调色保持 Pastel 原饱和度
 - 不引入 Tailwind；官方 `theme-oklch.css` 依赖 `@import "tailwindcss"`，站点直接写 OKLCH
 - `#bg-canvas.is-on` 控制粒子淡入淡出
 - 深色 `--paper` 接近同灰；首页光晕只在头像上

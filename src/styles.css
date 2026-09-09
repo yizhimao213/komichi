@@ -90,12 +90,12 @@ html[data-season="spring"] {
   --wash: radial-gradient(ellipse 36% 22% at 50% 48%, color-mix(in oklab, var(--accent) 10%, transparent) 0%, transparent 72%);
 }
 html[data-theme="dark"][data-season="spring"] {
-  --paper: oklch(0.22 0.006 350);
+  --paper: oklch(0.22 0.002 350);
   --paper-soft: color-mix(in oklab, var(--paper) 84%, transparent);
   --accent: oklch(0.73 0.2 350);
   --accent-soft: color-mix(in oklab, var(--accent) 18%, transparent);
-  --glow: color-mix(in oklab, var(--accent) 8%, transparent);
-  --wash: radial-gradient(ellipse 34% 20% at 50% 48%, color-mix(in oklab, var(--accent) 4%, transparent) 0%, transparent 74%);
+  --glow: color-mix(in oklab, var(--accent) 6%, transparent);
+  --wash: radial-gradient(ellipse 34% 20% at 50% 48%, color-mix(in oklab, var(--accent) 2%, transparent) 0%, transparent 74%);
 }
 html[data-season="summer"] {
   --paper: oklch(0.99 0.008 155);
@@ -106,12 +106,12 @@ html[data-season="summer"] {
   --wash: radial-gradient(ellipse 36% 22% at 50% 48%, color-mix(in oklab, var(--accent) 8%, transparent) 0%, transparent 72%);
 }
 html[data-theme="dark"][data-season="summer"] {
-  --paper: oklch(0.22 0.006 155);
+  --paper: oklch(0.22 0.002 155);
   --paper-soft: color-mix(in oklab, var(--paper) 84%, transparent);
   --accent: oklch(0.72 0.16 155);
   --accent-soft: color-mix(in oklab, var(--accent) 16%, transparent);
-  --glow: color-mix(in oklab, var(--accent) 8%, transparent);
-  --wash: radial-gradient(ellipse 34% 20% at 50% 48%, color-mix(in oklab, var(--accent) 4%, transparent) 0%, transparent 74%);
+  --glow: color-mix(in oklab, var(--accent) 6%, transparent);
+  --wash: radial-gradient(ellipse 34% 20% at 50% 48%, color-mix(in oklab, var(--accent) 2%, transparent) 0%, transparent 74%);
 }
 html[data-season="autumn"] {
   --paper: oklch(0.99 0.010 60);
@@ -122,12 +122,12 @@ html[data-season="autumn"] {
   --wash: radial-gradient(ellipse 42% 28% at 50% 48%, color-mix(in oklab, var(--accent) 8%, transparent) 0%, transparent 70%);
 }
 html[data-theme="dark"][data-season="autumn"] {
-  --paper: oklch(0.22 0.008 60);
+  --paper: oklch(0.22 0.0025 60);
   --paper-soft: color-mix(in oklab, var(--paper) 84%, transparent);
   --accent: oklch(0.73 0.16 60);
   --accent-soft: color-mix(in oklab, var(--accent) 16%, transparent);
-  --glow: color-mix(in oklab, var(--accent) 10%, transparent);
-  --wash: radial-gradient(ellipse 40% 26% at 50% 48%, color-mix(in oklab, var(--accent) 5%, transparent) 0%, transparent 74%);
+  --glow: color-mix(in oklab, var(--accent) 6%, transparent);
+  --wash: radial-gradient(ellipse 40% 26% at 50% 48%, color-mix(in oklab, var(--accent) 2%, transparent) 0%, transparent 74%);
 }
 html[data-season="winter"] {
   --paper: oklch(0.99 0.008 210);
@@ -138,12 +138,12 @@ html[data-season="winter"] {
   --wash: radial-gradient(ellipse 36% 22% at 50% 48%, color-mix(in oklab, var(--accent) 10%, transparent) 0%, transparent 72%);
 }
 html[data-theme="dark"][data-season="winter"] {
-  --paper: oklch(0.22 0.006 210);
+  --paper: oklch(0.22 0.002 210);
   --paper-soft: color-mix(in oklab, var(--paper) 84%, transparent);
   --accent: oklch(0.75 0.13 210);
   --accent-soft: color-mix(in oklab, var(--accent) 16%, transparent);
-  --glow: color-mix(in oklab, var(--accent) 7%, transparent);
-  --wash: radial-gradient(ellipse 34% 20% at 50% 48%, color-mix(in oklab, var(--accent) 4%, transparent) 0%, transparent 74%);
+  --glow: color-mix(in oklab, var(--accent) 5%, transparent);
+  --wash: radial-gradient(ellipse 34% 20% at 50% 48%, color-mix(in oklab, var(--accent) 2%, transparent) 0%, transparent 74%);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
