@@ -5,6 +5,7 @@ import { DialogStackProvider } from "@haklex/rich-editor-ui";
 import { NestedDocDialogEditorProvider, NestedDocPlugin } from "@haklex/rich-ext-nested-doc";
 import { PollDataProvider } from "@haklex/rich-ext-poll";
 import { SlashMenuPlugin } from "@haklex/rich-plugin-slash-menu";
+import { pollAdapter } from "./poll.js";
 import { useSiteTheme } from "./theme.js";
 import "@haklex/rich-compose/style.css";
 import "@haklex/rich-editor-ui/style.css";
@@ -12,21 +13,6 @@ import "@haklex/rich-plugin-slash-menu/style.css";
 import "katex/dist/katex.min.css";
 
 const ComposedEditor = composeEditor({ modules: allEditorModules });
-
-const pollAdapter = {
-  usePollState() {
-    return {
-      canVote: true,
-      closed: false,
-      status: "ready",
-      tallies: {},
-      totalVotes: 0,
-    };
-  },
-  useSubmit() {
-    return async () => {};
-  },
-};
 
 async function localFileUpload(file, opts) {
   opts?.onProgress?.(40);

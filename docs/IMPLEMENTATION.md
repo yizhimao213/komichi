@@ -8,7 +8,7 @@
 - React 19
 - React Router 7
 - framer-motion ^13
-- `@haklex/rich-compose` / `@haklex/rich-editor` / `@haklex/rich-editor-ui` 0.39.1
+- `@haklex/rich-compose` / `@haklex/rich-editor` / `@haklex/rich-editor-ui` / `@haklex/rich-litexml` 0.39.1
 - Lexical 0.49
 - lucide-react
 
@@ -25,6 +25,8 @@ src/
     HaklexContent.jsx   只读渲染：Markdown → Lexical → composeRenderer
     HaklexEditor.jsx    留言编辑器：composeEditor，默认 variant=comment
     markdown.js         markdownToLexical、extractToc
+    transformers.js     图片 / mermaid 导入
+    poll.js             投票只读适配
     theme.js            跟随 html[data-theme]
   lazyImages.js         全站图片懒加载
   peek.js               时光页 peek 路径解析
@@ -155,7 +157,9 @@ docs/                   DEPLOY / IMPLEMENTATION / CONTENT
 | --- | --- |
 | `HaklexContent.jsx` | `composeRenderer({ modules: allRendererModules })`，class 为 `haklex-body` |
 | `HaklexEditor.jsx` | `composeEditor({ modules: allEditorModules })`，留言默认 `variant="comment"`，`slash` 默认关 |
-| `markdown.js` | `createHeadlessEditor` + `allEditNodes` + `ALL_TRANSFORMERS` 把 Markdown 转 Lexical JSON，带内存缓存；`extractToc` 扫 `##` / `###` |
+| `markdown.js` | 分段 MD / LiteXML；Alert / Banner / Details / 块公式先抬成节点，再走 transformer；脚注用静态 `FootnoteSectionNode` |
+| `transformers.js` | `![alt](src)`、` ```mermaid ` 导入 |
+| `poll.js` | 只读页 `PollDataProvider` 适配 |
 | `theme.js` | `MutationObserver` 读 `document.documentElement.dataset.theme` |
 
 接入点：
@@ -238,7 +242,8 @@ haklex 默认内容宽 `--rc-max-width: 700px`。站点在 `.article-page` / `.n
 - 首页打字机与年线：`src/pages/Home.jsx`、`src/components/TypewriterQuote.jsx`
 - 文章、手记、专栏飘带/左栏：`src/pages/Article.jsx`
 - 目录：`src/components/Toc.jsx`
-- haklex：`src/haklex/HaklexContent.jsx`、`src/haklex/HaklexEditor.jsx`、`src/haklex/markdown.js`
+- haklex：`src/haklex/HaklexContent.jsx`、`src/haklex/HaklexEditor.jsx`、`src/haklex/markdown.js`、`src/haklex/transformers.js`、`src/haklex/poll.js`
+- 节点样例：`content/posts/haklex-nodes.md`
 - 留言：`src/pages/Message.jsx`
 - 时光 peek：`src/pages/Timeline.jsx`、`src/components/PeekModal.jsx`、`src/peek.js`
 - 懒加载：`src/lazyImages.js`

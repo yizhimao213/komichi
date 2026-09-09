@@ -13,6 +13,7 @@
 | [部署](docs/DEPLOY.md) | 本地开发、打包、上线、预览域名 |
 | [实现](docs/IMPLEMENTATION.md) | 技术栈、路由、haklex 正文、顶栏/dock、文稿/手记布局、目录、peek、主题季节、页脚 |
 | [内容](docs/CONTENT.md) | 改 Markdown 的目录和模板 |
+| [haklex 节点](docs/HAKLEX.md) | 文稿/手记正文节点写法，对照 `/posts/haklex-nodes` |
 
 短版速查：[content/HOW_TO_WRITE.md](content/HOW_TO_WRITE.md)
 

@@ -1,9 +1,10 @@
 # haklex 节点写法
 
-文稿、手记、关于页的正文走 `markdownToLexical` + `ALL_TRANSFORMERS`。按下面写就能变成 haklex 节点。front matter、友人帐、项目、一言、思考仍按 `docs/CONTENT.md`。
+文稿、手记、关于页的正文走 `markdownToLexical`。`> [!NOTE]`、`::: banner` / `::: details`、`$$...$$` 先抬成 Lexical 节点；其余 Markdown 走 transformer；单独成行的 LiteXML 走 `@haklex/rich-litexml`。front matter、友人帐、项目、一言、思考仍按 `docs/CONTENT.md`。
 
-官方节点页：https://haklex.innei.dev/nodes  
-本站导入入口：`src/haklex/markdown.js`
+对照页：https://haklex.innei.dev/nodes  
+本站样例：`/posts/haklex-nodes`  
+导入入口：`src/haklex/markdown.js`
 
 ## 先用这些
 
@@ -186,7 +187,11 @@ $$
 | 折叠 Details | `::: details{summary="..."}` |
 | 分割线 HR | `---` |
 | 图片 Image | `![alt](src "caption")` |
+| 视频 Video | `<video src="..." />` |
 | 代码 CodeBlock | ` ```lang ` |
+| 多文件代码 | `<code-snippet>` |
+| 图 Mermaid | ` ```mermaid ` |
+| 链接卡 | `<link-card url="..." />` |
 | 表格 Table | 管道表 |
 | 待办 CheckList | `- [ ]` / `- [x]` |
 | 行内公式 | `$...$` |
@@ -198,20 +203,50 @@ $$
 | 提及 Mention | `{platform@handle}` |
 | 注音 Ruby | `<ruby>...<rt>...</rt></ruby>` |
 | 注释 Comment | `<!--...-->` |
+| 图集 Gallery | `<gallery>` |
+| 分栏 Grid | `<grid>` |
+| 投票 Poll | `<poll>` |
+| 对话 Chat | `<chat>` |
 
-## 写了也不会变成专用节点
+## LiteXML 扩展节点
 
-这些语法在 haklex 编辑器里能导出，本站 `content/` 导入时走普通 Markdown / 代码块：
+标签必须单独成行。不要和普通 Markdown 写在同一段里。
 
-| 写法 | 实际结果 |
-| --- | --- |
-| `` ```mermaid `` | 代码块，语言是 mermaid |
-| `<video src="...">` | 普通文本 |
-| `<link-card url="...">` | 普通文本 |
-| `::: grid{cols=2}` | 普通段落 |
-| `<img src="...">` LiteXML | 普通文本 |
-| `<alert>` `<banner>` `<spoiler>` 等 LiteXML | 普通文本 |
+```xml
+<video src="/clip.mp4" poster="/thumb.jpg" />
 
-链接卡片请写 `[标题](网址)`。图集请连续写多张 `![alt](src)`。
+<link-card url="https://example.com" title="标题" description="简介" />
 
-LiteXML（`<alert>`、`<math>`、`<grid>` 等）是 haklex 编辑器粘贴格式，见 https://github.com/Innei/haklex/blob/main/packages/rich-editor/docs/markdown-flavor-litexml.md 。本站正文只跑 `$convertFromMarkdownString`，这些标签不会建节点。
+<code-snippet>
+<file name="index.ts" lang="ts">export {}</file>
+</code-snippet>
+
+<gallery layout="grid">
+<img src="/covers/desk.jpg" alt="桌面" />
+<img src="/covers/night.jpg" alt="夜里" />
+</gallery>
+
+<grid cols="2" gap="16px">
+<cell><p>左</p></cell>
+<cell><p>右</p></cell>
+</grid>
+
+<poll mode="single">
+<question>选一个</question>
+<option>A</option>
+<option>B</option>
+</poll>
+
+<chat variant="user-agent">
+<participants>
+<participant id="u1" kind="user" name="komichi" />
+<participant id="a1" kind="agent" name="haklex" />
+</participants>
+<messages>
+<message id="m1" participant="u1">正文能渲染这些节点吗？</message>
+<message id="m2" participant="a1">能。Markdown 走 transformer，扩展节点用 LiteXML。</message>
+</messages>
+</chat>
+```
+
+完整标签表见 https://github.com/Innei/haklex/blob/main/packages/rich-editor/docs/markdown-flavor-litexml.md
