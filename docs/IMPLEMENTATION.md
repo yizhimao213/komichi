@@ -159,7 +159,8 @@ docs/                   DEPLOY / IMPLEMENTATION / CONTENT
 
 | 文件 | 作用 |
 | --- | --- |
-| `HaklexContent.jsx` | `composeRenderer({ modules: allRendererModules })`，class 为 `haklex-body` |
+| `HaklexContent.jsx` | `composeRenderer`，给 image/gallery 接 `onImageClick`，class 为 `haklex-body` |
+| `ImageLightbox.jsx` | 正文图、图集、文稿主图点击后全屏查看 |
 | `HaklexEditor.jsx` | `composeEditor({ modules: allEditorModules })`，留言默认 `variant="comment"`，`slash` 默认关 |
 | `markdown.js` | 分段 MD / LiteXML；Alert / Banner / Details / 块公式先抬成节点，再走 transformer；脚注用静态 `FootnoteSectionNode` |
 | `transformers.js` | `![alt](src)`、` ```mermaid ` 导入 |
@@ -251,7 +252,7 @@ haklex 默认内容宽 `--rc-max-width: 700px`。站点在 `.article-page` / `.n
 - 首页打字机与年线：`src/pages/Home.jsx`、`src/components/TypewriterQuote.jsx`
 - 文章、手记、专栏飘带/左栏：`src/pages/Article.jsx`
 - 目录：`src/components/Toc.jsx`
-- haklex：`src/haklex/HaklexContent.jsx`、`src/haklex/HaklexEditor.jsx`、`src/haklex/markdown.js`、`src/haklex/transformers.js`、`src/haklex/poll.js`
+- haklex：`src/haklex/HaklexContent.jsx`、`src/haklex/HaklexEditor.jsx`、`src/haklex/markdown.js`、`src/haklex/transformers.js`、`src/haklex/poll.js`、`src/haklex/ImageLightbox.jsx`
 - 节点样例：`content/posts/haklex-nodes.md`
 - 留言：`src/pages/Message.jsx`
 - 时光 peek：`src/pages/Timeline.jsx`、`src/components/PeekModal.jsx`、`src/peek.js`

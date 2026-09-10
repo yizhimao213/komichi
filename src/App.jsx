@@ -25,6 +25,7 @@ import DeckleFilter from "./components/DeckleFilter.jsx";
 import Header from "./components/Header.jsx";
 import PageLoader from "./components/PageLoader.jsx";
 import { HeaderMetaProvider, SeasonProvider, SEASON_LIST } from "./context.jsx";
+import { ImageLightboxProvider } from "./haklex/ImageLightbox.jsx";
 
 const THEME_KEY = "yohaku-theme";
 const BG_KEY = "yohaku-bg";
@@ -233,6 +234,7 @@ export default function App() {
   return (
     <HeaderMetaProvider>
       <SeasonProvider value={{ season, setSeason: changeSeason }}>
+      <ImageLightboxProvider>
       <Background enabled={bgOn} />
       <DeckleFilter />
       <div className="app">
@@ -382,6 +384,7 @@ export default function App() {
         </div>
       )}
 
+      </ImageLightboxProvider>
       </SeasonProvider>
     </HeaderMetaProvider>
   );

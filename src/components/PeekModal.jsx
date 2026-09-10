@@ -6,6 +6,7 @@ import { Maximize2, X } from "lucide-react";
 import { categorySlug, countWords, getNote, getPost, seriesSlug } from "../content.js";
 import { parsePeekPath } from "../peek.js";
 import HaklexContent from "../haklex/HaklexContent.jsx";
+import { openImageSrc, useImageLightbox } from "../haklex/ImageLightbox.jsx";
 
 const PEEK_EXIT_MS = 340;
 const EASE_OUT = "cubic-bezier(0.22, 1, 0.36, 1)";
@@ -203,6 +204,7 @@ function PeekNote({ doc }) {
 }
 
 function PeekPost({ doc }) {
+  const { open: openImage } = useImageLightbox();
   const words = countWords(doc.body);
   const catName = doc.category || "文稿";
   const catHref = doc.category ? `/categories/${categorySlug(doc.category)}` : "";
@@ -247,7 +249,9 @@ function PeekPost({ doc }) {
       </header>
       {doc.cover ? (
         <figure className="article-cover">
-          <img src={doc.cover} alt="" loading="lazy" decoding="async" />
+          <button type="button" onClick={() => openImageSrc(openImage, doc.cover, doc.title)}>
+            <img src={doc.cover} alt="" loading="lazy" decoding="async" />
+          </button>
         </figure>
       ) : null}
       {doc.summary ? (
@@ -274,7 +278,7 @@ function PeekStage({ href, origin, onClose }) {
     html.style.overflow = "hidden";
     html.classList.add("is-peek-open");
     const onKey = (e) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape" && !document.querySelector(".image-lightbox")) onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => {

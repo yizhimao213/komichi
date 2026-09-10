@@ -62,7 +62,7 @@
 ![替代文字](/covers/desk.jpg "图注")
 ```
 
-封面仍写在 front matter 的 `cover`。正文插图用上面这一行。
+封面仍写在 front matter 的 `cover`。正文插图用上面这一行。点图会全屏放大，图集可左右翻。
 
 ## 代码
 

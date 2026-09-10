@@ -2083,6 +2083,14 @@ html[data-theme="dark"] .post-card.is-pinned {
   overflow: hidden;
   background: var(--n-2);
 }
+.article-cover button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
 .article-cover img {
   display: block;
   width: 100%;
@@ -3890,6 +3898,50 @@ html[data-theme="dark"] .note-series-end-card {
   font-size: 12px;
 }
 
+.image-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000000d9;
+  cursor: zoom-out;
+}
+.image-lightbox img {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  cursor: default;
+}
+.image-lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: #ffffff24;
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+.image-lightbox-nav.is-prev { left: 16px; }
+.image-lightbox-nav.is-next { right: 16px; }
+.image-lightbox-cap {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  color: #ffffffcc;
+  font-size: 13px;
+  display: flex;
+  gap: 12px;
+  cursor: default;
+}
 .overlay {
   position: fixed;
   inset: 0;

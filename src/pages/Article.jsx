@@ -6,6 +6,7 @@ import Toc from "../components/Toc.jsx";
 import { useHeaderMeta } from "../context.jsx";
 import HaklexContent from "../haklex/HaklexContent.jsx";
 import { extractToc } from "../haklex/markdown.js";
+import { openImageSrc, useImageLightbox } from "../haklex/ImageLightbox.jsx";
 
 const NOTE_FONT_KEY = "yohaku-note-font";
 
@@ -265,6 +266,7 @@ export default function Article({ kind }) {
   const doc = kind === "note" ? getNote(nid) : getPost(slug);
   const [active, setActive] = useState("");
   const [hint, setHint] = useState(kind === "note" ? "喜欢这篇手记的话，留下一句。" : "欢迎写下你的想法。");
+  const { open: openImage } = useImageLightbox();
   const [noteFont, setNoteFont] = useState(() => {
     try {
       return localStorage.getItem(NOTE_FONT_KEY) === "sans" ? "sans" : "serif";
@@ -428,7 +430,9 @@ export default function Article({ kind }) {
           </header>
           {doc.cover ? (
             <figure className="article-cover">
-              <img src={doc.cover} alt="" loading="lazy" decoding="async" />
+              <button type="button" onClick={() => openImageSrc(openImage, doc.cover, doc.title)}>
+                <img src={doc.cover} alt="" loading="lazy" decoding="async" />
+              </button>
             </figure>
           ) : null}
           {doc.summary ? (
