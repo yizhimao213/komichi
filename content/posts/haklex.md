@@ -17,7 +17,7 @@ cover: /covers/desk.jpg
 2. **源码**：围栏里的原文，页面当代码显示，不会再解析
 3. **成品**：围栏下面同一段真实节点
 
-目录只扫正文里的 `##` 和 `###`。封面写在文首 `cover`。LiteXML 标签单独成行，不要和普通句子挤在同一段。围栏里的内容一律当代码。
+目录只扫正文里的 `##` 和 `###`。同一节点的变体写成 `###`，当前节才会展开。封面写在文首 `cover`。LiteXML 标签单独成行，不要和普通句子挤在同一段。围栏里的内容一律当代码。
 
 ## 文件和网址
 
@@ -86,6 +86,8 @@ cover: /covers/desk.jpg
 
 封面仍写在 front matter 的 `cover`。正文插图一行一个。点图会全屏放大。地址无效时居中显示错误。
 
+### Markdown 插图
+
 源码：
 
 ```md
@@ -96,7 +98,9 @@ cover: /covers/desk.jpg
 
 ![山景](/covers/desk.jpg "图注写在这里")
 
-LiteXML 还能控制宽度和位置：`layout` 用 `align-left` / `align-right` / `float-left` / `float-right`，`display-width` 是栏宽百分比（10–100）。
+### LiteXML 布局
+
+`layout` 用 `align-left` / `align-right` / `float-left` / `float-right`，`display-width` 是栏宽百分比（10–100）。
 
 源码：
 
@@ -174,6 +178,8 @@ console.log(hello('World'))</file>
 
 围栏语言写成 `mermaid`。本站引擎接得住 flowchart、sequence、class、state、ER、XY chart。
 
+### 流程图
+
 源码：
 
 ````md
@@ -192,7 +198,7 @@ graph TD
     B --> C["页面更新"]
 ```
 
-时序图：
+### 时序图
 
 源码：
 
@@ -216,7 +222,7 @@ sequenceDiagram
     Server-->>Client: JWT
 ```
 
-类图：
+### 类图
 
 源码：
 
@@ -374,6 +380,8 @@ GitHub Alert 类型要全大写，单独占一行。正文继续用 `>`。五种
 
 `<gallery>` 里只放 `<img>`。`layout` 三种：`grid` 均匀格子、`carousel` 横滑、`masonry` 高低错落。点图会全屏，图集里左右翻。
 
+### 格子
+
 源码：
 
 ```xml
@@ -390,7 +398,7 @@ GitHub Alert 类型要全大写，单独占一行。正文继续用 `>`。五种
 <img src="/covers/night.jpg" alt="夜里" />
 </gallery>
 
-砌体：
+### 砌体
 
 源码：
 
@@ -434,6 +442,8 @@ GitHub Alert 类型要全大写，单独占一行。正文继续用 `>`。五种
 
 一个 `<question>`，若干 `<option>`。`mode="single"` 单选，`mode="multiple"` 多选。现在能点，票数不会落到服务器。
 
+### 单选
+
 源码：
 
 ```xml
@@ -452,7 +462,7 @@ GitHub Alert 类型要全大写，单独占一行。正文继续用 `>`。五种
 <option>B</option>
 </poll>
 
-多选：
+### 多选
 
 源码：
 
@@ -478,6 +488,8 @@ GitHub Alert 类型要全大写，单独占一行。正文继续用 `>`。五种
 
 `<chat>` 必须有 `<participants>` 和 `<messages>`。`variant="user-agent"`：用户气泡、助手当正文。`variant="user-user"`：两边都是气泡。`participant` 的 `id` 要和 `message` 的 `participant` 对上。
 
+### 用户与助手
+
 源码：
 
 ```xml
@@ -506,7 +518,7 @@ GitHub Alert 类型要全大写，单独占一行。正文继续用 `>`。五种
 </messages>
 </chat>
 
-双人气泡：
+### 双人气泡
 
 源码：
 
