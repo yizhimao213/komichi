@@ -25,6 +25,7 @@ import CardSpotlight from "./components/CardSpotlight.jsx";
 import DeckleFilter from "./components/DeckleFilter.jsx";
 import MeteorLayer from "./components/MeteorLayer.jsx";
 import Parthenon from "./components/Parthenon.jsx";
+import PhiLayer from "./components/PhiLayer.jsx";
 import Header from "./components/Header.jsx";
 import PageLoader from "./components/PageLoader.jsx";
 import { HeaderMetaProvider, SeasonProvider, SEASON_LIST } from "./context.jsx";
@@ -66,6 +67,13 @@ function isContentPage(path) {
   if (/^\/posts\/[^/]+/.test(path)) return true;
   if (/^\/notes\/series/.test(path)) return false;
   return /^\/notes\/[^/]+/.test(path);
+}
+
+function isArticleFxPage(path) {
+  const postM = path.match(/^\/posts\/([^/]+)$/);
+  if (postM && postM[1] !== "tag") return true;
+  if (/^\/notes\/series/.test(path)) return false;
+  return /^\/notes\/[^/]+$/.test(path);
 }
 
 const STATIC_TITLES = {
@@ -245,6 +253,11 @@ export default function App() {
         <>
           <Parthenon />
           <MeteorLayer />
+        </>
+      ) : isArticleFxPage(location.pathname) ? (
+        <>
+          <PhiLayer />
+          <MeteorLayer density={1.8} height="60vh" />
         </>
       ) : null}
       <CardSpotlight />

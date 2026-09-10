@@ -1,12 +1,15 @@
 import { useEffect, useRef } from "react";
+import { cssColorRgb } from "../cssRgb.js";
 
 export default function MeteorLayer({ density = 0.45, height = "46vh" }) {
   const layerRef = useRef(null);
   const canvasRef = useRef(null);
+  const probeRef = useRef(null);
 
   useEffect(() => {
     const layer = layerRef.current;
     const canvas = canvasRef.current;
+    const probe = probeRef.current;
     if (!layer || !canvas) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
@@ -46,7 +49,6 @@ export default function MeteorLayer({ density = 0.45, height = "46vh" }) {
         jitter,
         spacing: 9 + Math.random() * 5,
         size: 1.7 + Math.random() * 1.2,
-        cool: Math.random() < 0.12,
         fadeAt: heightPx * (0.45 + Math.random() * 0.45),
         alpha: 1,
       });
@@ -70,9 +72,7 @@ export default function MeteorLayer({ density = 0.45, height = "46vh" }) {
         if (meteors.length < maxMeteors) spawn();
       }
 
-      const dark = document.documentElement.dataset.theme === "dark";
-      const goldRgb = dark ? "226, 190, 110" : "170, 118, 32";
-      const coolRgb = dark ? "147, 197, 253" : "59, 130, 246";
+      const rgb = probe ? cssColorRgb(probe) : "170, 118, 32";
       ctx.clearRect(0, 0, width, heightPx);
 
       for (let m = meteors.length - 1; m >= 0; m--) {
@@ -84,7 +84,6 @@ export default function MeteorLayer({ density = 0.45, height = "46vh" }) {
           meteors.splice(m, 1);
           continue;
         }
-        const rgb = meteor.cool ? coolRgb : goldRgb;
         for (let i = 0; i < meteor.trail; i++) {
           const px = meteor.x - meteor.dx * meteor.spacing * i + meteor.jitter[i].x;
           const py = meteor.y - meteor.dy * meteor.spacing * i + meteor.jitter[i].y;
@@ -145,6 +144,7 @@ export default function MeteorLayer({ density = 0.45, height = "46vh" }) {
 
   return (
     <div className="meteor-layer" ref={layerRef} style={{ height }} aria-hidden="true">
+      <span className="dots-band-probe" ref={probeRef} />
       <canvas ref={canvasRef} />
     </div>
   );

@@ -5,6 +5,7 @@ import { Rss } from "lucide-react";
 import { citeOf, notes, posts, quotes, says, siteDays, siteLead, siteWords, thoughts } from "../content.js";
 import { Spot } from "../components/CardSpotlight.jsx";
 import TypewriterQuote from "../components/TypewriterQuote.jsx";
+import DotsBand from "../components/DotsBand.jsx";
 
 function daysAgo(iso) {
   const start = new Date(`${String(iso).replaceAll(".", "-")}T00:00:00`);
@@ -260,6 +261,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <DotsBand />
 
       <section className="section wrap-wide">
         <div className="home-split">

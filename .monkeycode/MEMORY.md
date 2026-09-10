@@ -40,7 +40,7 @@ Entries discovered by the Agent during task execution should follow this format:
   - 用户说「上传」才 git commit + push；看效果先预览
   - 项目只留 komichi；友链只留本站 + `tc.ixoxi.tw`
   - 文稿不要「立即出来」：全局过渡 + 懒加载
-  - Spotlight 用子节点 `.card-spot`；神殿柱/流星只挂首页
+  - Spotlight 用子节点 `.card-spot`；神殿柱/流星只挂首页；文稿/手记详情页另挂黄金比例线（PhiLayer）+ 更密流星（density 1.8 / 60vh），对照 ixoxi `/about/`，描边跟 `--accent`
   - 桌面 TOC portal 到 `document.body` + `fixed`；`is-focus` 时 ripple 淡出左移
   - 目录源扫 DOM 标题（挂载后再扫 `h2[id]` / `h3[id]`），不再只靠 `extractToc`；分组用最小 depth；当前可见节展开、收起延迟 300ms
   - 折叠不用 motion `height: auto`（会卡在 0），改 CSS `grid-template-rows: 0fr / 1fr`
