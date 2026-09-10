@@ -256,6 +256,7 @@ haklex 默认内容宽 `--rc-max-width: 700px`。站点在 `.article-page` / `.n
 - 目录：`src/components/Toc.jsx`
 - haklex：`src/haklex/HaklexContent.jsx`、`src/haklex/HaklexEditor.jsx`、`src/haklex/markdown.js`、`src/haklex/transformers.js`、`src/haklex/poll.js`、`src/haklex/ImageLightbox.jsx`
 - 节点样例：`content/posts/haklex-nodes.md`
+- 使用文稿（写法 → 源码 → 成品）：`content/posts/haklex.md`
 - 留言：`src/pages/Message.jsx`
 - 时光 peek：`src/pages/Timeline.jsx`、`src/components/PeekModal.jsx`、`src/peek.js`
 - 懒加载：`src/lazyImages.js`

@@ -57,7 +57,7 @@ public/covers/            封面图，Markdown 里写 /covers/文件名
 5. 友人帐、项目用 `##` 分段，不用 front matter，也不要再往 `content/friends/`、`content/projects/` 放单文件
 6. 保存后开发服务器会刷新
 7. 标题用 `##` 和 `###`，文稿/手记正文右侧才会出目录
-8. 正文由 haklex 渲染。普通 Markdown、`> [!NOTE]`、`::: banner` / `::: details`、公式、剧透、脚注能直接写；图集、投票、对话等用单独成行的 LiteXML。写法见 `docs/HAKLEX.md`，对照样例 `/posts/haklex-nodes`
+8. 正文由 haklex 渲染。普通 Markdown、`> [!NOTE]`、`::: banner` / `::: details`、公式、剧透、脚注能直接写；图集、投票、对话等用单独成行的 LiteXML。使用文稿 `/posts/haklex`（写法 → 源码围栏 → 成品），节点全貌 `/posts/haklex-nodes`，标签表 `docs/HAKLEX.md`
 
 日期统一写成 `YYYY-MM-DD`，例如 `2026-09-07`。思考页也可以写成 `2026.09.07`。
 

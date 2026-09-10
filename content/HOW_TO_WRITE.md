@@ -1,6 +1,6 @@
 # 怎么改内容
 
-完整说明在 `docs/CONTENT.md`。正文节点写法在 `docs/HAKLEX.md`，样例在 `/posts/haklex-nodes`。这里只留最短步骤。
+完整说明在 `docs/CONTENT.md`。正文怎么写：`/posts/haklex`（写法 → 源码 → 成品）。节点全貌：`/posts/haklex-nodes`。标签表：`docs/HAKLEX.md`。这里只留最短步骤。
 
 首页「N 篇 · M 字 · X 天」会跟着 Markdown 数量、正文词数和 `content/site.md` 自动变。
 思考出现在 `/thinking` 和首页「碎念」。一言出现在 `/says` 和首页「一言」。

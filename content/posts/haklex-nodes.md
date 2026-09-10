@@ -19,11 +19,15 @@ cover: /covers/haklex-nodes.webp
 
 看 {github@innei} 和 [小路]{github@komichi}。标签：<tag>AI</tag>。这句话带脚注。[^1]
 
+可见文字<!--草稿备注：只读页会变成 HTML 注释-->还在。
+
 [^1]: 脚注会收在文末。
 
 ## 图片与视频
 
 ![山景](https://picsum.photos/1200/720?random=301 "一张带图注的图")
+
+![坏图](https://invalid.example.invalid/broken-image.jpg "地址无效时居中显示错误")
 
 <video src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" poster="https://picsum.photos/1280/720?random=302" width="1280" height="720" />
 
@@ -54,6 +58,35 @@ console.log(hello('World'))</file>
 graph TD
     A["开始"] --> B["判断"]
     B --> C["完成"]
+```
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+    participant DB
+    Client->>Server: POST /api/login
+    Server->>DB: Query user
+    DB-->>Server: User record
+    Server-->>Client: JWT token
+```
+
+```mermaid
+classDiagram
+    class Node {
+      +String type
+      +getType() String
+      +clone() Node
+    }
+    class DecoratorNode {
+      +decorate() ReactElement
+    }
+    class MermaidNode {
+      -String diagram
+      +getDiagram() String
+    }
+    Node <|-- DecoratorNode
+    DecoratorNode <|-- MermaidNode
 ```
 
 $$
@@ -125,6 +158,13 @@ $$
 <img src="https://picsum.photos/800/400?random=7" alt="幻灯三" />
 </gallery>
 
+<gallery layout="masonry">
+<img src="https://picsum.photos/400/500?random=11" alt="砌体一" />
+<img src="https://picsum.photos/400/280?random=12" alt="砌体二" />
+<img src="https://picsum.photos/400/360?random=13" alt="砌体三" />
+<img src="https://picsum.photos/400/420?random=14" alt="砌体四" />
+</gallery>
+
 <grid cols="2" gap="16px">
 <cell><p>左栏</p></cell>
 <cell><p>右栏</p></cell>
@@ -139,6 +179,14 @@ $$
 <option>容器</option>
 </poll>
 
+<poll mode="multiple">
+<question>养过哪些？</question>
+<option>猫</option>
+<option>狗</option>
+<option>仓鼠</option>
+<option>鱼</option>
+</poll>
+
 <chat variant="user-agent">
 <participants>
 <participant id="u1" kind="user" name="komichi" />
@@ -147,6 +195,19 @@ $$
 <messages>
 <message id="m1" participant="u1">正文能渲染 /nodes 那些节点吗？</message>
 <message id="m2" participant="a1">能。Markdown 走 transformer，扩展节点用 LiteXML。</message>
+</messages>
+</chat>
+
+<chat variant="user-user">
+<participants>
+<participant id="p_alice" kind="user" name="Alice" />
+<participant id="p_bob" kind="user" name="Bob" />
+</participants>
+<messages>
+<message id="m_uu_1" participant="p_alice">静态和编辑还是拆开做吗？</message>
+<message id="m_uu_2" participant="p_bob">对，跟 code-snippet 同一套。</message>
+<message id="m_uu_3" participant="p_alice">那我先开草稿 PR？</message>
+<message id="m_uu_4" participant="p_bob">先把规格过了再说。</message>
 </messages>
 </chat>
 
