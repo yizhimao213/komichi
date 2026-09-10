@@ -7,6 +7,7 @@ import { useHeaderState } from "../context.jsx";
 const RING_R = 6.5;
 const RING_C = 2 * Math.PI * RING_R;
 const TOC_TOP = 120;
+const READ_LINE = 100;
 const foldEase = [0.4, 0, 0.2, 1];
 const ease = [0.22, 1, 0.36, 1];
 const SPRING_G = 2 * Math.sqrt(90) * 0.75;
@@ -86,6 +87,17 @@ function railSize() {
   return Math.round(Math.min(vh * 0.75, Math.max(120, h)));
 }
 
+function headingAtLine(items, y = READ_LINE) {
+  let cur = "";
+  for (const item of items) {
+    const el = document.getElementById(item.id);
+    if (!el) continue;
+    if (el.getBoundingClientRect().top <= y) cur = item.id;
+    else break;
+  }
+  return cur;
+}
+
 export default function Toc({ items, active }) {
   const colRef = useRef(null);
   const stickyRef = useRef(null);
@@ -162,33 +174,28 @@ export default function Toc({ items, active }) {
     if (!items.length) return undefined;
     const els = items.map((item) => document.getElementById(item.id)).filter(Boolean);
     const seen = new Set();
+    const syncActive = () => {
+      const next = headingAtLine(items) || items[0]?.id || "";
+      if (next) setActiveId((prev) => (prev === next ? prev : next));
+    };
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) seen.add(entry.target.id);
           else seen.delete(entry.target.id);
         });
-        let next = "";
-        for (const item of items) {
-          if (seen.has(item.id)) {
-            next = item.id;
-            break;
-          }
-        }
-        if (!next) {
-          for (const item of items) {
-            const el = document.getElementById(item.id);
-            if (el && el.getBoundingClientRect().top < 100) next = item.id;
-            else break;
-          }
-        }
         setVisibleIds(new Set(seen));
-        if (next) setActiveId(next);
+        syncActive();
       },
-      { rootMargin: "-100px 0px -100px 0px" }
+      { rootMargin: "-100px 0px -55% 0px" }
     );
     els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
+    syncActive();
+    window.addEventListener("scroll", syncActive, { passive: true });
+    return () => {
+      io.disconnect();
+      window.removeEventListener("scroll", syncActive);
+    };
   }, [items]);
 
   useEffect(() => {
@@ -196,7 +203,11 @@ export default function Toc({ items, active }) {
     setOpenIds((prev) => {
       const next = new Set();
       for (const group of groups) {
-        const on = visibleIds.has(group.parent.id) || group.children.some((child) => visibleIds.has(child.id));
+        const on =
+          group.parent.id === currentId ||
+          group.children.some((child) => child.id === currentId) ||
+          visibleIds.has(group.parent.id) ||
+          group.children.some((child) => visibleIds.has(child.id));
         if (on) {
           const pending = timers.get(group.parent.id);
           if (pending) {
@@ -223,7 +234,7 @@ export default function Toc({ items, active }) {
       }
       return next;
     });
-  }, [groups, visibleIds]);
+  }, [groups, visibleIds, currentId]);
 
   useEffect(
     () => () => {

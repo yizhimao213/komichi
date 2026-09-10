@@ -105,25 +105,35 @@ export function headingSlug(text) {
 
 export function extractToc(markdown) {
   const slugs = new Map();
-  return String(markdown || "")
-    .split("\n")
-    .filter((line) => /^#{2,3} /.test(line))
-    .map((line) => {
-      const level = line.startsWith("###") ? 3 : 2;
-      const text = line.replace(/^#{2,3} /, "").trim();
-      const base = headingSlug(text);
-      let id = base;
-      if (base) {
-        const count = slugs.get(base);
-        if (count !== undefined) {
-          id = `${base}-${count}`;
-          slugs.set(base, count + 1);
-        } else {
-          slugs.set(base, 1);
-        }
+  const items = [];
+  let fence = 0;
+  for (const line of String(markdown || "").split("\n")) {
+    const mark = line.match(/^(\s*)(`{3,}|~{3,})/);
+    if (mark) {
+      const n = mark[2].length;
+      if (!fence) fence = n;
+      else if (n >= fence) fence = 0;
+      continue;
+    }
+    if (fence) continue;
+    const heading = line.match(/^(#{2,3}) (.+)/);
+    if (!heading) continue;
+    const level = heading[1].length;
+    const text = heading[2].trim();
+    const base = headingSlug(text);
+    let id = base;
+    if (base) {
+      const count = slugs.get(base);
+      if (count !== undefined) {
+        id = `${base}-${count}`;
+        slugs.set(base, count + 1);
+      } else {
+        slugs.set(base, 1);
       }
-      return { level, text, id };
-    });
+    }
+    items.push({ level, text, id });
+  }
+  return items;
 }
 
 function findTagEnd(source, start, tag) {

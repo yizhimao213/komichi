@@ -279,19 +279,20 @@ export default function Article({ kind }) {
   const toc = useMemo(() => (doc ? extractToc(doc.body) : []), [doc]);
 
   useEffect(() => {
-    if (!toc.length) return;
-    const els = toc.map((item) => document.getElementById(item.id)).filter(Boolean);
-    const io = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.filter((e) => e.isIntersecting);
-        if (!visible.length) return;
-        visible.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        setActive(visible[0].target.id);
-      },
-      { rootMargin: "-100px 0px -55% 0px", threshold: [0, 0.25, 1] }
-    );
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
+    if (!toc.length) return undefined;
+    const sync = () => {
+      let next = toc[0]?.id || "";
+      for (const item of toc) {
+        const el = document.getElementById(item.id);
+        if (!el) continue;
+        if (el.getBoundingClientRect().top <= 100) next = item.id;
+        else break;
+      }
+      setActive((prev) => (prev === next ? prev : next));
+    };
+    sync();
+    window.addEventListener("scroll", sync, { passive: true });
+    return () => window.removeEventListener("scroll", sync);
   }, [toc, doc]);
 
   if (!doc) {
