@@ -426,6 +426,11 @@ export default function Article({ kind }) {
               <span>{words.toLocaleString("zh-CN")} 字</span>
             </div>
           </header>
+          {doc.cover ? (
+            <figure className="article-cover">
+              <img src={doc.cover} alt="" loading="lazy" decoding="async" />
+            </figure>
+          ) : null}
           {doc.summary ? (
             <section className="article-insight">
               <p className="article-insight-kicker">关键洞察</p>

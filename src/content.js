@@ -388,9 +388,6 @@ export function getTag(slug) {
 }
 
 const covers = {
-  "css-to-stylex-migration": "/covers/stylex.jpg",
-  "uikitcore-reverse-engineering-report": "/covers/glass.jpg",
-  "ai-era-dev-workflow-review-and-verify": "/covers/desk.jpg",
   219: "/covers/night.jpg",
   218: "/covers/street.jpg",
 };

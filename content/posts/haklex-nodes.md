@@ -4,7 +4,7 @@ date: "2026-09-09"
 category: 技术
 tags: [haklex, Markdown]
 summary: 对照官方 /nodes 的正文节点，写进 content/ 就能看见同样的渲染。
-cover: /covers/stylex.jpg
+cover: /covers/haklex-nodes.webp
 ---
 
 对照官方 [haklex /nodes](https://haklex.innei.dev/nodes)。写法见 `docs/HAKLEX.md`。

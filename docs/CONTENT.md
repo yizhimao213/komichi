@@ -295,6 +295,7 @@ avatar: /projects/example.png
 
 现成封面：
 
+- `/covers/haklex-nodes.webp`
 - `/covers/stylex.jpg`
 - `/covers/glass.jpg`
 - `/covers/desk.jpg`
