@@ -103,9 +103,19 @@ function rippleDelay(index, activeIndex) {
   return Math.min(450, 50 * Math.abs(index - activeIndex));
 }
 
-function railSize() {
+function coverEl() {
+  return document.querySelector(".article-page .article-cover, .note-page .note-cover-wash");
+}
+
+function tocPinTop() {
+  const cover = coverEl();
+  if (!cover) return TOC_TOP;
+  return Math.max(TOC_TOP, Math.round(cover.getBoundingClientRect().top));
+}
+
+function railSize(top = TOC_TOP) {
   const vh = window.innerHeight;
-  const h = vh - 96 - 72 - 150 - TOC_TOP;
+  const h = vh - 96 - 72 - 150 - top;
   return Math.round(Math.min(vh * 0.75, Math.max(120, h)));
 }
 
@@ -365,11 +375,12 @@ export default function Toc({ items, active }) {
       const col = colRef.current;
       const sticky = stickyRef.current;
       if (!col || !sticky) return;
-      const h = railSize();
+      const top = tocPinTop();
+      const h = railSize(top);
       railHLive.current = h;
       setRailH((prev) => (prev === h ? prev : h));
       sticky.style.left = `${Math.round(col.getBoundingClientRect().left)}px`;
-      sticky.style.top = `${TOC_TOP}px`;
+      sticky.style.top = `${top}px`;
       const maxW = Math.max(120, window.innerWidth - sticky.getBoundingClientRect().left - 30);
       sticky.style.setProperty("--toc-max-w", `${Math.round(maxW)}px`);
     };
@@ -494,11 +505,23 @@ export default function Toc({ items, active }) {
         prose = next;
       }
     };
-    window.addEventListener("scroll", read, { passive: true });
+    const onScroll = () => {
+      pin();
+      read();
+    };
+    const cover = coverEl();
+    const ro = new ResizeObserver(() => {
+      pin();
+      read();
+    });
+    if (cover) ro.observe(cover);
+    if (colRef.current) ro.observe(colRef.current);
+    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
     return () => {
       cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", read);
+      ro.disconnect();
+      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
       prose?.removeEventListener("mouseenter", onProseEnter);
       prose?.removeEventListener("mouseleave", onProseLeave);

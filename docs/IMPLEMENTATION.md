@@ -202,7 +202,7 @@ haklex 默认内容宽 `--rc-max-width: 700px`。站点在 `.article-page` / `.n
 
 右侧 `Toc.jsx`，portal 到 `fixed`，对照 innei `TocAside` / `TocTree`：
 
-- 顶边钉在 `120px`，高度 `100vh - 438px`，上限 `75vh`，下限 `120px`，左内边距 `2.5rem`
+- 顶边对齐文稿主图上沿（无主图时 `120px`），滚过主图后钉在 `120px`；高度随顶边收，上限 `75vh`，下限 `120px`，左内边距 `2.5rem`
 - 鼠标在正文上时 `data-toc-focus`：条目按与当前项的距离 ripple 淡出并左移 10px（`50ms * |i - active|`，上限 450ms）
 - 左侧细轨用 `clip-path` 从阅读进度展开，滚动时鼓包 + 弹簧过冲；700ms 后出现当前 `##` 与百分比
 - 悬停目录栏收回列表；`##` 分组，`###` 当前可见节展开，收起延迟 300ms，CSS `grid-template-rows` 0.4s 折叠
