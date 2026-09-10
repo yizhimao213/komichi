@@ -26,6 +26,7 @@ import Header from "./components/Header.jsx";
 import PageLoader from "./components/PageLoader.jsx";
 import { HeaderMetaProvider, SeasonProvider, SEASON_LIST } from "./context.jsx";
 import { ImageLightboxProvider } from "./haklex/ImageLightbox.jsx";
+import { NodeExpandProvider } from "./haklex/NodeExpand.jsx";
 
 const THEME_KEY = "yohaku-theme";
 const BG_KEY = "yohaku-bg";
@@ -235,6 +236,7 @@ export default function App() {
     <HeaderMetaProvider>
       <SeasonProvider value={{ season, setSeason: changeSeason }}>
       <ImageLightboxProvider>
+      <NodeExpandProvider>
       <Background enabled={bgOn} />
       <DeckleFilter />
       <div className="app">
@@ -384,6 +386,7 @@ export default function App() {
         </div>
       )}
 
+      </NodeExpandProvider>
       </ImageLightboxProvider>
       </SeasonProvider>
     </HeaderMetaProvider>

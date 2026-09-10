@@ -13,6 +13,7 @@ import {
 import {
   IMAGE_IMPORT_TRANSFORMER,
   MERMAID_IMPORT_TRANSFORMER,
+  TAG_IMPORT_TRANSFORMER,
 } from "./transformers.js";
 
 const cache = new Map();
@@ -44,6 +45,7 @@ const BLOCK_TAGS = new Set([
 const SITE_TRANSFORMERS = [
   MERMAID_IMPORT_TRANSFORMER,
   IMAGE_IMPORT_TRANSFORMER,
+  TAG_IMPORT_TRANSFORMER,
   ...ALL_TRANSFORMERS,
 ];
 

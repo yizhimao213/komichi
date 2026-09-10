@@ -2,8 +2,10 @@ import { $isRootNode } from "lexical";
 import {
   $createImageNode,
   $createMermaidNode,
+  $createTagNode,
   ImageNode,
   MermaidNode,
+  TagNode,
 } from "@haklex/rich-editor/nodes";
 
 export const IMAGE_IMPORT_TRANSFORMER = {
@@ -40,4 +42,16 @@ export const MERMAID_IMPORT_TRANSFORMER = {
     }
   },
   type: "multiline-element",
+};
+
+export const TAG_IMPORT_TRANSFORMER = {
+  dependencies: [TagNode],
+  export: (node) => (node.getType?.() === "tag" ? `<tag>${node.getText?.() ?? ""}</tag>` : null),
+  importRegExp: /<tag>([^<]+)<\/tag>/,
+  regExp: /<tag>([^<]+)<\/tag>$/,
+  replace: (textNode, match) => {
+    textNode.replace($createTagNode(match[1]));
+  },
+  trigger: ">",
+  type: "text-match",
 };

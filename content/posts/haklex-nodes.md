@@ -17,7 +17,7 @@ cover: /covers/haklex-nodes.webp
 
 日文注音：<ruby>漢字<rt>かんじ</rt></ruby> 与 <ruby>東京<rt>とうきょう</rt></ruby>。
 
-看 {github@innei} 和 [小路]{github@komichi}。这句话带脚注。[^1]
+看 {github@innei} 和 [小路]{github@komichi}。标签：<tag>AI</tag>。这句话带脚注。[^1]
 
 [^1]: 脚注会收在文末。
 
@@ -149,3 +149,21 @@ $$
 <message id="m2" participant="a1">能。Markdown 走 transformer，扩展节点用 LiteXML。</message>
 </messages>
 </chat>
+
+## 嵌入、附件、嵌套
+
+<embed url="https://www.youtube.com/watch?v=dQw4w9WgXcQ" source="youtube" />
+
+<embed url="https://www.bilibili.com/video/BV1GJ411x7h7" source="bilibili" />
+
+<attachment src="/covers/haklex-nodes.webp" name="haklex-nodes.webp" ext="webp" />
+
+<nested-doc>
+<h3>嵌套小节</h3>
+<p>点卡片会全屏打开这段内容。</p>
+<p>里面还可以写 <b>强调</b> 和链接卡之外的普通段落。</p>
+</nested-doc>
+
+<excalidraw><![CDATA[{"type":"excalidraw","version":2,"source":"https://excalidraw.com","elements":[{"id":"box-1","type":"rectangle","x":40,"y":40,"width":200,"height":90,"angle":0,"strokeColor":"#1e1e1e","backgroundColor":"#a5d8ff","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":3},"seed":1,"version":1,"versionNonce":1,"isDeleted":false,"boundElements":[{"id":"text-1","type":"text"}],"updated":1,"link":null,"locked":false},{"id":"text-1","type":"text","x":80,"y":70,"width":120,"height":28,"angle":0,"strokeColor":"#1e1e1e","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":1,"strokeStyle":"solid","roughness":0,"opacity":100,"groupIds":[],"frameId":null,"roundness":null,"seed":2,"version":1,"versionNonce":2,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"text":"haklex","fontSize":28,"fontFamily":1,"textAlign":"center","verticalAlign":"middle","containerId":"box-1","originalText":"haklex","lineHeight":1.25,"autoResize":true}],"appState":{"viewBackgroundColor":"#ffffff","gridSize":null},"files":{}}]]></excalidraw>
+
+<img src="https://picsum.photos/640/400?random=401" alt="靠右小图" caption="display-width 40，靠右" layout="align-right" display-width="40" />

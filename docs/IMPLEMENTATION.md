@@ -159,11 +159,13 @@ docs/                   DEPLOY / IMPLEMENTATION / CONTENT
 
 | 文件 | 作用 |
 | --- | --- |
-| `HaklexContent.jsx` | `composeRenderer`，给 image/gallery 接 `onImageClick`，class 为 `haklex-body` |
+| `HaklexContent.jsx` | `composeRenderer`，image/gallery 接 `onImageClick`，nested-doc/excalidraw 接 `onExpand`，dynamic 只接受 https |
 | `ImageLightbox.jsx` | 正文图、图集、文稿主图点击后全屏查看 |
+| `NodeExpand.jsx` | 嵌套文档、白板全屏展开，Esc 关闭 |
+| `mentions.js` | `{github@}` 等平台名映射到 haklex 默认 `GH`/`TW`/`TG`/`ZH` |
 | `HaklexEditor.jsx` | `composeEditor({ modules: allEditorModules })`，留言默认 `variant="comment"`，`slash` 默认关 |
 | `markdown.js` | 分段 MD / LiteXML；Alert / Banner / Details / 块公式先抬成节点，再走 transformer；脚注用静态 `FootnoteSectionNode` |
-| `transformers.js` | `![alt](src)`、` ```mermaid ` 导入 |
+| `transformers.js` | `![alt](src)`、` ```mermaid `、`<tag>` 导入 |
 | `poll.js` | 只读页 `PollDataProvider` 适配 |
 | `theme.js` | `MutationObserver` 读 `document.documentElement.dataset.theme` |
 

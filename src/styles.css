@@ -3942,6 +3942,60 @@ html[data-theme="dark"] .note-series-end-card {
   gap: 12px;
   cursor: default;
 }
+.node-expand {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper, #f6f3ee);
+  color: var(--n-10, #1c1917);
+}
+.node-expand.is-draw {
+  background: #111;
+  color: #fff;
+}
+.node-expand-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--glass-line, #00000014);
+}
+.node-expand.is-draw .node-expand-bar {
+  border-bottom-color: #ffffff24;
+}
+.node-expand-bar p {
+  margin: 0;
+  font-size: 14px;
+}
+.node-expand-bar button {
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: #00000014;
+  color: inherit;
+  cursor: pointer;
+}
+.node-expand.is-draw .node-expand-bar button {
+  background: #ffffff24;
+}
+.node-expand-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 24px 16px 40px;
+}
+.node-expand.is-draw .node-expand-body {
+  padding: 0;
+  display: flex;
+}
+.node-expand.is-draw .node-expand-body > * {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
 .overlay {
   position: fixed;
   inset: 0;

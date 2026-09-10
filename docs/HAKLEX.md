@@ -200,13 +200,19 @@ $$
 | 脚注 | `[^id]` + `[^id]: ...` |
 | 下划线 | `++...++` |
 | 上标 / 下标 | `^...^` / `~...~` |
-| 提及 Mention | `{platform@handle}` |
+| 提及 Mention | `{github@handle}` / `{twitter@handle}` / `{telegram@handle}` / `{zhihu@handle}` |
+| 行内标签 Tag | `<tag>AI</tag>` |
 | 注音 Ruby | `<ruby>...<rt>...</rt></ruby>` |
 | 注释 Comment | `<!--...-->` |
 | 图集 Gallery | `<gallery>` |
 | 分栏 Grid | `<grid>` |
 | 投票 Poll | `<poll>` |
 | 对话 Chat | `<chat>` |
+| 嵌入 Embed | `<embed url="..." />` |
+| 附件 File | `<attachment src="..." name="..." />` |
+| 嵌套文档 NestedDoc | `<nested-doc>` |
+| 白板 Excalidraw | `<excalidraw>` |
+| 远程组件 Dynamic | `<dynamic url="https://..." />` |
 
 ## LiteXML 扩展节点
 
@@ -247,6 +253,21 @@ $$
 <message id="m2" participant="a1">能。Markdown 走 transformer，扩展节点用 LiteXML。</message>
 </messages>
 </chat>
+
+<embed url="https://www.youtube.com/watch?v=dQw4w9WgXcQ" source="youtube" />
+
+<attachment src="/covers/haklex-nodes.webp" name="haklex-nodes.webp" ext="webp" />
+
+<nested-doc>
+<h3>嵌套小节</h3>
+<p>点卡片会全屏打开。</p>
+</nested-doc>
+
+<excalidraw><![CDATA[{"elements":[]}]]></excalidraw>
+
+<tag>AI</tag>
 ```
+
+提及平台名用 `github` / `twitter` / `telegram` / `zhihu`。点嵌套卡片或白板会全屏展开，Esc 关闭。`<dynamic>` 只接受 `https:` 地址。
 
 完整标签表见 https://github.com/Innei/haklex/blob/main/packages/rich-editor/docs/markdown-flavor-litexml.md

@@ -5,6 +5,8 @@ import { DialogStackProvider } from "@haklex/rich-editor-ui";
 import { NestedDocDialogEditorProvider, NestedDocPlugin } from "@haklex/rich-ext-nested-doc";
 import { PollDataProvider } from "@haklex/rich-ext-poll";
 import { SlashMenuPlugin } from "@haklex/rich-plugin-slash-menu";
+import { MentionPlatformProvider } from "@haklex/rich-renderer-mention/static";
+import { mentionPlatforms } from "./mentions.js";
 import { pollAdapter } from "./poll.js";
 import { useSiteTheme } from "./theme.js";
 import "@haklex/rich-compose/style.css";
@@ -95,6 +97,7 @@ export default function HaklexEditor({
     <div className={["haklex-editor", className].filter(Boolean).join(" ")}>
       <EditorErrorBoundary>
         <DialogStackProvider>
+          <MentionPlatformProvider platforms={mentionPlatforms}>
           <PollDataProvider adapter={pollAdapter}>
             <NestedDocDialogEditorProvider value={NestedDocDialogEditor}>
               <ComposedEditor
@@ -119,6 +122,7 @@ export default function HaklexEditor({
               </ComposedEditor>
             </NestedDocDialogEditorProvider>
           </PollDataProvider>
+          </MentionPlatformProvider>
         </DialogStackProvider>
       </EditorErrorBoundary>
     </div>
