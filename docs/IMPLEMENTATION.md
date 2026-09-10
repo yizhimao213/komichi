@@ -182,9 +182,9 @@ haklex 默认内容宽 `--rc-max-width: 700px`。站点在 `.article-page` / `.n
 
 ## 文稿页
 
-`Article.jsx` 把 `doc.body` 交给 `HaklexContent`。`##` / `###` 由 `extractToc` 抽成目录。
+`Article.jsx` 把 `doc.body` 交给 `HaklexContent`。目录先用 `extractToc` 垫一层，挂载后再扫正文里的 `h2[id]` / `h3[id]`。
 
-布局 `.article-layout`：`minmax(0, 900px) 200px`，列间距 80px，总宽 `min(1180px, calc(100% - 48px))`。窄屏单列 `minmax(0, 1fr)`，页头留 24px 顶距，正文 `min-width: 0`，haklex `--rc-max-width: 100%`，宽节点可横向滚动。页头 `.article-head`，有 `cover` 时在标题下显示 `.article-cover` 主图（不铺满屏、不改顶栏），摘要进「关键洞察」。
+布局 `.article-layout`：`minmax(0, 900px) 200px`，列间距 80px，总宽 `min(1180px, calc(100% - 48px))`。窄屏单列 `minmax(0, 1fr)`，页头留 24px 顶距，正文 `min-width: 0`，haklex `--rc-max-width: 100%`，宽节点可横向滚动。页头 `.article-head`，有 `cover` 时在标题下显示 `.article-cover` 主图（不铺满屏、不改顶栏），摘要进「关键洞察」。文末对照 innei：淡线 + 标题/作者/日期 + 可复制链接 + CC BY-NC-SA 4.0 + 手写签名 + 菱形分隔 + 回到分类 / 查看全部文稿。
 
 ## 手记页
 
@@ -205,7 +205,7 @@ haklex 默认内容宽 `--rc-max-width: 700px`。站点在 `.article-page` / `.n
 - 顶边钉在 `120px`，高度 `100vh - 438px`，上限 `75vh`，下限 `120px`，左内边距 `2.5rem`
 - 鼠标在正文上时 `data-toc-focus`：条目按与当前项的距离 ripple 淡出并左移 10px（`50ms * |i - active|`，上限 450ms）
 - 左侧细轨用 `clip-path` 从阅读进度展开，滚动时鼓包 + 弹簧过冲；700ms 后出现当前 `##` 与百分比
-- 悬停目录栏收回列表；`##` 分组，`###` 当前可见节展开，收起延迟 300ms，高度 0.4s
+- 悬停目录栏收回列表；`##` 分组，`###` 当前可见节展开，收起延迟 300ms，CSS `grid-template-rows` 0.4s 折叠
 - 当前项强调色 / 视口内 70% / 其余 35%；左侧 2px 可见区指示条
 - 列表底部分隔线（手绘 squiggle）+ 进度环 + 回到顶部（进度 ≤10% 隐藏）
 - `max-width: 1100px`：右下角目录钮 + 底部目录 sheet

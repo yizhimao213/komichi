@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronUp } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, ChevronUp, Copy } from "lucide-react";
 import { categorySlug, countWords, getNote, getPost, getSeries, notes, seriesSlug } from "../content.js";
 import { Link, useParams } from "react-router-dom";
 import Toc from "../components/Toc.jsx";
@@ -7,6 +7,9 @@ import { useHeaderMeta } from "../context.jsx";
 import HaklexContent from "../haklex/HaklexContent.jsx";
 import { extractToc } from "../haklex/markdown.js";
 import { openImageSrc, useImageLightbox } from "../haklex/ImageLightbox.jsx";
+
+const AUTHOR = "四十小路";
+const LICENSE_HREF = "https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans";
 
 const NOTE_FONT_KEY = "yohaku-note-font";
 
@@ -261,6 +264,93 @@ function seriesHue(name) {
   return n;
 }
 
+function stamp(iso) {
+  const raw = String(iso || "").replaceAll(".", "-");
+  const d = new Date(`${raw.slice(0, 10)}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return String(iso || "");
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}/${m}/${day}`;
+}
+
+function articleHref(doc) {
+  const origin = typeof window === "undefined" ? "https://komichi.ixoxi.cn" : window.location.origin;
+  return `${origin}/posts/${doc.slug}`;
+}
+
+function ArticleEnd({ doc, catName, catHref }) {
+  const [copied, setCopied] = useState(false);
+  const href = articleHref(doc);
+  const day = stamp(doc.updated || doc.modified || doc.date);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(href);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  return (
+    <footer className="article-end" id="copyright">
+      <div className="article-copy-rule" />
+      <div className="article-copy">
+        <div className="article-copy-meta">
+          <p>
+            {doc.title} · {AUTHOR}
+            {day ? ` · ${day}` : ""}
+          </p>
+          <p className="article-copy-link">
+            <span>{href}</span>
+            <button
+              type="button"
+              className="article-copy-btn"
+              data-hide-print="true"
+              aria-label={copied ? "已复制" : "复制链接"}
+              onClick={copy}
+            >
+              {copied ? <Check size={14} strokeWidth={2} /> : <Copy size={14} strokeWidth={2} />}
+            </button>
+          </p>
+          <p>
+            本文采用
+            <a href={LICENSE_HREF} target="_blank" rel="noopener noreferrer">
+              CC BY-NC-SA 4.0
+            </a>
+            进行许可。
+          </p>
+        </div>
+        <p className="article-sign" data-hide-print="true" aria-hidden="true">
+          komichi
+        </p>
+      </div>
+      <nav className="article-end-nav" data-hide-print="true">
+        <div className="article-end-split">
+          <span />
+          <i />
+          <span />
+        </div>
+        <div className="article-end-links">
+          {catHref ? (
+            <Link className="article-end-back" to={catHref} viewTransition>
+              <ArrowLeft size={14} strokeWidth={2} />
+              回到{catName}
+            </Link>
+          ) : (
+            <span />
+          )}
+          <Link className="article-end-all" to="/posts" viewTransition>
+            查看全部文稿
+            <ArrowRight size={14} strokeWidth={2} />
+          </Link>
+        </div>
+      </nav>
+    </footer>
+  );
+}
+
 export default function Article({ kind }) {
   const { slug, nid } = useParams();
   const doc = kind === "note" ? getNote(nid) : getPost(slug);
@@ -443,6 +533,7 @@ export default function Article({ kind }) {
             </section>
           ) : null}
           <HaklexContent markdown={doc.body} variant="article" />
+          <ArticleEnd doc={doc} catName={catName} catHref={catHref} />
           {comment}
         </article>
         <Toc items={toc} active={active} />

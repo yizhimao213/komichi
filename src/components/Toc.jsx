@@ -8,7 +8,6 @@ const RING_R = 6.5;
 const RING_C = 2 * Math.PI * RING_R;
 const TOC_TOP = 120;
 const READ_LINE = 100;
-const foldEase = [0.4, 0, 0.2, 1];
 const ease = [0.22, 1, 0.36, 1];
 const SPRING_G = 2 * Math.sqrt(90) * 0.75;
 const SQUIGGLES = [
@@ -20,16 +19,39 @@ const SQUIGGLES = [
 ];
 
 function groupToc(items) {
+  if (!items.length) return [];
+  const root = items.reduce((n, item) => Math.min(n, item.level), items[0].level);
   const groups = [];
   for (const item of items) {
-    if (item.level === 2 || !groups.length) groups.push({ parent: item, children: [] });
-    else groups[groups.length - 1].children.push(item);
+    if (item.level === root) groups.push({ parent: item, children: [] });
+    else if (groups.length) groups[groups.length - 1].children.push(item);
   }
   return groups;
 }
 
 function proseEl() {
   return document.querySelector(".note-paper .haklex-body, .article-page .haklex-body, .note-paper .rich-content, .article-page .rich-content");
+}
+
+function headingTitle(el) {
+  const clone = el.cloneNode(true);
+  clone.querySelectorAll(".rich-heading-anchor, del, .katex-container").forEach((node) => node.remove());
+  return (clone.textContent || "").replace(/\s+/g, " ").trim();
+}
+
+function readHeadings() {
+  const prose = proseEl();
+  if (!prose) return [];
+  return [...prose.querySelectorAll("h2[id], h3[id]")].map((el) => ({
+    id: el.id,
+    text: headingTitle(el),
+    level: el.tagName === "H3" ? 3 : 2,
+  }));
+}
+
+function sameItems(a, b) {
+  if (a.length !== b.length) return false;
+  return a.every((item, i) => item.id === b[i].id && item.text === b[i].text && item.level === b[i].level);
 }
 
 function ProgressBits({ pct, ringRef, ringOff, onTop }) {
@@ -129,26 +151,48 @@ export default function Toc({ items, active }) {
   const [hover, setHover] = useState(false);
   const [visibleIds, setVisibleIds] = useState(() => new Set());
   const [activeId, setActiveId] = useState(active || "");
-  const [openIds, setOpenIds] = useState(() => new Set());
+  const [openIds, setOpenIds] = useState(() => {
+    const first = groupToc(items)[0]?.parent.id;
+    return first ? new Set([first]) : new Set();
+  });
   const [rangeBar, setRangeBar] = useState(null);
   const [mask, setMask] = useState("");
+  const [live, setLive] = useState(items);
   const [vw, setVw] = useState(() => (typeof window !== "undefined" ? window.innerWidth : 800));
   const { setTocOpen } = useHeaderState();
 
-  const groups = useMemo(() => groupToc(items), [items]);
+  const toc = live.length ? live : items;
+  const groups = useMemo(() => groupToc(toc), [toc]);
   const compact = vw <= 1100;
   const focus = overContent && !hover;
-  const currentId = activeId || active || items[0]?.id || "";
-  const activeIndex = Math.max(0, items.findIndex((item) => item.id === currentId));
+  const currentId = activeId || active || toc[0]?.id || "";
+  const activeIndex = Math.max(0, toc.findIndex((item) => item.id === currentId));
+  const minLevel = toc.reduce((n, item) => Math.min(n, item.level), toc[0]?.level || 2);
   const rootItem = useMemo(() => {
-    if (!items.length) return null;
-    const idx = items.findIndex((item) => item.id === currentId);
-    if (idx < 0) return items[0];
-    for (let i = idx; i >= 0; i--) if (items[i].level === 2) return items[i];
-    return items[idx];
-  }, [items, currentId]);
+    if (!toc.length) return null;
+    const idx = toc.findIndex((item) => item.id === currentId);
+    if (idx < 0) return toc[0];
+    for (let i = idx; i >= 0; i--) if (toc[i].level === minLevel) return toc[i];
+    return toc[idx];
+  }, [toc, currentId, minLevel]);
   const ringOff = RING_C * (1 - Math.round(progress) / 100);
-  const minLevel = items.reduce((n, item) => Math.min(n, item.level), items[0]?.level || 2);
+
+  useEffect(() => {
+    const scan = () => {
+      const next = readHeadings();
+      if (!next.length) return;
+      setLive((prev) => (sameItems(prev, next) ? prev : next));
+    };
+    scan();
+    const prose = proseEl();
+    const mo = prose ? new MutationObserver(scan) : null;
+    mo?.observe(prose, { childList: true, subtree: true });
+    const ticks = [50, 200, 800].map((ms) => window.setTimeout(scan, ms));
+    return () => {
+      mo?.disconnect();
+      ticks.forEach((id) => window.clearTimeout(id));
+    };
+  }, [items]);
 
   useEffect(() => {
     setTocOpen(sheetOpen);
@@ -171,11 +215,11 @@ export default function Toc({ items, active }) {
   }, []);
 
   useEffect(() => {
-    if (!items.length) return undefined;
-    const els = items.map((item) => document.getElementById(item.id)).filter(Boolean);
+    if (!toc.length) return undefined;
+    const els = toc.map((item) => document.getElementById(item.id)).filter(Boolean);
     const seen = new Set();
     const syncActive = () => {
-      const next = headingAtLine(items) || items[0]?.id || "";
+      const next = headingAtLine(toc) || toc[0]?.id || "";
       if (next) setActiveId((prev) => (prev === next ? prev : next));
     };
     const io = new IntersectionObserver(
@@ -196,7 +240,7 @@ export default function Toc({ items, active }) {
       io.disconnect();
       window.removeEventListener("scroll", syncActive);
     };
-  }, [items]);
+  }, [toc]);
 
   useEffect(() => {
     const timers = foldTimers.current;
@@ -245,7 +289,7 @@ export default function Toc({ items, active }) {
   );
 
   useEffect(() => {
-    if (compact || !focus) return;
+    if (compact || hover) return;
     const row = fullListRef.current?.querySelector(".toc-full-row.is-on");
     const box = fullListRef.current;
     if (!row || !box) return;
@@ -254,7 +298,7 @@ export default function Toc({ items, active }) {
     if (top < box.scrollTop || top + h > box.scrollTop + box.clientHeight) {
       box.scrollTop = top - box.clientHeight / 2 + h / 2;
     }
-  }, [currentId, compact, focus]);
+  }, [currentId, compact, hover, openIds]);
 
   useEffect(() => {
     if (compact) return undefined;
@@ -289,7 +333,7 @@ export default function Toc({ items, active }) {
       box?.removeEventListener("scroll", measure);
       window.removeEventListener("resize", measure);
     };
-  }, [visibleIds, openIds, compact, items]);
+  }, [visibleIds, openIds, compact, toc]);
 
   useEffect(() => {
     if (compact) return undefined;
@@ -312,10 +356,10 @@ export default function Toc({ items, active }) {
       box?.removeEventListener("scroll", clip);
       window.removeEventListener("resize", clip);
     };
-  }, [items, openIds, compact]);
+  }, [toc, openIds, compact]);
 
   useEffect(() => {
-    if (!items.length || compact) return undefined;
+    if (!toc.length || compact) return undefined;
 
     const pin = () => {
       const col = colRef.current;
@@ -336,7 +380,7 @@ export default function Toc({ items, active }) {
       if (!prose) return;
       const start = prose.getBoundingClientRect().top + window.scrollY;
       const height = Math.max(prose.offsetHeight, 1);
-      markersLive.current = items.map((item) => {
+      markersLive.current = toc.map((item) => {
         const el = document.getElementById(item.id);
         const top = el ? el.getBoundingClientRect().top + window.scrollY : start;
         return {
@@ -459,7 +503,7 @@ export default function Toc({ items, active }) {
       prose?.removeEventListener("mouseenter", onProseEnter);
       prose?.removeEventListener("mouseleave", onProseLeave);
     };
-  }, [items, compact, minLevel, railH]);
+  }, [toc, compact, minLevel, railH]);
 
   const jump = (id) => {
     skipHover.current = true;
@@ -486,7 +530,7 @@ export default function Toc({ items, active }) {
     }, 420);
   };
 
-  if (!items.length) return null;
+  if (!toc.length) return null;
 
   const desktop = compact ? null : (
     <div
@@ -509,7 +553,7 @@ export default function Toc({ items, active }) {
           ) : null}
           {groups.map((group) => {
             const opened = openIds.has(group.parent.id);
-            const parentIdx = items.findIndex((item) => item.id === group.parent.id);
+            const parentIdx = toc.findIndex((item) => item.id === group.parent.id);
             return (
               <Fragment key={group.parent.id}>
                 <div
@@ -526,38 +570,35 @@ export default function Toc({ items, active }) {
                   </button>
                 </div>
                 {group.children.length ? (
-                  <motion.div
-                    className="toc-full-kids"
-                    initial={false}
-                    animate={{ height: opened ? "auto" : 0, opacity: opened ? 1 : 0 }}
-                    transition={{ duration: 0.4, ease: foldEase }}
-                  >
-                    {group.children.map((item) => {
-                      const idx = items.findIndex((entry) => entry.id === item.id);
-                      return (
-                        <div
-                          key={item.id}
-                          className={`toc-full-row${item.id === currentId ? " is-on" : ""}`}
-                          data-anchor-id={item.id}
-                          style={{ "--toc-ripple-delay": `${rippleDelay(idx, activeIndex)}ms` }}
-                        >
-                          <button
-                            type="button"
-                            className={`toc-full-item l3 ${itemStatus(item.id, currentId, visibleIds)}`}
-                            onClick={() => jump(item.id)}
+                  <div className={`toc-full-kids${opened ? " is-open" : ""}`}>
+                    <div className="toc-full-kids-inner">
+                      {group.children.map((item) => {
+                        const idx = toc.findIndex((entry) => entry.id === item.id);
+                        return (
+                          <div
+                            key={item.id}
+                            className={`toc-full-row${item.id === currentId ? " is-on" : ""}`}
+                            data-anchor-id={item.id}
+                            style={{ "--toc-ripple-delay": `${rippleDelay(idx, activeIndex)}ms` }}
                           >
-                            {item.text}
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </motion.div>
+                            <button
+                              type="button"
+                              className={`toc-full-item l3 ${itemStatus(item.id, currentId, visibleIds)}`}
+                              onClick={() => jump(item.id)}
+                            >
+                              {item.text}
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 ) : null}
               </Fragment>
             );
           })}
         </div>
-        {items.length ? <Squiggle /> : null}
+        {toc.length ? <Squiggle /> : null}
         <div className="toc-full-foot">
           <ProgressBits pct={Math.round(progress)} ringRef={ringRef} ringOff={ringOff} onTop={toTop} />
         </div>
@@ -584,7 +625,7 @@ export default function Toc({ items, active }) {
             strokeDasharray="0.12 0.88"
             strokeLinecap="round"
           />
-          {items.map((item, i) => (
+          {toc.map((item, i) => (
             <circle
               key={item.id}
               ref={(el) => {
@@ -662,7 +703,7 @@ export default function Toc({ items, active }) {
             </div>
             <div className="toc-sheet-clip">
               <div ref={listRef} className="toc-sheet-list">
-                {items.map((item) => (
+                {toc.map((item) => (
                   <button
                     key={item.id}
                     type="button"
