@@ -181,7 +181,7 @@ haklex 默认内容宽 `--rc-max-width: 700px`。站点在 `.article-page` / `.n
 
 `Article.jsx` 把 `doc.body` 交给 `HaklexContent`。`##` / `###` 由 `extractToc` 抽成目录。
 
-布局 `.article-layout`：`minmax(0, 900px) 200px`，总宽 `min(1144px, calc(100% - 48px))`。页头 `.article-head`，摘要进「关键洞察」。封面图不铺满屏。
+布局 `.article-layout`：`minmax(0, 900px) 200px`，总宽 `min(1144px, calc(100% - 48px))`。窄屏单列 `minmax(0, 1fr)`，页头留 24px 顶距，正文 `min-width: 0`，haklex `--rc-max-width: 100%`，宽节点可横向滚动。页头 `.article-head`，摘要进「关键洞察」。封面图不铺满屏。
 
 ## 手记页
 

@@ -270,26 +270,14 @@ export default function Home() {
                 <Link className={`writing ${i === 0 ? "is-now" : ""}`} to={row.href} viewTransition key={row.href}>
                   <span className="writing-no">{String(i + 1).padStart(2, "0")}</span>
                   <span className="writing-body">
-                    {i === 0 ? (
-                      <>
-                        <span className="writing-kind">
-                          {row.kind}
-                          {row.date ? ` · ${daysAgo(row.date)}` : ""}
-                        </span>
-                        <h3>{row.item.title}</h3>
-                      </>
-                    ) : (
-                      <>
-                        <span className="writing-row">
-                          <h3>{row.item.title}</h3>
-                          {row.date ? <span className="writing-date">{daysAgo(row.date)}</span> : null}
-                        </span>
-                        <span className="writing-kind">
-                          {row.kind}
-                          {row.item.category ? ` · ${row.item.category}` : ""}
-                        </span>
-                      </>
-                    )}
+                    <span className="writing-row">
+                      <h3>{row.item.title}</h3>
+                      {row.date ? <span className="writing-date">{daysAgo(row.date)}</span> : null}
+                    </span>
+                    <span className="writing-kind">
+                      {row.kind}
+                      {row.item.category ? ` · ${row.item.category}` : ""}
+                    </span>
                   </span>
                 </Link>
               ))}
