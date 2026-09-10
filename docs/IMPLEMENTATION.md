@@ -184,13 +184,13 @@ haklex 默认内容宽 `--rc-max-width: 700px`。站点在 `.article-page` / `.n
 
 `Article.jsx` 把 `doc.body` 交给 `HaklexContent`。`##` / `###` 由 `extractToc` 抽成目录。
 
-布局 `.article-layout`：`minmax(0, 900px) 200px`，总宽 `min(1144px, calc(100% - 48px))`。窄屏单列 `minmax(0, 1fr)`，页头留 24px 顶距，正文 `min-width: 0`，haklex `--rc-max-width: 100%`，宽节点可横向滚动。页头 `.article-head`，有 `cover` 时在标题下显示 `.article-cover` 主图（不铺满屏、不改顶栏），摘要进「关键洞察」。
+布局 `.article-layout`：`minmax(0, 900px) 200px`，列间距 80px，总宽 `min(1180px, calc(100% - 48px))`。窄屏单列 `minmax(0, 1fr)`，页头留 24px 顶距，正文 `min-width: 0`，haklex `--rc-max-width: 100%`，宽节点可横向滚动。页头 `.article-head`，有 `cover` 时在标题下显示 `.article-cover` 主图（不铺满屏、不改顶栏），摘要进「关键洞察」。
 
 ## 手记页
 
 手记走纸面布局，和文稿页分开。
 
-- `.note-stage`：默认正文 900px + 右侧目录 200px；`min-width: 1500px` 时变成 `200px minmax(0, 900px) 200px`，总宽 `min(1388px, calc(100% - 48px))`
+- `.note-stage`：默认正文 900px + 右侧目录 200px，列间距 80px；`min-width: 1500px` 时变成 `200px minmax(0, 900px) 200px`，总宽 `min(1460px, calc(100% - 48px))`
 - 左列 `NoteSeriesRail`：近期手记、当前篇「」高亮、专栏折叠、「查看全部 N 篇 →」。窄于 1500px 和打印时隐藏，避免叠到标题上
 - 纸面 `.note-paper` + `.ni-deckle` 毛边（`DeckleFilter` 的 SVG `#deckle-edge`）
 - 飘带 `SeriesRibbon`：悬停只弹专栏卡（简介、最近更新、共有手记），不打开左侧目录
@@ -202,7 +202,9 @@ haklex 默认内容宽 `--rc-max-width: 700px`。站点在 `.article-page` / `.n
 
 右侧 `Toc.jsx`，portal 到 `fixed`，顶边对齐正文标题（`.article-head h1` / `.note-title-row h1`）底边再往下 12px：
 
-- 鼠标不在正文上：完整目录列表；高度上限 `100dvh - 顶边 - 24px`，条目超出时列表内滚动，当前项滚进可视区
+- 鼠标不在正文上：焦点目录窗，只亮当前附近 5–6 行，上下 mask 渐隐
+- `###` 默认折叠，只展开当前 `##` 下的三级；滚到对应节才显示
+- 列表字号 15px / 三级 14px；轨条当前标题 15px
 - 鼠标在正文上：SVG 凸起轨道，跟随当前标题；目录条本身不动
 - 轨道高度约窗口可用高度的 44%，约 200–340px
 - 空闲微呼吸/波浪；滑动时弹簧带过冲，凸起随方向拉长

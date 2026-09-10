@@ -2122,9 +2122,9 @@ html[data-theme="dark"] .post-card.is-pinned {
   display: grid;
   grid-template-columns: minmax(0, 900px) 200px;
   justify-content: center;
-  column-gap: 44px;
+  column-gap: 80px;
   align-items: stretch;
-  width: min(1144px, calc(100% - 48px));
+  width: min(1180px, calc(100% - 48px));
   margin: 0 auto;
   padding-bottom: 80px;
   position: relative;
@@ -2145,9 +2145,9 @@ html[data-theme="dark"] .post-card.is-pinned {
   display: grid;
   grid-template-columns: minmax(0, 900px) 200px;
   justify-content: center;
-  column-gap: 44px;
+  column-gap: 80px;
   align-items: stretch;
-  width: min(1144px, calc(100% - 48px));
+  width: min(1180px, calc(100% - 48px));
   margin: 0 auto;
   position: relative;
   padding-top: 28px;
@@ -2582,7 +2582,7 @@ html[data-theme="dark"] .ni-ribbon-pop-card {
 @media (min-width: 1500px) {
   .note-stage {
     grid-template-columns: 200px minmax(0, 900px) 200px;
-    width: min(1388px, calc(100% - 48px));
+    width: min(1460px, calc(100% - 48px));
   }
   .note-series-col { display: block; }
 }
@@ -2615,7 +2615,7 @@ html[data-theme="dark"] .ni-ribbon-pop-card {
 .toc-sticky.is-list {
   display: flex;
   flex-direction: column;
-  max-height: calc(100dvh - var(--toc-top, 96px) - 24px);
+  max-height: min(50vh, calc(100dvh - var(--toc-top, 96px) - 24px));
   overflow: hidden;
 }
 .toc-full {
@@ -2642,28 +2642,18 @@ html[data-theme="dark"] .ni-ribbon-pop-card {
 }
 .toc-kicker {
   flex: 0 0 auto;
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 0.04em;
   color: var(--n-6);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .toc-full-list {
   position: relative;
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in oklab, var(--n-6) 45%, transparent) transparent;
-}
-.toc-full-list::-webkit-scrollbar {
-  width: 4px;
-}
-.toc-full-list::-webkit-scrollbar-thumb {
-  border-radius: 2px;
-  background: color-mix(in oklab, var(--n-6) 45%, transparent);
+  flex: 0 1 auto;
+  overflow: hidden;
+  padding: 4px 0;
 }
 .toc-full-item {
   position: relative;
@@ -2672,16 +2662,16 @@ html[data-theme="dark"] .ni-ribbon-pop-card {
   border: 0;
   background: transparent;
   text-align: left;
-  padding: 6px 8px 6px 10px;
+  padding: 7px 8px 7px 12px;
   color: var(--n-7);
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.55;
   cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.toc-full-item.l3 { padding-left: 18px; font-size: 12px; }
+.toc-full-item.l3 { padding-left: 22px; font-size: 14px; }
 .toc-full-item:hover { color: var(--n-9); }
 .toc-full-item.is-active {
   color: var(--n-10);
@@ -2769,14 +2759,14 @@ html[data-theme="dark"] .ni-ribbon-pop-card {
   white-space: nowrap;
 }
 .toc-now-near {
-  font-size: 11px;
-  line-height: 1.4;
+  font-size: 13px;
+  line-height: 1.45;
   color: var(--n-5);
 }
 .toc-now-near:hover { color: var(--n-7); }
 .toc-now-current {
-  font-size: 12px;
-  line-height: 1.4;
+  font-size: 15px;
+  line-height: 1.45;
   font-weight: 550;
   color: var(--accent);
 }
@@ -2811,7 +2801,7 @@ html[data-theme="dark"] .ni-ribbon-pop-card {
   stroke-linecap: round;
 }
 .toc-now-pct {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--n-6);
   font-variant-numeric: tabular-nums;
 }
@@ -2820,7 +2810,7 @@ html[data-theme="dark"] .ni-ribbon-pop-card {
   align-items: center;
   gap: 4px;
   width: auto;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--n-5);
 }
 .toc-now-top:hover { color: var(--n-8); }
@@ -4464,14 +4454,14 @@ html.is-peek-open { overflow: hidden; }
     border: 0;
     background: transparent;
     color: var(--n-6);
-    font-size: 13px;
-    line-height: 1.5;
+    font-size: 15px;
+    line-height: 1.55;
     text-align: left;
     cursor: pointer;
   }
   .toc-sheet-list button.l3 {
     padding-left: 26px;
-    font-size: 12.5px;
+    font-size: 14px;
   }
   .toc-sheet-list button.is-active {
     color: var(--accent);

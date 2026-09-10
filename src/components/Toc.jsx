@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useMotionValue, useSpring, useMotionValueEvent } from "framer-motion";
 import { ChevronUp, List, X } from "lucide-react";
@@ -13,6 +13,58 @@ const followSpring = { stiffness: 128, damping: 12, mass: 0.7 };
 const labelSpring = { stiffness: 92, damping: 14, mass: 0.86 };
 const RING_R = 6.5;
 const RING_C = 2 * Math.PI * RING_R;
+const FOCUS_ROWS = 6;
+
+function withParents(items) {
+  let parent = null;
+  return items.map((item) => {
+    if (item.level === 2) parent = item.id;
+    return { ...item, parent };
+  });
+}
+
+function focusTocItems(items, activeId) {
+  if (!items.length) return [];
+  const tagged = withParents(items);
+  let activeIdx = tagged.findIndex((item) => item.id === activeId);
+  if (activeIdx < 0) activeIdx = 0;
+  const current = tagged[activeIdx];
+  const sectionId = current.level === 2 ? current.id : current.parent;
+  const expanded = tagged.filter((item) => item.level !== 3 || item.parent === sectionId);
+  const focusIdx = Math.max(0, expanded.findIndex((item) => item.id === current.id));
+  const above = Math.floor((FOCUS_ROWS - 1) / 2);
+  let start = focusIdx - above;
+  let end = start + FOCUS_ROWS;
+  if (start < 0) {
+    end -= start;
+    start = 0;
+  }
+  if (end > expanded.length) {
+    start = Math.max(0, expanded.length - FOCUS_ROWS);
+    end = expanded.length;
+  }
+  const windowed = expanded.slice(start, end);
+  if (current.level === 3 && sectionId && !windowed.some((item) => item.id === sectionId)) {
+    const parent = expanded.find((item) => item.id === sectionId);
+    if (parent) {
+      windowed.unshift(parent);
+      if (windowed.length > FOCUS_ROWS) windowed.pop();
+    }
+  }
+  const shownFocus = windowed.findIndex((item) => item.id === current.id);
+  return windowed.map((item, i) => ({
+    ...item,
+    dist: Math.abs(i - Math.max(0, shownFocus)),
+  }));
+}
+
+function focusOpacity(dist, showList) {
+  if (!showList) return 0;
+  if (dist <= 0) return 1;
+  if (dist === 1) return 0.82;
+  if (dist === 2) return 0.48;
+  return 0.18;
+}
 
 function bumpX(y, ay, radius, bulge) {
   const t = (y - ay) / Math.max(18, radius);
@@ -378,12 +430,7 @@ export default function Toc({ items, active }) {
   }, []);
 
   const showList = !overContent || hover;
-
-  useEffect(() => {
-    if (!showList) return;
-    const activeEl = fullListRef.current?.querySelector(".toc-full-item.is-active");
-    activeEl?.scrollIntoView({ block: "nearest" });
-  }, [showList, active]);
+  const focusedItems = useMemo(() => focusTocItems(items, active), [items, active]);
 
   const jump = (id) => {
     skipHover.current = true;
@@ -457,26 +504,26 @@ export default function Toc({ items, active }) {
           >
             <p className="toc-kicker">目录</p>
             <div ref={fullListRef} className="toc-full-list">
-              {items.map((item, i) => (
-                <motion.button
-                  key={item.id}
-                  type="button"
-                  className={`toc-full-item ${item.level === 3 ? "l3" : ""} ${active === item.id ? "is-active" : ""}`}
-                  initial={false}
-                  animate={{
-                    opacity: showList ? (active === item.id ? 1 : 0.5) : 0,
-                    x: showList ? (active === item.id ? 8 : 0) : 14,
-                  }}
-                  transition={{
-                    duration: 0.42,
-                    ease,
-                    delay: showList ? i * 0.032 : i * 0.012,
-                  }}
-                  onClick={() => jump(item.id)}
-                >
-                  {item.text}
-                </motion.button>
-              ))}
+              <AnimatePresence initial={false} mode="popLayout">
+                {focusedItems.map((item) => (
+                  <motion.button
+                    key={item.id}
+                    type="button"
+                    layout="position"
+                    className={`toc-full-item ${item.level === 3 ? "l3" : ""} ${active === item.id ? "is-active" : ""}`}
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{
+                      opacity: focusOpacity(item.dist, showList),
+                      x: showList ? (item.dist === 0 ? 8 : 0) : 14,
+                    }}
+                    exit={{ opacity: 0, x: 8 }}
+                    transition={{ duration: 0.32, ease }}
+                    onClick={() => jump(item.id)}
+                  >
+                    {item.text}
+                  </motion.button>
+                ))}
+              </AnimatePresence>
             </div>
             <div className="toc-full-foot">
               <ProgressBits pct={Math.round(progress)} ringOff={ringOff} onTop={toTop} />
