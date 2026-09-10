@@ -134,6 +134,7 @@ export default function Toc({ items, active }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [vw, setVw] = useState(() => (typeof window !== "undefined" ? window.innerWidth : 800));
   const listRef = useRef(null);
+  const fullListRef = useRef(null);
   const { setTocOpen } = useHeaderState();
 
   const paint = (ay, now = performance.now()) => {
@@ -220,8 +221,10 @@ export default function Toc({ items, active }) {
       const col = colRef.current;
       const sticky = stickyRef.current;
       if (!col || !sticky) return;
+      const top = Math.max(72, titleLineTop());
       sticky.style.left = `${Math.round(col.getBoundingClientRect().left)}px`;
-      sticky.style.top = `${Math.max(72, titleLineTop())}px`;
+      sticky.style.top = `${top}px`;
+      sticky.style.setProperty("--toc-top", `${top}px`);
     };
 
     const layout = () => {
@@ -335,8 +338,10 @@ export default function Toc({ items, active }) {
       const col = colRef.current;
       const sticky = stickyRef.current;
       if (!col || !sticky) return;
+      const top = Math.max(72, titleLineTop());
       sticky.style.left = `${Math.round(col.getBoundingClientRect().left)}px`;
-      sticky.style.top = `${Math.max(72, titleLineTop())}px`;
+      sticky.style.top = `${top}px`;
+      sticky.style.setProperty("--toc-top", `${top}px`);
     };
     pin();
     window.addEventListener("resize", pin);
@@ -373,6 +378,12 @@ export default function Toc({ items, active }) {
   }, []);
 
   const showList = !overContent || hover;
+
+  useEffect(() => {
+    if (!showList) return;
+    const activeEl = fullListRef.current?.querySelector(".toc-full-item.is-active");
+    activeEl?.scrollIntoView({ block: "nearest" });
+  }, [showList, active]);
 
   const jump = (id) => {
     skipHover.current = true;
@@ -445,7 +456,7 @@ export default function Toc({ items, active }) {
             style={{ pointerEvents: showList ? "auto" : "none" }}
           >
             <p className="toc-kicker">目录</p>
-            <div className="toc-full-list">
+            <div ref={fullListRef} className="toc-full-list">
               {items.map((item, i) => (
                 <motion.button
                   key={item.id}

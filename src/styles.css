@@ -2612,9 +2612,21 @@ html[data-theme="dark"] .ni-ribbon-pop-card {
 .toc-sticky.is-rail {
   height: var(--toc-rail-h, 260px);
 }
+.toc-sticky.is-list {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - var(--toc-top, 96px) - 24px);
+  overflow: hidden;
+}
 .toc-full {
   position: relative;
   z-index: 2;
+}
+.toc-sticky.is-list .toc-full {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 .toc-sticky.is-rail .toc-full {
   position: absolute;
@@ -2629,6 +2641,7 @@ html[data-theme="dark"] .ni-ribbon-pop-card {
   height: var(--toc-rail-h, 260px);
 }
 .toc-kicker {
+  flex: 0 0 auto;
   font-size: 11px;
   letter-spacing: 0.04em;
   color: var(--n-6);
@@ -2638,6 +2651,19 @@ html[data-theme="dark"] .ni-ribbon-pop-card {
   position: relative;
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--n-6) 45%, transparent) transparent;
+}
+.toc-full-list::-webkit-scrollbar {
+  width: 4px;
+}
+.toc-full-list::-webkit-scrollbar-thumb {
+  border-radius: 2px;
+  background: color-mix(in oklab, var(--n-6) 45%, transparent);
 }
 .toc-full-item {
   position: relative;
@@ -2671,6 +2697,7 @@ html[data-theme="dark"] .ni-ribbon-pop-card {
   background: var(--accent);
 }
 .toc-full-foot {
+  flex: 0 0 auto;
   margin-top: 14px;
   padding-top: 10px;
 }
