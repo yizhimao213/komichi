@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { Component, useEffect, useMemo } from "react";
 import { composeRenderer } from "@haklex/rich-compose";
 import {
   allRendererModules,
@@ -24,6 +24,24 @@ const hooks = {
   expandNested: () => {},
   expandDraw: () => {},
 };
+
+class ContentErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+
+  render() {
+    if (this.state.error) {
+      return <div className="haklex-body">{this.props.fallback || "正文未能渲染。"}</div>;
+    }
+    return this.props.children;
+  }
+}
 
 function isHttpsUrl(url) {
   try {
@@ -62,22 +80,30 @@ export default function HaklexContent({ markdown, value, variant = "article", cl
     hooks.expandNested = expandNested;
     hooks.expandDraw = expandDraw;
   }, [open, expandNested, expandDraw]);
-  const fromMarkdown = useMemo(
-    () => (value ? null : markdownToLexical(markdown)),
-    [markdown, value]
-  );
+  const fromMarkdown = useMemo(() => {
+    if (value) return null;
+    try {
+      return markdownToLexical(markdown);
+    } catch {
+      return null;
+    }
+  }, [markdown, value]);
   const resolved = value ?? fromMarkdown;
-  if (!resolved) return null;
+  if (!resolved) {
+    return markdown ? <div className="haklex-body">{markdown}</div> : null;
+  }
   return (
-    <MentionPlatformProvider platforms={mentionPlatforms}>
-      <PollDataProvider adapter={pollAdapter}>
-        <RichContent
-          value={resolved}
-          variant={variant}
-          theme={theme}
-          className={["haklex-body", className].filter(Boolean).join(" ")}
-        />
-      </PollDataProvider>
-    </MentionPlatformProvider>
+    <ContentErrorBoundary fallback={typeof markdown === "string" ? markdown : ""}>
+      <MentionPlatformProvider platforms={mentionPlatforms}>
+        <PollDataProvider adapter={pollAdapter}>
+          <RichContent
+            value={resolved}
+            variant={variant}
+            theme={theme}
+            className={["haklex-body", className].filter(Boolean).join(" ")}
+          />
+        </PollDataProvider>
+      </MentionPlatformProvider>
+    </ContentErrorBoundary>
   );
 }

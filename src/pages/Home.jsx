@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Rss } from "lucide-react";
 import { citeOf, notes, posts, quotes, says, siteDays, siteLead, siteWords, thoughts } from "../content.js";
+import { Spot } from "../components/CardSpotlight.jsx";
 import TypewriterQuote from "../components/TypewriterQuote.jsx";
 
 function daysAgo(iso) {
@@ -267,7 +268,8 @@ export default function Home() {
             <h2 className="section-h">近期笔墨</h2>
             <div className="writing-list">
               {feed.map((row, i) => (
-                <Link className={`writing ${i === 0 ? "is-now" : ""}`} to={row.href} viewTransition key={row.href}>
+                <Link className={`writing card-spotlight${i === 0 ? " is-now" : ""}`} to={row.href} viewTransition key={row.href}>
+                  <Spot />
                   <span className="writing-no">{String(i + 1).padStart(2, "0")}</span>
                   <span className="writing-body">
                     <span className="writing-row">
@@ -290,7 +292,8 @@ export default function Home() {
               <h2 className="section-h">碎念</h2>
               <div className="musing-list">
                 {thoughts.slice(0, 4).map((t) => (
-                  <Link className="musing" to="/thinking" viewTransition key={t.date + t.text}>
+                  <Link className="musing card-spotlight" to="/thinking" viewTransition key={t.date + t.text}>
+                    <Spot />
                     <p>{t.text}</p>
                     <span>{daysAgo(t.date)}</span>
                   </Link>
@@ -303,7 +306,8 @@ export default function Home() {
               <h2 className="section-h">一言</h2>
               <div className="letter-list">
                 {says.slice(0, 2).map((s) => (
-                  <Link className="letter" to="/says" viewTransition key={s.slug}>
+                  <Link className="letter card-spotlight" to="/says" viewTransition key={s.slug}>
+                    <Spot />
                     <q>{s.text}</q>
                     <cite>{citeOf(s)}</cite>
                   </Link>

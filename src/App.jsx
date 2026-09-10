@@ -21,7 +21,10 @@ import Message from "./pages/Message.jsx";
 import Timeline from "./pages/Timeline.jsx";
 import Thinking from "./pages/Thinking.jsx";
 import Background from "./components/Background.jsx";
+import CardSpotlight from "./components/CardSpotlight.jsx";
 import DeckleFilter from "./components/DeckleFilter.jsx";
+import MeteorLayer from "./components/MeteorLayer.jsx";
+import Parthenon from "./components/Parthenon.jsx";
 import Header from "./components/Header.jsx";
 import PageLoader from "./components/PageLoader.jsx";
 import { HeaderMetaProvider, SeasonProvider, SEASON_LIST } from "./context.jsx";
@@ -238,6 +241,13 @@ export default function App() {
       <ImageLightboxProvider>
       <NodeExpandProvider>
       <Background enabled={bgOn} />
+      {location.pathname === "/" ? (
+        <>
+          <Parthenon />
+          <MeteorLayer />
+        </>
+      ) : null}
+      <CardSpotlight />
       <DeckleFilter />
       <div className="app">
         <Header

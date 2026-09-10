@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { categorySlug, posts, tagList, tagSlug } from "../content.js";
+import { Spot } from "../components/CardSpotlight.jsx";
 import { postTags } from "./Category.jsx";
 
 const PAGE_SIZE = 8;
@@ -192,7 +193,7 @@ function PostCard({ post, pinned = false }) {
 
   return (
     <article
-      className={`post-card${pinned ? " is-pinned" : ""}`}
+      className={`post-card card-spotlight${pinned ? " is-pinned" : ""}`}
       onClick={() => navigate(href, { viewTransition: true })}
       role="link"
       tabIndex={0}
@@ -200,6 +201,7 @@ function PostCard({ post, pinned = false }) {
         if (e.key === "Enter") navigate(href, { viewTransition: true });
       }}
     >
+      <Spot />
       {pinned ? <p className="post-pin">置顶</p> : null}
       {pinned ? <h2>{post.title}</h2> : <h3>{post.title}</h3>}
       {text ? <p>{text}</p> : null}

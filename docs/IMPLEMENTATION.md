@@ -34,7 +34,7 @@ src/
   context.jsx           顶栏 meta、季节、目录 sheet 开关
   styles.css            全局样式
   pages/                页面（Editor.jsx 是空 stub，没有路由）
-  components/           Header、Toc、PeekModal、DeckleFilter、Background、TypewriterQuote、PageLoader、*Mega
+  components/           Header、Toc、PeekModal、DeckleFilter、Background、TypewriterQuote、PageLoader、CardSpotlight、MeteorLayer、Parthenon、*Mega
 content/                可编辑内容，见 docs/CONTENT.md
 public/                 头像、封面、图标
 vite.config.js          开发服务器、SPA 回退、allowedHosts
@@ -200,20 +200,17 @@ haklex 默认内容宽 `--rc-max-width: 700px`。站点在 `.article-page` / `.n
 
 ## 目录
 
-右侧 `Toc.jsx`，portal 到 `fixed`，顶边对齐正文标题（`.article-head h1` / `.note-title-row h1`）底边再往下 12px：
+右侧 `Toc.jsx`，portal 到 `fixed`，对照 innei `TocAside` / `TocTree`：
 
-- 鼠标不在正文上：焦点目录窗，只亮当前附近 5–6 行，上下 mask 渐隐
-- `###` 默认折叠，只展开当前 `##` 下的三级；滚到对应节才显示
-- 列表字号 15px / 三级 14px；轨条当前标题 15px
-- 鼠标在正文上：SVG 凸起轨道，跟随当前标题；目录条本身不动
-- 轨道高度约窗口可用高度的 44%，约 200–340px
-- 空闲微呼吸/波浪；滑动时弹簧带过冲，凸起随方向拉长
-- 悬停轨道：展开完整列表
-- 鼠标离开正文：收回成「目录」列表
-- `max-width: 1100px`：右下角目录钮 + 底部目录 sheet；打开时 dock 加 `is-toc-hidden`，不锁 `body position: fixed`
-- 窄屏停掉桌面轨的 `requestAnimationFrame` 绘制，也不再量 `listH` 做高度弹簧
+- 顶边钉在 `120px`，高度 `100vh - 438px`，上限 `75vh`，下限 `120px`，左内边距 `2.5rem`
+- 鼠标在正文上时 `data-toc-focus`：条目按与当前项的距离 ripple 淡出并左移 10px（`50ms * |i - active|`，上限 450ms）
+- 左侧细轨用 `clip-path` 从阅读进度展开，滚动时鼓包 + 弹簧过冲；700ms 后出现当前 `##` 与百分比
+- 悬停目录栏收回列表；`##` 分组，`###` 当前可见节展开，收起延迟 300ms，高度 0.4s
+- 当前项强调色 / 视口内 70% / 其余 35%；左侧 2px 可见区指示条
+- 列表底部分隔线（手绘 squiggle）+ 进度环 + 回到顶部（进度 ≤10% 隐藏）
+- `max-width: 1100px`：右下角目录钮 + 底部目录 sheet
+- 窄屏停掉桌面轨的 `requestAnimationFrame` 绘制
 - sheet 只动 `transform: translateY` 和 `opacity`；尺寸用 CSS `left/right: 12px` + `max-height: min(70vh, calc(100dvh - 96px))`
-- 关掉时 `visibility: hidden` 延迟 0.22s，等位移和透明度播完再藏；同时去掉 `backdrop-filter`
 
 ## 时光 peek
 
@@ -254,6 +251,8 @@ haklex 默认内容宽 `--rc-max-width: 700px`。站点在 `.article-page` / `.n
 - 内容总线：`src/content.js`
 - 分类与标签：`src/pages/Categories.jsx`、`src/pages/Category.jsx`、`src/pages/Tag.jsx`
 - 首页打字机与年线：`src/pages/Home.jsx`、`src/components/TypewriterQuote.jsx`
+- 首页神殿柱 / 流星只在 `pathname === "/"`：`src/components/Parthenon.jsx`、`src/components/MeteorLayer.jsx`
+- 卡片 spotlight：`src/components/CardSpotlight.jsx`，子节点 `.card-spot`，首页 writing/musing/letter 与 `/posts` `.post-card` 已挂
 - 文章、手记、专栏飘带/左栏：`src/pages/Article.jsx`
 - 目录：`src/components/Toc.jsx`
 - haklex：`src/haklex/HaklexContent.jsx`、`src/haklex/HaklexEditor.jsx`、`src/haklex/markdown.js`、`src/haklex/transformers.js`、`src/haklex/poll.js`、`src/haklex/ImageLightbox.jsx`
