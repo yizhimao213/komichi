@@ -3308,6 +3308,15 @@ html[data-theme="dark"] .ni-ribbon-pop-card {
   max-width: 100%;
   height: auto;
 }
+.haklex-body img[src*="hdslb.com/bfs/garb/"],
+.haklex-body img[src*="hdslb.com/bfs/emote/"] {
+  width: 2em;
+  height: 2em;
+  max-width: 2em;
+  display: inline-block;
+  vertical-align: text-bottom;
+  object-fit: contain;
+}
 .haklex-body video,
 .haklex-body iframe,
 .haklex-body figure,
