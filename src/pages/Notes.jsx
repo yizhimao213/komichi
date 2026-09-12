@@ -127,7 +127,7 @@ function Featured({ note }) {
           </Link>
         ) : null}
         <Link className="ni-cover" to={href} viewTransition>
-          {note.cover ? <img src={note.cover} alt="" loading="lazy" decoding="async" /> : null}
+          {note.cover ? <img src={note.cover} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" /> : null}
           <div className="ni-cover-wash" />
           <div className="ni-cover-copy">
             <p>
@@ -181,7 +181,7 @@ function OlderNote({ note }) {
           <div className="ni-card-inner">
             {note.cover ? (
               <div className="ni-card-cover">
-                <img src={note.cover} alt="" loading="lazy" decoding="async" />
+                <img src={note.cover} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" />
               </div>
             ) : null}
             <div className="ni-card-body">

@@ -87,6 +87,7 @@ function Lightbox({ view, setView, onClose }) {
       <img
         src={current.src}
         alt={current.alt || current.caption || ""}
+        referrerPolicy="no-referrer"
         onClick={(e) => e.stopPropagation()}
       />
       {total > 1 ? (

@@ -467,7 +467,7 @@ export default function Article({ kind }) {
             <div className="note-paper-inner">
               {doc.cover ? (
                 <div className="note-cover-wash" aria-hidden="true">
-                  <img src={doc.cover} alt="" loading="lazy" decoding="async" />
+                  <img src={doc.cover} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" />
                 </div>
               ) : null}
               {doc.cover ? <div className="note-cover-spacer" aria-hidden="true" /> : null}
@@ -522,7 +522,7 @@ export default function Article({ kind }) {
           {doc.cover ? (
             <figure className="article-cover">
               <button type="button" onClick={() => openImageSrc(openImage, doc.cover, doc.title)}>
-                <img src={doc.cover} alt="" loading="lazy" decoding="async" />
+                <img src={doc.cover} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" />
               </button>
             </figure>
           ) : null}

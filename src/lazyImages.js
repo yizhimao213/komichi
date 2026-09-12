@@ -15,6 +15,7 @@ function bind(img) {
     img.hasAttribute("data-eager") || img.getAttribute("loading") === "eager";
   if (!img.hasAttribute("decoding")) img.decoding = "async";
   if (!img.hasAttribute("loading")) img.loading = eager ? "eager" : "lazy";
+  if (!img.getAttribute("referrerpolicy")) img.referrerPolicy = "no-referrer";
   if (eager) {
     img.classList.add("is-in");
     return;
@@ -35,7 +36,7 @@ export function markdownImage({ href, title, text } = {}) {
   const src = String(href || "").replace(/"/g, "&quot;");
   const alt = String(text || "").replace(/"/g, "&quot;");
   const t = title ? ` title="${String(title).replace(/"/g, "&quot;")}"` : "";
-  return `<img src="${src}" alt="${alt}"${t} loading="lazy" decoding="async">`;
+  return `<img src="${src}" alt="${alt}"${t} loading="lazy" decoding="async" referrerpolicy="no-referrer">`;
 }
 
 export function watchLazyImages() {
