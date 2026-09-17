@@ -81,38 +81,34 @@ function slugFrom(path) {
   return path.split("/").pop().replace(/\.md$/, "");
 }
 
-export const posts = Object.entries(postFiles)
-  .map(([path, raw]) => parse(raw, slugFrom(path)))
-  .sort((a, b) => String(b.date).localeCompare(String(a.date)));
-
-export const notes = Object.entries(noteFiles)
-  .map(([path, raw]) => parse(raw, slugFrom(path)))
-  .sort((a, b) => Number(b.nid || 0) - Number(a.nid || 0));
-
-const pages = Object.fromEntries(
-  Object.entries(pageFiles).map(([path, raw]) => {
-    const page = parse(raw, slugFrom(path));
-    return [page.slug, page];
-  })
-);
-
-export const aboutPage = pages.about || { title: "关于我", kicker: "", body: "待补充" };
-export const aboutSitePage = pages["about-site"] || { title: "关于本站", kicker: "", body: "待补充" };
-
-const siteRaw = Object.values(siteFiles)[0] || "";
-const siteMeta = parse(siteRaw, "site");
-export const siteSince = siteMeta.since || "2020-09-01";
-
-function daysSince(iso) {
-  const start = new Date(`${String(iso).replaceAll(".", "-")}T00:00:00`);
-  if (Number.isNaN(start.getTime())) return 0;
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  return Math.max(0, Math.floor((today - start) / 86400000));
+export function seriesSlug(name) {
+  return String(name || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^\w\u4e00-\u9fff]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
-export const siteDays = daysSince(siteSince);
-export const siteLead = siteMeta.lead || "误入现世的工程师一只。白天画结界、排术式，夜里把想法炼成能自己走路的小世界。";
+export function categorySlug(name) {
+  const raw = String(name || "").trim();
+  if (!raw) return "";
+  if (CATEGORY_ALIAS[raw]) return CATEGORY_ALIAS[raw];
+  return seriesSlug(raw);
+}
+
+export function tagSlug(name) {
+  return seriesSlug(name);
+}
+
+function decodeKey(slug) {
+  let key = String(slug || "");
+  try {
+    key = decodeURIComponent(key);
+  } catch {
+    /* keep raw */
+  }
+  return key;
+}
 
 export function countWords(text) {
   const body = String(text || "").replace(/```[\s\S]*?```/g, " ");
@@ -121,20 +117,25 @@ export function countWords(text) {
   return cn + en;
 }
 
-export const siteWords = [...posts, ...notes].reduce((sum, item) => sum + countWords(item.body), 0);
+/* ------------------------------- 构建期基线 ------------------------------- */
 
-export const quotes = Object.entries(quoteFiles)
-  .map(([path, raw]) => {
-    const item = parse(raw, slugFrom(path));
-    return { slug: item.slug, text: String(item.body || "").trim() };
+export const baselinePosts = Object.entries(postFiles)
+  .map(([path, raw]) => parse(raw, slugFrom(path)))
+  .sort((a, b) => String(b.date).localeCompare(String(a.date)));
+
+export const baselineNotes = Object.entries(noteFiles)
+  .map(([path, raw]) => parse(raw, slugFrom(path)))
+  .sort((a, b) => Number(b.nid || 0) - Number(a.nid || 0));
+
+export const baselinePages = Object.fromEntries(
+  Object.entries(pageFiles).map(([path, raw]) => {
+    const page = parse(raw, slugFrom(path));
+    return [page.slug, page];
   })
-  .filter((item) => item.text)
-  .sort((a, b) => String(a.slug).localeCompare(String(b.slug)))
-  .map((item) => item.text);
+);
 
-function mediaSrc(value) {
-  return String(value || "").trim();
-}
+const siteRaw = Object.values(siteFiles)[0] || "";
+export const baselineSite = parse(siteRaw, "site");
 
 function parseCatalog(raw) {
   const text = String(raw || "").replace(/\r\n/g, "\n").trim();
@@ -164,7 +165,7 @@ function parseCatalog(raw) {
   }).filter((item) => item.name);
 }
 
-export const friends = parseCatalog(Object.values(friendFiles)[0] || "")
+export const baselineFriends = parseCatalog(Object.values(friendFiles)[0] || "")
   .map((item) => ({
     slug: seriesSlug(item.name),
     name: item.name,
@@ -174,7 +175,7 @@ export const friends = parseCatalog(Object.values(friendFiles)[0] || "")
   }))
   .filter((item) => item.name && item.url);
 
-export const projects = parseCatalog(Object.values(projectFiles)[0] || "")
+export const baselineProjects = parseCatalog(Object.values(projectFiles)[0] || "")
   .map((item) => {
     const name = item.name;
     return {
@@ -188,15 +189,15 @@ export const projects = parseCatalog(Object.values(projectFiles)[0] || "")
   })
   .filter((item) => item.name && item.url);
 
-export const thoughts = Object.entries(thinkingFiles)
+export const baselineThoughts = Object.entries(thinkingFiles)
   .map(([path, raw]) => {
     const item = parse(raw, slugFrom(path));
-    return { date: item.date || item.slug, text: String(item.body || "").trim() };
+    return { slug: item.slug, date: item.date || item.slug, text: String(item.body || "").trim() };
   })
   .filter((item) => item.text)
   .sort((a, b) => String(b.date).localeCompare(String(a.date)));
 
-export const says = Object.entries(sayFiles)
+export const baselineSays = Object.entries(sayFiles)
   .map(([path, raw]) => {
     const item = parse(raw, slugFrom(path));
     return {
@@ -213,26 +214,40 @@ export const says = Object.entries(sayFiles)
     return byDate || String(b.slug).localeCompare(String(a.slug));
   });
 
-export function citeOf(s) {
-  const source = s.source ? `出自「${s.source}」` : "";
-  const author = s.author || "";
-  return [source, author].filter(Boolean).join(" · ");
+export const baselineQuotes = Object.entries(quoteFiles)
+  .map(([path, raw]) => {
+    const item = parse(raw, slugFrom(path));
+    return { slug: item.slug, text: String(item.body || "").trim() };
+  })
+  .filter((item) => item.text)
+  .sort((a, b) => String(a.slug).localeCompare(String(b.slug)));
+
+export const baselineSeries = Object.entries(seriesFiles).map(([path, raw]) => {
+  const file = parse(raw, slugFrom(path));
+  const name = file.name || file.title || slugFrom(path);
+  return {
+    slug: seriesSlug(file.slug || name),
+    name,
+    subtitle: file.subtitle || file.tagline || "",
+    description: String(file.body || "").trim(),
+    letter: file.letter || "",
+    color: file.color || "",
+    date: file.date || "",
+  };
+});
+
+/* ------------------------------- 派生计算 ------------------------------- */
+
+function mediaSrc(value) {
+  return String(value || "").trim();
 }
 
-export function getPost(slug) {
-  return posts.find((p) => p.slug === slug);
-}
-
-export function getNote(nid) {
-  return notes.find((n) => String(n.nid) === String(nid) || n.slug === String(nid));
-}
-
-export function seriesSlug(name) {
-  return String(name || "")
-    .trim()
-    .toLowerCase()
-    .replace(/[^\w\u4e00-\u9fff]+/g, "-")
-    .replace(/^-|-$/g, "");
+function daysSince(iso) {
+  const start = new Date(`${String(iso).replaceAll(".", "-")}T00:00:00`);
+  if (Number.isNaN(start.getTime())) return 0;
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.max(0, Math.floor((today - start) / 86400000));
 }
 
 function seriesLetter(name, letter) {
@@ -277,19 +292,12 @@ function findSeriesBucket(map, raw) {
   return null;
 }
 
-export const seriesList = (() => {
+let seriesDocs = baselineSeries;
+
+function buildSeriesList() {
   const map = new Map();
-  for (const [path, raw] of Object.entries(seriesFiles)) {
-    const file = parse(raw, slugFrom(path));
-    const item = makeSeries({
-      slug: file.slug,
-      name: file.name || file.title || slugFrom(path),
-      subtitle: file.subtitle || file.tagline || "",
-      description: file.body,
-      letter: file.letter,
-      color: file.color,
-      date: file.date,
-    });
+  for (const doc of seriesDocs) {
+    const item = makeSeries(doc);
     if (!item.slug) continue;
     map.set(item.slug, item);
   }
@@ -309,40 +317,9 @@ export const seriesList = (() => {
     }
   }
   return [...map.values()].sort((a, b) => String(a.date || a.name).localeCompare(String(b.date || b.name)));
-})();
-
-export function getSeries(slug) {
-  const key = decodeKey(slug);
-  return seriesList.find((item) => item.slug === key || item.name === key || seriesSlug(item.name) === key);
 }
 
-const CATEGORY_ALIAS = {
-  技术: "tech",
-  折腾: "tinkering",
-};
-
-export function categorySlug(name) {
-  const raw = String(name || "").trim();
-  if (!raw) return "";
-  if (CATEGORY_ALIAS[raw]) return CATEGORY_ALIAS[raw];
-  return seriesSlug(raw);
-}
-
-export function tagSlug(name) {
-  return seriesSlug(name);
-}
-
-function decodeKey(slug) {
-  let key = String(slug || "");
-  try {
-    key = decodeURIComponent(key);
-  } catch {
-    /* keep raw */
-  }
-  return key;
-}
-
-export const categoryList = (() => {
+function buildCategoryList() {
   const map = new Map();
   for (const post of posts) {
     const name = String(post.category || "").trim() || "未分类";
@@ -355,14 +332,9 @@ export const categoryList = (() => {
     }
   }
   return [...map.values()].sort((a, b) => b.posts.length - a.posts.length || String(a.name).localeCompare(String(b.name), "zh-CN"));
-})();
-
-export function getCategory(slug) {
-  const key = decodeKey(slug);
-  return categoryList.find((item) => item.slug === key || item.name === key);
 }
 
-export const tagList = (() => {
+function buildTagList() {
   const map = new Map();
   for (const post of posts) {
     const tags = Array.isArray(post.tags) ? post.tags : post.tags ? [post.tags] : [];
@@ -380,39 +352,333 @@ export const tagList = (() => {
     }
   }
   return [...map.values()].sort((a, b) => b.posts.length - a.posts.length || String(a.name).localeCompare(String(b.name), "zh-CN"));
-})();
-
-export function getTag(slug) {
-  const key = decodeKey(slug);
-  return tagList.find((item) => item.slug === key || item.name === key);
 }
+
+const CATEGORY_ALIAS = {
+  技术: "tech",
+  折腾: "tinkering",
+};
 
 const covers = {
   219: "/covers/night.jpg",
   218: "/covers/street.jpg",
 };
 
-posts.forEach((p) => {
-  p.cover = p.cover || covers[p.slug];
-});
-notes.forEach((n) => {
-  n.cover = n.cover || covers[n.nid] || covers[n.slug];
-});
+function applyCovers() {
+  posts.forEach((p) => {
+    p.cover = p.cover || covers[p.slug];
+  });
+  notes.forEach((n) => {
+    n.cover = n.cover || covers[n.nid] || covers[n.slug];
+  });
+}
 
-export const catalog = [
-  ...posts.map((p) => ({ title: p.title, href: `/posts/${p.slug}`, kind: "文稿" })),
-  ...notes.map((n) => ({ title: n.title, href: `/notes/${n.nid || n.slug}`, kind: "手记" })),
-  ...seriesList.map((s) => ({ title: s.name, href: `/notes/series/${s.slug}`, kind: "专栏" })),
-  { title: "专栏", href: "/notes/series", kind: "页面" },
-  ...categoryList.map((c) => ({ title: c.name, href: `/categories/${c.slug}`, kind: "分类" })),
-  { title: "分类", href: "/categories", kind: "页面" },
-  ...tagList.map((t) => ({ title: `#${t.name}`, href: `/posts/tag/${t.slug}`, kind: "标签" })),
-  { title: "关于我", href: "/about", kind: "页面" },
-  { title: "关于本站", href: "/about-site", kind: "页面" },
-  { title: "友人帐", href: "/friends", kind: "页面" },
-  { title: "项目", href: "/projects", kind: "页面" },
-  { title: "一言", href: "/says", kind: "页面" },
-  { title: "留言", href: "/message", kind: "页面" },
-  { title: "时光", href: "/timeline", kind: "页面" },
-  { title: "思考", href: "/thinking", kind: "页面" },
+function buildCatalog() {
+  return [
+    ...posts.map((p) => ({ title: p.title, href: `/posts/${p.slug}`, kind: "文稿" })),
+    ...notes.map((n) => ({ title: n.title, href: `/notes/${n.nid || n.slug}`, kind: "手记" })),
+    ...seriesList.map((s) => ({ title: s.name, href: `/notes/series/${s.slug}`, kind: "专栏" })),
+    { title: "专栏", href: "/notes/series", kind: "页面" },
+    ...categoryList.map((c) => ({ title: c.name, href: `/categories/${c.slug}`, kind: "分类" })),
+    { title: "分类", href: "/categories", kind: "页面" },
+    ...tagList.map((t) => ({ title: `#${t.name}`, href: `/posts/tag/${t.slug}`, kind: "标签" })),
+    { title: "关于我", href: "/about", kind: "页面" },
+    { title: "关于本站", href: "/about-site", kind: "页面" },
+    { title: "友人帐", href: "/friends", kind: "页面" },
+    { title: "项目", href: "/projects", kind: "页面" },
+    { title: "一言", href: "/says", kind: "页面" },
+    { title: "留言", href: "/message", kind: "页面" },
+    { title: "时光", href: "/timeline", kind: "页面" },
+    { title: "思考", href: "/thinking", kind: "页面" },
+  ];
+}
+
+/* ----------------------------- 运行时可变内容 ----------------------------- */
+
+export let posts = baselinePosts;
+export let notes = baselineNotes;
+export let quotes = baselineQuotes.map((item) => item.text);
+export let thoughts = baselineThoughts.map((item) => ({ date: item.date || item.slug, text: item.text }));
+export let says = baselineSays.map((item) => ({
+  slug: item.slug,
+  date: item.date,
+  author: item.author,
+  source: item.source,
+  text: item.text,
+}));
+export let friends = baselineFriends;
+export let projects = baselineProjects;
+export let aboutPage = baselinePages.about || { title: "关于我", kicker: "", body: "待补充" };
+export let aboutSitePage = baselinePages["about-site"] || { title: "关于本站", kicker: "", body: "待补充" };
+export let siteSince = baselineSite.since || "2020-09-01";
+export let siteLead =
+  baselineSite.lead || "误入现世的工程师一只。白天画结界、排术式，夜里把想法炼成能自己走路的小世界。";
+export let siteDays = daysSince(siteSince);
+export let siteWords = [...posts, ...notes].reduce((sum, item) => sum + countWords(item.body), 0);
+export let seriesList = buildSeriesList();
+export let categoryList = buildCategoryList();
+export let tagList = buildTagList();
+export let catalog = buildCatalog();
+
+applyCovers();
+
+/* -------------------------------- 查找接口 -------------------------------- */
+
+export function getPost(slug) {
+  return posts.find((p) => p.slug === slug);
+}
+
+export function getNote(nid) {
+  return notes.find((n) => String(n.nid) === String(nid) || n.slug === String(nid));
+}
+
+export function getSeries(slug) {
+  const key = decodeKey(slug);
+  return seriesList.find((item) => item.slug === key || item.name === key || seriesSlug(item.name) === key);
+}
+
+export function getCategory(slug) {
+  const key = decodeKey(slug);
+  return categoryList.find((item) => item.slug === key || item.name === key);
+}
+
+export function getTag(slug) {
+  const key = decodeKey(slug);
+  return tagList.find((item) => item.slug === key || item.name === key);
+}
+
+export function citeOf(s) {
+  const source = s.source ? `出自「${s.source}」` : "";
+  const author = s.author || "";
+  return [source, author].filter(Boolean).join(" · ");
+}
+
+/* -------------------------------- 覆盖层合并 -------------------------------- */
+
+const OVERRIDE_META_KEYS = [
+  "title",
+  "date",
+  "summary",
+  "cover",
+  "category",
+  "tags",
+  "nid",
+  "series",
+  "letter",
+  "color",
+  "subtitle",
+  "mood",
+  "kicker",
 ];
+
+const TEXT_META_KEYS = ["date", "author", "source", "mood"];
+
+function parseLexical(raw) {
+  if (typeof raw !== "string" || !raw.trim()) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" && parsed.root ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function parseJsonArray(raw) {
+  if (typeof raw !== "string" || !raw.trim()) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function sortPosts(list) {
+  return [...list].sort((a, b) => String(b.date).localeCompare(String(a.date)));
+}
+
+function sortNotes(list) {
+  return [...list].sort((a, b) => Number(b.nid || 0) - Number(a.nid || 0));
+}
+
+function mergeOverride(base, doc) {
+  const meta = doc.meta && typeof doc.meta === "object" ? doc.meta : {};
+  const merged = { ...(base || {}), slug: base?.slug || doc.slug };
+  for (const key of OVERRIDE_META_KEYS) {
+    const value = meta[key];
+    if (value === undefined || value === null || value === "") continue;
+    merged[key] = value;
+  }
+  const lexical = parseLexical(doc.body);
+  if (lexical) {
+    merged.lexical = lexical;
+  } else if (typeof doc.body === "string" && doc.body.trim()) {
+    merged.body = doc.body;
+    delete merged.lexical;
+  }
+  return merged;
+}
+
+function mergeText(base, doc) {
+  const meta = doc.meta && typeof doc.meta === "object" ? doc.meta : {};
+  const merged = { ...(base || {}), slug: base?.slug || doc.slug };
+  for (const key of TEXT_META_KEYS) {
+    const value = meta[key];
+    if (value === undefined || value === null || value === "") continue;
+    merged[key] = value;
+  }
+  const body = typeof doc.body === "string" ? doc.body.trim() : "";
+  if (body) merged.text = body;
+  return merged;
+}
+
+function collectByKind(docs) {
+  const byKey = new Map();
+  for (const doc of docs || []) {
+    if (!doc || !doc.kind || !doc.slug) continue;
+    byKey.set(`${doc.kind}:${doc.slug}`, doc);
+  }
+  return byKey;
+}
+
+function resolveList(kind, baseline, byKey, merge) {
+  const out = [];
+  const used = new Set();
+  for (const base of baseline) {
+    const doc = byKey.get(`${kind}:${base.slug}`);
+    if (!doc) {
+      out.push(base);
+      continue;
+    }
+    used.add(base.slug);
+    if (doc.deleted) continue;
+    out.push(merge(base, doc));
+  }
+  for (const [key, doc] of byKey) {
+    if (doc.kind !== kind || doc.deleted) continue;
+    const slug = key.slice(kind.length + 1);
+    if (used.has(slug)) continue;
+    out.push(merge(null, doc));
+  }
+  return out;
+}
+
+function resolveSeries(byKey) {
+  const out = [];
+  const used = new Set();
+  for (const base of baselineSeries) {
+    const doc = byKey.get(`series:${base.slug}`);
+    if (!doc) {
+      out.push(base);
+      continue;
+    }
+    used.add(base.slug);
+    if (doc.deleted) continue;
+    out.push(mergeSeries(base, doc));
+  }
+  for (const [key, doc] of byKey) {
+    if (doc.kind !== "series" || doc.deleted) continue;
+    if (used.has(doc.slug)) continue;
+    out.push(mergeSeries(null, doc));
+  }
+  return out;
+}
+
+function mergeSeries(base, doc) {
+  const meta = doc.meta && typeof doc.meta === "object" ? doc.meta : {};
+  const name = String(meta.name || base?.name || doc.slug || "").trim();
+  const slug = seriesSlug(meta.slug || base?.slug || name);
+  const body = typeof doc.body === "string" ? doc.body.trim() : "";
+  return {
+    slug,
+    name,
+    subtitle: meta.subtitle ?? base?.subtitle ?? "",
+    description: body || base?.description || "",
+    letter: meta.letter ?? base?.letter ?? "",
+    color: meta.color ?? base?.color ?? "",
+    date: meta.date ?? base?.date ?? "",
+  };
+}
+
+function resolvePage(base, doc) {
+  if (!doc || doc.deleted) return base;
+  const meta = doc.meta && typeof doc.meta === "object" ? doc.meta : {};
+  const lexical = parseLexical(doc.body);
+  const rawBody = typeof doc.body === "string" ? doc.body.trim() : "";
+  const next = {
+    slug: base?.slug || doc.slug,
+    title: String(meta.title ?? base?.title ?? "").trim(),
+    kicker: String(meta.kicker ?? base?.kicker ?? "").trim(),
+    body: base?.body ?? "",
+  };
+  if (lexical) {
+    next.lexical = lexical;
+  } else if (rawBody) {
+    next.body = rawBody;
+  }
+  return next;
+}
+
+export function rebuildContent() {
+  applyCovers();
+  seriesList = buildSeriesList();
+  categoryList = buildCategoryList();
+  tagList = buildTagList();
+  siteDays = daysSince(siteSince);
+  siteWords = [...posts, ...notes].reduce((sum, item) => sum + countWords(item.body), 0);
+  catalog = buildCatalog();
+}
+
+export function applyContentOverrides(docs) {
+  const byKey = collectByKind(docs);
+
+  posts = sortPosts(resolveList("post", baselinePosts, byKey, mergeOverride));
+  notes = sortNotes(resolveList("note", baselineNotes, byKey, mergeOverride));
+
+  thoughts = resolveList("thought", baselineThoughts, byKey, mergeText)
+    .map((item) => ({ date: item.date || item.slug, text: String(item.text || "").trim() }))
+    .filter((item) => item.text)
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)));
+
+  says = resolveList("say", baselineSays, byKey, mergeText)
+    .map((item) => ({
+      slug: item.slug,
+      date: item.date || "",
+      author: item.author || "",
+      source: item.source || "",
+      text: String(item.text || "").trim(),
+    }))
+    .filter((item) => item.text)
+    .sort((a, b) => {
+      const byDate = String(b.date).localeCompare(String(a.date));
+      return byDate || String(b.slug).localeCompare(String(a.slug));
+    });
+
+  quotes = resolveList("quote", baselineQuotes, byKey, mergeText)
+    .map((item) => String(item.text || "").trim())
+    .filter(Boolean);
+
+  aboutPage = resolvePage(baselinePages.about, byKey.get("page:about")) || aboutPage;
+  aboutSitePage = resolvePage(baselinePages["about-site"], byKey.get("page:about-site")) || aboutSitePage;
+
+  const friendDoc = byKey.get("friend:index");
+  if (friendDoc && !friendDoc.deleted) {
+    const parsed = parseJsonArray(friendDoc.body);
+    if (parsed) friends = parsed;
+  }
+  const projectDoc = byKey.get("project:index");
+  if (projectDoc && !projectDoc.deleted) {
+    const parsed = parseJsonArray(projectDoc.body);
+    if (parsed) projects = parsed;
+  }
+
+  const siteDoc = byKey.get("site:index");
+  if (siteDoc && !siteDoc.deleted) {
+    const meta = siteDoc.meta && typeof siteDoc.meta === "object" ? siteDoc.meta : {};
+    if (meta.since !== undefined && meta.since !== null && meta.since !== "") siteSince = String(meta.since);
+    if (meta.lead !== undefined && meta.lead !== null && meta.lead !== "") siteLead = String(meta.lead);
+  }
+
+  seriesDocs = resolveSeries(byKey);
+  rebuildContent();
+}

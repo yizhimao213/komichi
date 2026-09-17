@@ -1,0 +1,24 @@
+name = "komichi-api"
+main = "index.js"
+compatibility_date = "2026-09-01"
+
+# 站点域名：ixoxi.cn 已由 Cloudflare 托管。
+# 用 Workers 自定义域名（custom_domain）接管 komichi.ixoxi.cn，
+# Cloudflare 会自动建好 DNS 记录并签发证书，比手写 Route 更省事。
+routes = [
+  { pattern = "komichi.ixoxi.cn", custom_domain = true },
+]
+
+# 本地开发：wrangler dev / wrangler d1 execute --local 都能直接用这个绑定。
+# 线上库已创建（region APAC），下面的 database_id 就是线上 D1 的 UUID。
+[[d1_databases]]
+binding = "DB"
+database_name = "komichi"
+database_id = "c3af67ad-3ce5-43c4-a83c-767a0d1d1861"
+
+# 前端构建产物（vite build 输出到仓库根的 dist/），与 Worker 同域部署。
+# not_found_handling 让 /posts/xxx、/admin 等前端路由回落到 index.html。
+[assets]
+directory = "../dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"

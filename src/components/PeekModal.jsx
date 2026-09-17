@@ -197,7 +197,7 @@ function PeekNote({ doc }) {
             <p>{doc.summary}</p>
           </section>
         ) : null}
-        <HaklexContent markdown={doc.body} variant="note" />
+        <HaklexContent markdown={doc.body} value={doc.lexical} variant="note" />
       </div>
     </div>
   );
@@ -260,7 +260,7 @@ function PeekPost({ doc }) {
           <p>{doc.summary}</p>
         </section>
       ) : null}
-      <HaklexContent markdown={doc.body} variant="article" />
+      <HaklexContent markdown={doc.body} value={doc.lexical} variant="article" />
     </div>
   );
 }

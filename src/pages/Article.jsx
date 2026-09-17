@@ -493,7 +493,7 @@ export default function Article({ kind }) {
                   <p>{doc.summary}</p>
                 </section>
               ) : null}
-              <HaklexContent markdown={doc.body} variant="note" />
+              <HaklexContent markdown={doc.body} value={doc.lexical} variant="note" />
               {doc.series ? (
                 <NoteSeriesEnd series={series} href={seriesHref} name={seriesName} />
               ) : null}
@@ -532,7 +532,7 @@ export default function Article({ kind }) {
               <p>{doc.summary}</p>
             </section>
           ) : null}
-          <HaklexContent markdown={doc.body} variant="article" />
+          <HaklexContent markdown={doc.body} value={doc.lexical} variant="article" />
           <ArticleEnd doc={doc} catName={catName} catHref={catHref} />
           {comment}
         </article>

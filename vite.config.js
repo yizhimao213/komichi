@@ -53,6 +53,13 @@ function spaHtmlGuard() {
   };
 }
 
+const apiProxy = {
+  "/api": {
+    target: "http://127.0.0.1:8787",
+    changeOrigin: true,
+  },
+};
+
 export default defineConfig({
   plugins: [spaHtmlGuard(), react()],
   appType: "spa",
@@ -60,10 +67,12 @@ export default defineConfig({
     host: "0.0.0.0",
     port: 5173,
     allowedHosts: [".monkeycode-ai.online", ".ixoxi.cn"],
+    proxy: apiProxy,
   },
   preview: {
     host: "0.0.0.0",
     port: 5173,
     allowedHosts: [".monkeycode-ai.online", ".ixoxi.cn"],
+    proxy: apiProxy,
   },
 });

@@ -1,0 +1,2 @@
+# 复制为 .dev.vars 后改成自己的口令（该文件不会提交）
+ADMIN_TOKEN=replace-with-your-own-token

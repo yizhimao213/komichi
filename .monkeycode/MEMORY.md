@@ -79,3 +79,17 @@ Entries discovered by the Agent during task execution should follow this format:
   - 已完成并推送：TOC DOM/CSS 折叠、haklex 文首 `###`、文末 `ArticleEnd`（引用卡 / `komichi` 签名 / 菱形分隔 / 回到分类 / 查看全部文稿）
   - 下一步：打开 haklex 文稿核文首 `###`、滑到「图」核折叠、滚到底核文末四块；对齐后再改
   - 仍空：`<dynamic>` 样例
+
+[后台服务运行方式]
+- Date: 2026-09-15
+- Context: Discovered by Agent while performing 站点后台（Workers + D1 覆盖层）
+- Category: Operations & Deployment
+- Instructions:
+  - 前端构建必须加内存参数：`NODE_OPTIONS="--max-old-space-size=4096" npm run build`，否则默认堆 OOM
+  - 后端本地启动：`cd /workspace/worker && WRANGLER_SEND_METRICS=false npx wrangler dev --port 8787 --local`（D1 用本地库）
+  - 首次/改表后建表：`cd /workspace/worker && npx wrangler d1 execute komichi --local --file=schema.sql`
+  - 后台口令放 `worker/.dev.vars`（已 gitignore），本地为 `ADMIN_TOKEN=komichi-dev-admin`；线上用 `wrangler secret put ADMIN_TOKEN`
+  - 前端通过 Vite `/api` 代理访问 `127.0.0.1:8787`，所以预览时后端必须同时运行
+  - 线上部署顺序：`wrangler d1 create komichi` → 填 `database_id` → `wrangler d1 execute --remote --file=schema.sql` → `wrangler deploy`
+  - npm registry 已设为 `https://registry.npmmirror.com`
+

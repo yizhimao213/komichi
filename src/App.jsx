@@ -18,6 +18,7 @@ import Says from "./pages/Says.jsx";
 import About from "./pages/About.jsx";
 import AboutSite from "./pages/AboutSite.jsx";
 import Message from "./pages/Message.jsx";
+import Editor from "./pages/Editor.jsx";
 import Timeline from "./pages/Timeline.jsx";
 import Thinking from "./pages/Thinking.jsx";
 import Background from "./components/Background.jsx";
@@ -31,6 +32,7 @@ import PageLoader from "./components/PageLoader.jsx";
 import { HeaderMetaProvider, SeasonProvider, SEASON_LIST } from "./context.jsx";
 import { ImageLightboxProvider } from "./haklex/ImageLightbox.jsx";
 import { NodeExpandProvider } from "./haklex/NodeExpand.jsx";
+import { loadOverrides } from "./contentApi.js";
 
 const THEME_KEY = "yohaku-theme";
 const BG_KEY = "yohaku-bg";
@@ -164,7 +166,18 @@ export default function App() {
     return SEASON_LIST.some((item) => item.id === saved) ? saved : "autumn";
   });
   const [holding, setHolding] = useState(() => isContentPage(location.pathname));
+  const [contentVersion, setContentVersion] = useState(0);
   const year = new Date().getFullYear();
+
+  useEffect(() => {
+    let alive = true;
+    loadOverrides().then((ok) => {
+      if (alive && ok) setContentVersion((v) => v + 1);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   useLayoutEffect(() => {
     document.documentElement.dataset.theme = themeMode;
@@ -243,6 +256,18 @@ export default function App() {
     withLookTransition(() => setThemeMode((v) => (v === "dark" ? "light" : "dark")));
   };
 
+  if (location.pathname.startsWith("/admin")) {
+    return (
+      <Routes location={location}>
+        <Route path="/admin" element={<Editor />} />
+        <Route path="/admin/c/:kind" element={<Editor />} />
+        <Route path="/admin/c/:kind/new" element={<Editor />} />
+        <Route path="/admin/c/:kind/:slug" element={<Editor />} />
+        <Route path="/admin/s/:kind" element={<Editor />} />
+      </Routes>
+    );
+  }
+
   return (
     <HeaderMetaProvider>
       <SeasonProvider value={{ season, setSeason: changeSeason }}>
@@ -262,7 +287,7 @@ export default function App() {
       ) : null}
       <CardSpotlight />
       <DeckleFilter />
-      <div className="app">
+      <div className="app" data-content={contentVersion}>
         <Header
           scrolled={scrolled}
           menuOpen={menuOpen}
@@ -327,6 +352,7 @@ export default function App() {
                 <h4>更多</h4>
                 <Link to="/says" viewTransition>一言</Link>
                 <Link to="/message" viewTransition>写留言</Link>
+                <Link to="/admin" viewTransition>后台</Link>
               </div>
               <div className="footer-col">
                 <h4>联系</h4>

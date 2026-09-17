@@ -9,7 +9,7 @@ export default function About() {
         <h1>{aboutPage.title || "关于我"}</h1>
       </header>
       <article style={{ paddingBottom: 80 }}>
-        <HaklexContent markdown={aboutPage.body || "待补充"} variant="article" />
+        <HaklexContent markdown={aboutPage.body || "待补充"} value={aboutPage.lexical} variant="article" />
       </article>
     </main>
   );
