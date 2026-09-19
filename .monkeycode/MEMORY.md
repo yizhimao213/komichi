@@ -90,6 +90,7 @@ Entries discovered by the Agent during task execution should follow this format:
   - 首次/改表后建表：`cd /workspace/worker && npx wrangler d1 execute komichi --local --file=schema.sql`
   - 后台口令放 `worker/.dev.vars`（已 gitignore），本地为 `ADMIN_TOKEN=komichi-dev-admin`；线上用 `wrangler secret put ADMIN_TOKEN`
   - 前端通过 Vite `/api` 代理访问 `127.0.0.1:8787`，所以预览时后端必须同时运行
-  - 线上部署顺序：`wrangler d1 create komichi` → 填 `database_id` → `wrangler d1 execute --remote --file=schema.sql` → `wrangler deploy`
+  - 线上部署顺序：`wrangler d1 create komichi` → 填 `database_id` → `wrangler d1 execute --remote --file=schema.sql` → `wrangler r2 bucket create komichi-files` → `wrangler deploy`
+  - 文件库：D1 `files`/`folders`，R2 绑定 `FILES` 桶 `komichi-files`，key 为 `{folder}/{id}`，公开 URL `/files/{id}/{name}`
   - npm registry 已设为 `https://registry.npmmirror.com`
 

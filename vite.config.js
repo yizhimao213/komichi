@@ -58,11 +58,38 @@ const apiProxy = {
     target: "http://127.0.0.1:8787",
     changeOrigin: true,
   },
+  "/files": {
+    target: "http://127.0.0.1:8787",
+    changeOrigin: true,
+  },
 };
 
 export default defineConfig({
   plugins: [spaHtmlGuard(), react()],
   appType: "spa",
+  resolve: {
+    dedupe: [
+      "lexical",
+      "@lexical/react",
+      "@lexical/list",
+      "@lexical/rich-text",
+      "@lexical/selection",
+      "@lexical/utils",
+    ],
+  },
+  optimizeDeps: {
+    include: [
+      "lexical",
+      "@lexical/list",
+      "@lexical/rich-text",
+      "@lexical/selection",
+      "@lexical/utils",
+      "@lexical/markdown",
+      "@lexical/headless",
+      "@haklex/rich-editor",
+      "@haklex/rich-editor/commands",
+    ],
+  },
   server: {
     host: "0.0.0.0",
     port: 5173,

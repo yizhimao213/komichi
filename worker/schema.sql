@@ -20,3 +20,23 @@ CREATE TABLE IF NOT EXISTS documents (
 );
 
 CREATE INDEX IF NOT EXISTS idx_documents_kind ON documents (kind);
+
+CREATE TABLE IF NOT EXISTS files (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  mime TEXT NOT NULL,
+  size INTEGER NOT NULL,
+  kind TEXT NOT NULL,
+  folder TEXT NOT NULL DEFAULT '未分类',
+  object_key TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_files_created_at ON files (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_files_kind ON files (kind);
+CREATE INDEX IF NOT EXISTS idx_files_folder ON files (folder);
+
+CREATE TABLE IF NOT EXISTS folders (
+  name TEXT PRIMARY KEY,
+  created_at TEXT NOT NULL
+);

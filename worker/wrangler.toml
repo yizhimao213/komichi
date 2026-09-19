@@ -16,6 +16,10 @@ binding = "DB"
 database_name = "komichi"
 database_id = "c3af67ad-3ce5-43c4-a83c-767a0d1d1861"
 
+[[r2_buckets]]
+binding = "FILES"
+bucket_name = "komichi-files"
+
 # 前端构建产物（vite build 输出到仓库根的 dist/），与 Worker 同域部署。
 # not_found_handling 让 /posts/xxx、/admin 等前端路由回落到 index.html。
 [assets]

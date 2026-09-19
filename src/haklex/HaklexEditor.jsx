@@ -1,4 +1,4 @@
-import { Component, useCallback } from "react";
+import { Component, useCallback, useState } from "react";
 import { composeEditor } from "@haklex/rich-compose";
 import { allEditorModules } from "@haklex/rich-compose/editor";
 import { DialogStackProvider } from "@haklex/rich-editor-ui";
@@ -9,6 +9,8 @@ import { MentionPlatformProvider } from "@haklex/rich-renderer-mention/static";
 import { mentionPlatforms } from "./mentions.js";
 import { pollAdapter } from "./poll.js";
 import { useSiteTheme } from "./theme.js";
+import HaklexToolbar from "./HaklexToolbar.jsx";
+import { uploadFile } from "../contentApi.js";
 import "@haklex/rich-compose/style.css";
 import "@haklex/rich-editor-ui/style.css";
 import "@haklex/rich-plugin-slash-menu/style.css";
@@ -26,6 +28,12 @@ async function localFileUpload(file, opts) {
   });
   opts?.onProgress?.(100);
   return { src };
+}
+
+async function libraryFileUpload(file, opts) {
+  const saved = await uploadFile(file, opts?.onProgress);
+  if (!saved?.url) throw new Error("upload_failed");
+  return { src: saved.url };
 }
 
 const slashPlugins = (
@@ -49,7 +57,7 @@ class EditorErrorBoundary extends Component {
     if (this.state.error) {
       return (
         <div className="haklex-editor-error">
-          {this.state.error.message || "编辑器未能挂载"}
+          {this.props.fallback || this.state.error.message || "编辑器未能挂载"}
         </div>
       );
     }
@@ -57,14 +65,15 @@ class EditorErrorBoundary extends Component {
   }
 }
 
-function NestedDocDialogEditor({ initialValue, onEditorReady }) {
+function NestedDocDialogEditor({ initialValue, onEditorReady, persistUploads }) {
+  const fileUpload = persistUploads ? libraryFileUpload : localFileUpload;
   return (
     <ComposedEditor
       variant="article"
       initialValue={initialValue}
       onEditorReady={onEditorReady}
-      imageUpload={localFileUpload}
-      fileUpload={localFileUpload}
+      imageUpload={fileUpload}
+      fileUpload={fileUpload}
     />
   );
 }
@@ -78,43 +87,67 @@ export default function HaklexEditor({
   initialValue,
   autoFocus = false,
   slash = false,
+  toolbar = false,
   header,
   children,
   className = "",
   contentClassName,
   style,
   actions,
+  persistUploads = false,
 }) {
   const theme = useSiteTheme();
+  const [editor, setEditor] = useState(null);
   const handleChange = useCallback(
     (next) => {
       onChange?.(next);
     },
     [onChange]
   );
+  const handleEditorReady = useCallback(
+    (next) => {
+      setEditor(next);
+      onEditorReady?.(next);
+    },
+    [onEditorReady]
+  );
+  const fileUpload = persistUploads ? libraryFileUpload : localFileUpload;
 
   return (
-    <div className={["haklex-editor", className].filter(Boolean).join(" ")}>
+    <div
+      className={["haklex-editor", toolbar || slash ? "has-toolbar" : "", className]
+        .filter(Boolean)
+        .join(" ")}
+    >
       <EditorErrorBoundary>
         <DialogStackProvider>
           <MentionPlatformProvider platforms={mentionPlatforms}>
           <PollDataProvider adapter={pollAdapter}>
-            <NestedDocDialogEditorProvider value={NestedDocDialogEditor}>
+            <NestedDocDialogEditorProvider
+              value={(props) => <NestedDocDialogEditor {...props} persistUploads={persistUploads} />}
+            >
               <ComposedEditor
                 variant={variant}
                 theme={theme}
                 placeholder={placeholder}
                 initialValue={initialValue}
                 autoFocus={autoFocus}
-                header={header}
+                header={
+                  header ??
+                  (toolbar || slash ? (
+                    <EditorErrorBoundary fallback="工具栏未能挂载，正文仍可编辑。">
+                      {editor ? <HaklexToolbar editor={editor} /> : null}
+                    </EditorErrorBoundary>
+                  ) : undefined)
+                }
                 contentClassName={contentClassName}
                 style={style}
                 onChange={handleChange}
                 onSubmit={onSubmit}
-                onEditorReady={onEditorReady}
-                imageUpload={localFileUpload}
-                fileUpload={localFileUpload}
-                videoUpload={localFileUpload}
+                onEditorReady={handleEditorReady}
+                imageUpload={fileUpload}
+                fileUpload={fileUpload}
+                videoUpload={fileUpload}
                 actions={actions}
               >
                 {slash ? slashPlugins : null}

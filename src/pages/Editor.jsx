@@ -10,6 +10,7 @@ import {
   EyeOff,
   FileStack,
   FileText,
+  FolderOpen,
   Globe,
   LayoutDashboard,
   Library,
@@ -46,6 +47,7 @@ import {
 } from "../contentApi.js";
 import HaklexEditor from "../haklex/HaklexEditor.jsx";
 import { markdownToLexical } from "../haklex/markdown.js";
+import FileManager from "./FileManager.jsx";
 
 const KIND_ICON = {
   post: FileText,
@@ -133,9 +135,14 @@ function LoginScreen({ onDone }) {
     setBusy(true);
     setError("");
     const ok = await login(value.trim());
+    if (!ok) {
+      setBusy(false);
+      setError("口令不正确。本地预览用 komichi-dev-admin，线上用另一组口令。");
+      return;
+    }
+    const loaded = await onDone();
     setBusy(false);
-    if (ok) onDone();
-    else setError("口令不正确，或后端暂时不可用。");
+    if (!loaded) setError("口令已通过，但后台数据暂时读不到。再试一次。");
   };
 
   return (
@@ -202,6 +209,10 @@ function Sidebar({ pathname, onLogout, open, onClose }) {
           <Link className={`adm-nav-item ${pathname === "/admin" ? "is-on" : ""}`} to="/admin">
             <LayoutDashboard size={16} strokeWidth={1.8} />
             <span>总览</span>
+          </Link>
+          <Link className={`adm-nav-item ${isOn("/admin/files") ? "is-on" : ""}`} to="/admin/files">
+            <FolderOpen size={16} strokeWidth={1.8} />
+            <span>文件库</span>
           </Link>
           {KIND_GROUPS.map((group) => (
             <div className="adm-nav-group" key={group.name}>
@@ -817,7 +828,9 @@ function ItemEditor({ entry, slug, isNew, onSaved }) {
         <div className="adm-panel is-flush">
           <header className="adm-panel-head">
             <h2>{entry.bodyLabel || "正文"}</h2>
-            {entry.body === "rich" ? <span className="adm-muted">支持 Markdown 快捷键</span> : null}
+            {entry.body === "rich" ? (
+              <span className="adm-muted">工具栏 · 输入 / 插入模块 · Markdown 快捷键</span>
+            ) : null}
           </header>
           {ready ? (
             entry.body === "rich" ? (
@@ -826,6 +839,7 @@ function ItemEditor({ entry, slug, isNew, onSaved }) {
                   key={`${entry.kind}:${slug || "new"}`}
                   variant="article"
                   slash
+                  persistUploads
                   initialValue={state ?? undefined}
                   onChange={setState}
                 />
@@ -1016,9 +1030,14 @@ export default function Editor() {
       const list = await listDocuments();
       setDocs(list);
       setAuthed(true);
+      return true;
     } catch (err) {
-      if (err?.status === 401 || err?.status === 403) setAuthed(false);
-      else setAuthed((prev) => prev === true);
+      if (err?.status === 401 || err?.status === 403) {
+        setAuthed(false);
+        return false;
+      }
+      setAuthed(true);
+      return false;
     }
   }, []);
 
@@ -1056,6 +1075,7 @@ export default function Editor() {
 
   const crumbs = [];
   if (pathname === "/admin") crumbs.push({ label: "总览" });
+  else if (pathname === "/admin/files") crumbs.push({ label: "文件库" });
   else if (!entry) crumbs.push({ label: "未知分类" });
   else if (isSingleton) crumbs.push({ label: entry.group }, { label: entry.label, now: true });
   else if (isNew)
@@ -1078,6 +1098,9 @@ export default function Editor() {
   if (pathname === "/admin") {
     content = <Dashboard docs={docs} />;
     key = "dashboard";
+  } else if (pathname === "/admin/files") {
+    content = <FileManager />;
+    key = "files";
   } else if (entry && isSingleton) {
     content = <SingletonPage key={`s-${entry.kind}`} entry={entry} onRefresh={refreshDocs} />;
     key = `s-${entry.kind}`;

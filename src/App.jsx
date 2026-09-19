@@ -260,6 +260,7 @@ export default function App() {
     return (
       <Routes location={location}>
         <Route path="/admin" element={<Editor />} />
+        <Route path="/admin/files" element={<Editor />} />
         <Route path="/admin/c/:kind" element={<Editor />} />
         <Route path="/admin/c/:kind/new" element={<Editor />} />
         <Route path="/admin/c/:kind/:slug" element={<Editor />} />

@@ -11,10 +11,31 @@
 //   GET    /api/admin/documents          含已删除，供后台列表
 //   PUT    /api/admin/documents/:kind/:slug
 //   DELETE /api/admin/documents/:kind/:slug   软删除，回落到构建期基线
+//   GET    /api/admin/folders
+//   POST   /api/admin/folders            { name }
+//   PATCH  /api/admin/folders/:name      { name }
+//   DELETE /api/admin/folders/:name
+//   GET    /api/admin/files?folder=&kind=&q=
+//   POST   /api/admin/files              multipart field=file, folder
+//   PATCH  /api/admin/files/:id          { folder?, name? }
+//   DELETE /api/admin/files/:id
+//
+// 公开文件
+//   GET    /files/:id/:filename
 
 const MAX_CONTENT_LEN = 2000;
 const MAX_NICKNAME_LEN = 40;
 const MAX_BODY_LEN = 512 * 1024;
+const FILE_MIME = {
+  image: new Set(["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"]),
+  document: new Set(["application/pdf", "text/plain", "text/markdown"]),
+  other: new Set(["audio/mpeg", "video/mp4", "application/zip"]),
+};
+const FILE_LIMIT = {
+  image: 8 * 1024 * 1024,
+  document: 16 * 1024 * 1024,
+  other: 32 * 1024 * 1024,
+};
 const KINDS = new Set([
   "post",
   "note",
@@ -30,7 +51,7 @@ const KINDS = new Set([
 
 const CORS_HEADERS = {
   "access-control-allow-origin": "*",
-  "access-control-allow-methods": "GET,POST,PUT,DELETE,OPTIONS",
+  "access-control-allow-methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
   "access-control-allow-headers": "content-type,authorization,x-admin-token",
 };
 
@@ -208,6 +229,352 @@ async function deleteDocument(env, kind, slug, hard) {
   return json({ ok: true, kind, slug, deleted: true, updated_at });
 }
 
+/* ---------------------------------- 文件库 ---------------------------------- */
+
+function kindOfMime(mime) {
+  const value = String(mime || "").toLowerCase();
+  if (FILE_MIME.image.has(value)) return "image";
+  if (FILE_MIME.document.has(value)) return "document";
+  if (FILE_MIME.other.has(value)) return "other";
+  return null;
+}
+
+function tidyFileName(name) {
+  const base = String(name || "file").split(/[/\\]/).pop() || "file";
+  return base.replace(/[^\w.\u4e00-\u9fff-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 180) || "file";
+}
+
+function tidyFolder(name) {
+  const value = String(name || "")
+    .trim()
+    .replace(/[\\/]+/g, "")
+    .replace(/\s+/g, " ")
+    .slice(0, 40);
+  return value || "";
+}
+
+function defaultFolderOf(kind) {
+  if (kind === "image") return "图片";
+  if (kind === "document") return "文档";
+  if (kind === "other") return "其他";
+  return "未分类";
+}
+
+function objectKeyOf(folder, id) {
+  return `${folder}/${id}`;
+}
+
+function fileUrl(id, name) {
+  return `/files/${id}/${encodeURIComponent(name)}`;
+}
+
+function parseFileRow(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    mime: row.mime,
+    size: Number(row.size) || 0,
+    kind: row.kind,
+    folder: row.folder || "未分类",
+    object_key: row.object_key || row.id,
+    created_at: row.created_at,
+    url: fileUrl(row.id, row.name),
+  };
+}
+
+function requireStore(env) {
+  if (env.FILES) return null;
+  return json({ ok: false, error: "storage_unavailable" }, 503);
+}
+
+async function ensureFolder(env, name) {
+  const folder = tidyFolder(name) || "未分类";
+  const created_at = new Date().toISOString();
+  await env.DB.prepare("INSERT OR IGNORE INTO folders (name, created_at) VALUES (?, ?)").bind(folder, created_at).run();
+  return folder;
+}
+
+async function migrateFilesSchema(env) {
+  const statements = [
+    "CREATE TABLE IF NOT EXISTS folders (name TEXT PRIMARY KEY, created_at TEXT NOT NULL)",
+    "ALTER TABLE files ADD COLUMN folder TEXT NOT NULL DEFAULT '未分类'",
+    "ALTER TABLE files ADD COLUMN object_key TEXT NOT NULL DEFAULT ''",
+  ];
+  for (const sql of statements) {
+    try {
+      await env.DB.prepare(sql).run();
+    } catch {
+      /* already migrated */
+    }
+  }
+}
+
+async function seedDefaultFolders(env) {
+  await migrateFilesSchema(env);
+  const created_at = new Date().toISOString();
+  for (const name of ["未分类", "图片", "文档", "其他"]) {
+    await env.DB.prepare("INSERT OR IGNORE INTO folders (name, created_at) VALUES (?, ?)").bind(name, created_at).run();
+  }
+}
+
+async function listAdminFolders(env) {
+  await seedDefaultFolders(env);
+  const { results: folders } = await env.DB.prepare(
+    "SELECT name, created_at FROM folders ORDER BY name COLLATE NOCASE"
+  ).all();
+  const { results: counts } = await env.DB.prepare(
+    "SELECT folder, COUNT(*) AS count FROM files GROUP BY folder"
+  ).all();
+  const countMap = new Map((counts ?? []).map((row) => [row.folder || "未分类", Number(row.count) || 0]));
+  return json({
+    ok: true,
+    folders: (folders ?? []).map((row) => ({
+      name: row.name,
+      created_at: row.created_at,
+      count: countMap.get(row.name) || 0,
+    })),
+  });
+}
+
+async function createAdminFolder(env, request) {
+  const payload = await readJson(request);
+  const name = tidyFolder(payload?.name);
+  if (!name) return json({ ok: false, error: "invalid_folder" }, 400);
+  await ensureFolder(env, name);
+  return json({ ok: true, folder: { name, count: 0 } }, 201);
+}
+
+async function renameAdminFolder(env, fromName, request) {
+  const from = tidyFolder(fromName);
+  if (!from) return json({ ok: false, error: "invalid_folder" }, 400);
+  const payload = await readJson(request);
+  const to = tidyFolder(payload?.name);
+  if (!to) return json({ ok: false, error: "invalid_folder" }, 400);
+  if (from === to) return json({ ok: true, folder: { name: to } });
+
+  const exists = await env.DB.prepare("SELECT name FROM folders WHERE name = ?").bind(from).first();
+  if (!exists) return json({ ok: false, error: "not_found" }, 404);
+  const clash = await env.DB.prepare("SELECT name FROM folders WHERE name = ?").bind(to).first();
+  if (clash) return json({ ok: false, error: "folder_exists" }, 409);
+
+  const { results } = await env.DB.prepare(
+    "SELECT id, name, mime, kind, folder, object_key FROM files WHERE folder = ?"
+  )
+    .bind(from)
+    .all();
+
+  for (const row of results ?? []) {
+    const nextKey = objectKeyOf(to, row.id);
+    const currentKey = row.object_key || row.id;
+    if (env.FILES && currentKey !== nextKey) {
+      const object = await env.FILES.get(currentKey);
+      if (object) {
+        await env.FILES.put(nextKey, object.body, {
+          httpMetadata: { contentType: row.mime },
+          customMetadata: { name: row.name, kind: row.kind, folder: to },
+        });
+        await env.FILES.delete(currentKey);
+      }
+    }
+    await env.DB.prepare("UPDATE files SET folder = ?, object_key = ? WHERE id = ?")
+      .bind(to, nextKey, row.id)
+      .run();
+  }
+
+  await env.DB.prepare("UPDATE folders SET name = ? WHERE name = ?").bind(to, from).run();
+  return json({ ok: true, folder: { name: to } });
+}
+
+async function deleteAdminFolder(env, name) {
+  const folder = tidyFolder(name);
+  if (!folder) return json({ ok: false, error: "invalid_folder" }, 400);
+  const target = await ensureFolder(env, "未分类");
+  if (folder === target) return json({ ok: false, error: "protected_folder" }, 400);
+
+  const { results } = await env.DB.prepare(
+    "SELECT id, name, mime, kind, object_key FROM files WHERE folder = ?"
+  )
+    .bind(folder)
+    .all();
+  for (const row of results ?? []) {
+    const nextKey = objectKeyOf(target, row.id);
+    const currentKey = row.object_key || row.id;
+    if (env.FILES && currentKey !== nextKey) {
+      const object = await env.FILES.get(currentKey);
+      if (object) {
+        await env.FILES.put(nextKey, object.body, {
+          httpMetadata: { contentType: row.mime },
+          customMetadata: { name: row.name, kind: row.kind, folder: target },
+        });
+        await env.FILES.delete(currentKey);
+      }
+    }
+    await env.DB.prepare("UPDATE files SET folder = ?, object_key = ? WHERE id = ?")
+      .bind(target, nextKey, row.id)
+      .run();
+  }
+  await env.DB.prepare("DELETE FROM folders WHERE name = ?").bind(folder).run();
+  return json({ ok: true, folder, moved_to: target });
+}
+
+async function listAdminFiles(env, url) {
+  await seedDefaultFolders(env);
+  const kind = String(url.searchParams.get("kind") || "").trim();
+  const folder = tidyFolder(url.searchParams.get("folder") || "");
+  const q = String(url.searchParams.get("q") || "").trim();
+  if (kind && !FILE_LIMIT[kind]) return json({ ok: false, error: "invalid_kind" }, 400);
+
+  let sql = "SELECT id, name, mime, size, kind, folder, object_key, created_at FROM files";
+  const binds = [];
+  const where = [];
+  if (kind) {
+    where.push("kind = ?");
+    binds.push(kind);
+  }
+  if (folder) {
+    where.push("folder = ?");
+    binds.push(folder);
+  }
+  if (q) {
+    where.push("name LIKE ?");
+    binds.push(`%${q.replace(/[%_]/g, "")}%`);
+  }
+  if (where.length) sql += ` WHERE ${where.join(" AND ")}`;
+  sql += " ORDER BY created_at DESC LIMIT 400";
+
+  const stmt = env.DB.prepare(sql);
+  const { results } = binds.length ? await stmt.bind(...binds).all() : await stmt.all();
+  return json({ ok: true, files: (results ?? []).map(parseFileRow) });
+}
+
+async function uploadAdminFile(env, request) {
+  const denied = requireStore(env);
+  if (denied) return denied;
+
+  let form;
+  try {
+    form = await request.formData();
+  } catch {
+    return json({ ok: false, error: "invalid_form" }, 400);
+  }
+  const file = form.get("file");
+  if (!file || typeof file === "string" || typeof file.arrayBuffer !== "function") {
+    return json({ ok: false, error: "missing_file" }, 400);
+  }
+
+  const mime = String(file.type || "application/octet-stream").toLowerCase();
+  const kind = kindOfMime(mime);
+  if (!kind) return json({ ok: false, error: "unsupported_type" }, 415);
+
+  const size = Number(file.size) || 0;
+  if (!size) return json({ ok: false, error: "empty_file" }, 400);
+  if (size > FILE_LIMIT[kind]) return json({ ok: false, error: "too_large" }, 413);
+
+  const name = tidyFileName(file.name);
+  const folder = await ensureFolder(env, tidyFolder(form.get("folder")) || defaultFolderOf(kind));
+  const id = crypto.randomUUID();
+  const key = objectKeyOf(folder, id);
+  const created_at = new Date().toISOString();
+  const bytes = await file.arrayBuffer();
+
+  await env.FILES.put(key, bytes, {
+    httpMetadata: { contentType: mime },
+    customMetadata: { name, kind, folder },
+  });
+
+  try {
+    await env.DB.prepare(
+      "INSERT INTO files (id, name, mime, size, kind, folder, object_key, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+    )
+      .bind(id, name, mime, size, kind, folder, key, created_at)
+      .run();
+  } catch (err) {
+    await env.FILES.delete(key);
+    throw err;
+  }
+
+  return json({ ok: true, file: parseFileRow({ id, name, mime, size, kind, folder, object_key: key, created_at }) }, 201);
+}
+
+async function patchAdminFile(env, id, request) {
+  const denied = requireStore(env);
+  if (denied) return denied;
+  if (!id) return json({ ok: false, error: "invalid_id" }, 400);
+
+  const row = await env.DB.prepare(
+    "SELECT id, name, mime, size, kind, folder, object_key, created_at FROM files WHERE id = ?"
+  )
+    .bind(id)
+    .first();
+  if (!row) return json({ ok: false, error: "not_found" }, 404);
+
+  const payload = await readJson(request);
+  const nextName = payload?.name != null ? tidyFileName(payload.name) : row.name;
+  const nextFolder = payload?.folder != null
+    ? await ensureFolder(env, tidyFolder(payload.folder) || defaultFolderOf(row.kind))
+    : row.folder || "未分类";
+  const nextKey = objectKeyOf(nextFolder, row.id);
+  const currentKey = row.object_key || row.id;
+
+  if (currentKey !== nextKey) {
+    const object = await env.FILES.get(currentKey);
+    if (object) {
+      await env.FILES.put(nextKey, object.body, {
+        httpMetadata: { contentType: row.mime },
+        customMetadata: { name: nextName, kind: row.kind, folder: nextFolder },
+      });
+      await env.FILES.delete(currentKey);
+    }
+  }
+
+  await env.DB.prepare("UPDATE files SET name = ?, folder = ?, object_key = ? WHERE id = ?")
+    .bind(nextName, nextFolder, nextKey, row.id)
+    .run();
+
+  return json({
+    ok: true,
+    file: parseFileRow({ ...row, name: nextName, folder: nextFolder, object_key: nextKey }),
+  });
+}
+
+async function deleteAdminFile(env, id) {
+  const denied = requireStore(env);
+  if (denied) return denied;
+  if (!id) return json({ ok: false, error: "invalid_id" }, 400);
+
+  const row = await env.DB.prepare("SELECT id, object_key FROM files WHERE id = ?").bind(id).first();
+  if (!row) return json({ ok: false, error: "not_found" }, 404);
+
+  await env.FILES.delete(row.object_key || row.id);
+  if (row.object_key && row.object_key !== row.id) await env.FILES.delete(row.id);
+  await env.DB.prepare("DELETE FROM files WHERE id = ?").bind(id).run();
+  return json({ ok: true, id, deleted: true });
+}
+
+async function servePublicFile(env, id) {
+  const denied = requireStore(env);
+  if (denied) return denied;
+  if (!id) return json({ ok: false, error: "not_found" }, 404);
+
+  const row = await env.DB.prepare(
+    "SELECT id, name, mime, object_key FROM files WHERE id = ?"
+  )
+    .bind(id)
+    .first();
+  if (!row) return json({ ok: false, error: "not_found" }, 404);
+
+  const object = (await env.FILES.get(row.object_key || row.id)) || (await env.FILES.get(row.id));
+  if (!object) return json({ ok: false, error: "not_found" }, 404);
+
+  const headers = new Headers();
+  object.writeHttpMetadata(headers);
+  headers.set("content-type", row.mime || "application/octet-stream");
+  headers.set("cache-control", "public, max-age=31536000, immutable");
+  headers.set("content-disposition", `inline; filename*=UTF-8''${encodeURIComponent(row.name)}`);
+  Object.entries(CORS_HEADERS).forEach(([key, value]) => headers.set(key, value));
+  return new Response(object.body, { status: 200, headers });
+}
+
 /* ---------------------------------- 路由 ---------------------------------- */
 
 export default {
@@ -269,6 +636,54 @@ export default {
       if (request.method === "PUT") return upsertDocument(env, kind, slug, request);
       if (request.method === "DELETE") return deleteDocument(env, kind, slug, url.searchParams.get("hard") === "1");
       return json({ ok: false, error: "method_not_allowed" }, 405);
+    }
+
+    if (path === "/api/admin/folders") {
+      const denied = await requireAdmin(request, env);
+      if (denied) return denied;
+      if (request.method === "GET") return listAdminFolders(env);
+      if (request.method === "POST") return createAdminFolder(env, request);
+      return json({ ok: false, error: "method_not_allowed" }, 405);
+    }
+
+    const folderMatch = path.match(/^\/api\/admin\/folders\/([^/]+)$/);
+    if (folderMatch) {
+      const denied = await requireAdmin(request, env);
+      if (denied) return denied;
+      let folderName = folderMatch[1];
+      try {
+        folderName = decodeURIComponent(folderName);
+      } catch {
+        /* keep raw */
+      }
+      if (request.method === "PATCH") return renameAdminFolder(env, folderName, request);
+      if (request.method === "DELETE") return deleteAdminFolder(env, folderName);
+      return json({ ok: false, error: "method_not_allowed" }, 405);
+    }
+
+    if (path === "/api/admin/files") {
+      const denied = await requireAdmin(request, env);
+      if (denied) return denied;
+      if (request.method === "GET") return listAdminFiles(env, url);
+      if (request.method === "POST") return uploadAdminFile(env, request);
+      return json({ ok: false, error: "method_not_allowed" }, 405);
+    }
+
+    const fileMatch = path.match(/^\/api\/admin\/files\/([^/]+)$/);
+    if (fileMatch) {
+      const denied = await requireAdmin(request, env);
+      if (denied) return denied;
+      if (request.method === "PATCH") return patchAdminFile(env, fileMatch[1], request);
+      if (request.method === "DELETE") return deleteAdminFile(env, fileMatch[1]);
+      return json({ ok: false, error: "method_not_allowed" }, 405);
+    }
+
+    const publicFile = path.match(/^\/files\/([^/]+)\/([^/]+)$/);
+    if (publicFile) {
+      if (request.method !== "GET" && request.method !== "HEAD") {
+        return json({ ok: false, error: "method_not_allowed" }, 405);
+      }
+      return servePublicFile(env, publicFile[1]);
     }
 
     if (path === "/api" || path.startsWith("/api/")) {
