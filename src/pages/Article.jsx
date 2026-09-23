@@ -7,6 +7,7 @@ import { useHeaderMeta } from "../context.jsx";
 import HaklexContent from "../haklex/HaklexContent.jsx";
 import { extractToc } from "../haklex/markdown.js";
 import { openImageSrc, useImageLightbox } from "../haklex/ImageLightbox.jsx";
+import CommentBox from "../components/CommentBox.jsx";
 
 const AUTHOR = "四十小路";
 const LICENSE_HREF = "https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans";
@@ -355,7 +356,6 @@ export default function Article({ kind }) {
   const { slug, nid } = useParams();
   const doc = kind === "note" ? getNote(nid) : getPost(slug);
   const [active, setActive] = useState("");
-  const [hint, setHint] = useState(kind === "note" ? "喜欢这篇手记的话，留下一句。" : "欢迎写下你的想法。");
   const { open: openImage } = useImageLightbox();
   const [noteFont, setNoteFont] = useState(() => {
     try {
@@ -417,20 +417,12 @@ export default function Article({ kind }) {
   };
 
   const comment = (
-    <form
-      className="comment-box"
-      onSubmit={(e) => {
-        e.preventDefault();
-        setHint("已留下痕迹。预览站只会保存在这一页。");
-        e.currentTarget.reset();
-      }}
-    >
-      <textarea name="message" placeholder={kind === "note" ? "喜欢这篇手记。" : "在这里留下一句安静的话。"} />
-      <div className="row">
-        <span>{hint}</span>
-        <button className="btn btn-accent" type="submit">留下痕迹</button>
-      </div>
-    </form>
+    <CommentBox
+      kind={kind}
+      slug={kind === "note" ? String(doc.nid || doc.slug) : String(doc.slug)}
+      placeholder={kind === "note" ? "喜欢这篇手记。" : "在这里留下一句安静的话。"}
+      hint={kind === "note" ? "喜欢这篇手记的话，留下一句。" : "欢迎写下你的想法。"}
+    />
   );
 
   if (kind === "note") {

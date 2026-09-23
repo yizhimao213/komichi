@@ -18,8 +18,11 @@ import {
   LoaderCircle,
   LogOut,
   Menu,
+  MessageSquare,
   MessageSquareQuote,
+  Music,
   NotebookPen,
+  AudioLines,
   Pencil,
   Plus,
   Quote,
@@ -48,6 +51,9 @@ import {
 import HaklexEditor from "../haklex/HaklexEditor.jsx";
 import { markdownToLexical } from "../haklex/markdown.js";
 import FileManager from "./FileManager.jsx";
+import CommentManager from "./CommentManager.jsx";
+import PlaylistManager from "./PlaylistManager.jsx";
+import TapManager from "./TapManager.jsx";
 
 const KIND_ICON = {
   post: FileText,
@@ -213,6 +219,18 @@ function Sidebar({ pathname, onLogout, open, onClose }) {
           <Link className={`adm-nav-item ${isOn("/admin/files") ? "is-on" : ""}`} to="/admin/files">
             <FolderOpen size={16} strokeWidth={1.8} />
             <span>文件库</span>
+          </Link>
+          <Link className={`adm-nav-item ${isOn("/admin/comments") ? "is-on" : ""}`} to="/admin/comments">
+            <MessageSquare size={16} strokeWidth={1.8} />
+            <span>评论</span>
+          </Link>
+          <Link className={`adm-nav-item ${isOn("/admin/playlist") ? "is-on" : ""}`} to="/admin/playlist">
+            <Music size={16} strokeWidth={1.8} />
+            <span>歌单</span>
+          </Link>
+          <Link className={`adm-nav-item ${isOn("/admin/tap") ? "is-on" : ""}`} to="/admin/tap">
+            <AudioLines size={16} strokeWidth={1.8} />
+            <span>点按</span>
           </Link>
           {KIND_GROUPS.map((group) => (
             <div className="adm-nav-group" key={group.name}>
@@ -1076,6 +1094,9 @@ export default function Editor() {
   const crumbs = [];
   if (pathname === "/admin") crumbs.push({ label: "总览" });
   else if (pathname === "/admin/files") crumbs.push({ label: "文件库" });
+  else if (pathname === "/admin/comments") crumbs.push({ label: "评论" });
+  else if (pathname === "/admin/playlist") crumbs.push({ label: "歌单" });
+  else if (pathname === "/admin/tap") crumbs.push({ label: "点按" });
   else if (!entry) crumbs.push({ label: "未知分类" });
   else if (isSingleton) crumbs.push({ label: entry.group }, { label: entry.label, now: true });
   else if (isNew)
@@ -1101,6 +1122,15 @@ export default function Editor() {
   } else if (pathname === "/admin/files") {
     content = <FileManager />;
     key = "files";
+  } else if (pathname === "/admin/comments") {
+    content = <CommentManager />;
+    key = "comments";
+  } else if (pathname === "/admin/playlist") {
+    content = <PlaylistManager />;
+    key = "playlist";
+  } else if (pathname === "/admin/tap") {
+    content = <TapManager />;
+    key = "tap";
   } else if (entry && isSingleton) {
     content = <SingletonPage key={`s-${entry.kind}`} entry={entry} onRefresh={refreshDocs} />;
     key = `s-${entry.kind}`;

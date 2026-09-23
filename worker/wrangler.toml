@@ -10,6 +10,7 @@ routes = [
 ]
 
 # 本地开发：wrangler dev / wrangler d1 execute --local 都能直接用这个绑定。
+# 评论表 comments、歌单表 tracks、点按槽 tap_slots 由 Worker 首次请求自动建表。
 # 线上库已创建（region APAC），下面的 database_id 就是线上 D1 的 UUID。
 [[d1_databases]]
 binding = "DB"

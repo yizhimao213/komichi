@@ -95,6 +95,7 @@ export default function HaklexEditor({
   style,
   actions,
   persistUploads = false,
+  uploadFn,
 }) {
   const theme = useSiteTheme();
   const [editor, setEditor] = useState(null);
@@ -111,7 +112,7 @@ export default function HaklexEditor({
     },
     [onEditorReady]
   );
-  const fileUpload = persistUploads ? libraryFileUpload : localFileUpload;
+  const fileUpload = uploadFn ?? (persistUploads ? libraryFileUpload : localFileUpload);
 
   return (
     <div

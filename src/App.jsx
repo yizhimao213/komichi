@@ -33,6 +33,8 @@ import { HeaderMetaProvider, SeasonProvider, SEASON_LIST } from "./context.jsx";
 import { ImageLightboxProvider } from "./haklex/ImageLightbox.jsx";
 import { NodeExpandProvider } from "./haklex/NodeExpand.jsx";
 import { loadOverrides } from "./contentApi.js";
+import MusicPlayer from "./components/MusicPlayer.jsx";
+import Tap from "./pages/Tap.jsx";
 
 const THEME_KEY = "yohaku-theme";
 const BG_KEY = "yohaku-bg";
@@ -93,6 +95,7 @@ const STATIC_TITLES = {
 
 function pageTitle(pathname) {
   if (pathname === "/") return "komichi";
+  if (pathname === "/komichi") return "点按 · komichi";
   if (STATIC_TITLES[pathname]) return `${STATIC_TITLES[pathname]} · komichi`;
   if (pathname === "/about") return `${aboutPage.title || "关于我"} · komichi`;
   if (pathname === "/about-site") return `${aboutSitePage.title || "关于本站"} · komichi`;
@@ -261,12 +264,19 @@ export default function App() {
       <Routes location={location}>
         <Route path="/admin" element={<Editor />} />
         <Route path="/admin/files" element={<Editor />} />
+        <Route path="/admin/comments" element={<Editor />} />
+        <Route path="/admin/playlist" element={<Editor />} />
+        <Route path="/admin/tap" element={<Editor />} />
         <Route path="/admin/c/:kind" element={<Editor />} />
         <Route path="/admin/c/:kind/new" element={<Editor />} />
         <Route path="/admin/c/:kind/:slug" element={<Editor />} />
         <Route path="/admin/s/:kind" element={<Editor />} />
       </Routes>
     );
+  }
+
+  if (location.pathname === "/komichi") {
+    return <Tap />;
   }
 
   return (
@@ -351,9 +361,10 @@ export default function App() {
               </div>
               <div className="footer-col">
                 <h4>更多</h4>
-                <Link to="/says" viewTransition>一言</Link>
-                <Link to="/message" viewTransition>写留言</Link>
-                <Link to="/admin" viewTransition>后台</Link>
+                 <Link to="/says" viewTransition>一言</Link>
+                 <Link to="/komichi" viewTransition>点按</Link>
+                 <Link to="/message" viewTransition>写留言</Link>
+                 <Link to="/admin" viewTransition>后台</Link>
               </div>
               <div className="footer-col">
                 <h4>联系</h4>
@@ -402,6 +413,8 @@ export default function App() {
           </div>
         </footer>
       </div>
+
+      <MusicPlayer />
 
       {searchOpen && (
         <div className="overlay" onClick={() => setSearchOpen(false)}>

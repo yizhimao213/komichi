@@ -1,4 +1,5 @@
 import { applyContentOverrides } from "./content.js";
+import { emptyTapConfig, normalizeTapConfig } from "./tap/keymap.js";
 
 const TOKEN_KEY = "komichi-admin-token";
 
@@ -111,6 +112,13 @@ function fileError(status, data) {
     invalid_folder: "文件夹名不可用",
     folder_exists: "已有同名文件夹",
     protected_folder: "这个文件夹不能删",
+    invalid_target: "找不到这篇文稿",
+    empty_content: "内容是空的",
+    too_long: "写得太长了",
+    empty_title: "歌名是空的",
+    empty_src: "音频地址不可用",
+    invalid_slot: "槽位编号不可用",
+    invalid_src: "音频地址不可用",
   };
   const error = new Error(map[data?.error] || data?.error || `http_${status}`);
   error.status = status;
@@ -184,4 +192,114 @@ export async function renameFolder(from, name) {
 
 export async function deleteFolder(name) {
   return request(`/api/admin/folders/${encodeURIComponent(name)}`, { method: "DELETE", auth: true });
+}
+
+export async function listComments(kind, slug) {
+  const params = new URLSearchParams({ kind, slug });
+  const data = await request(`/api/comments?${params}`);
+  return data?.comments ?? [];
+}
+
+export async function createComment(kind, slug, content, nickname = "", extra = {}) {
+  const data = await request("/api/comments", {
+    method: "POST",
+    auth: true,
+    body: {
+      kind,
+      slug,
+      content,
+      nickname,
+      mail: extra.mail ?? "",
+      url: extra.url ?? "",
+      parent_id: extra.parentId ?? null,
+    },
+  });
+  return data?.comment ?? null;
+}
+
+export async function uploadCommentImage(file) {
+  const headers = {};
+  const token = getToken();
+  if (token) headers.authorization = `Bearer ${token}`;
+  const body = new FormData();
+  body.append("file", file);
+  const res = await fetch("/api/comment-image", { method: "POST", headers, body });
+  let data = null;
+  try {
+    data = await res.json();
+  } catch {
+    data = null;
+  }
+  if (!res.ok || data?.ok === false) throw fileError(res.status, data);
+  return data?.url ?? "";
+}
+
+export async function listAdminComments({ kind = "", slug = "", q = "" } = {}) {
+  const params = new URLSearchParams();
+  if (kind) params.set("kind", kind);
+  if (slug) params.set("slug", slug);
+  if (q) params.set("q", q);
+  const search = params.toString();
+  const data = await request(`/api/admin/comments${search ? `?${search}` : ""}`, { auth: true });
+  return data?.comments ?? [];
+}
+
+export async function deleteComment(id) {
+  return request(`/api/admin/comments/${id}`, { method: "DELETE", auth: true });
+}
+
+export async function listAdminMessages() {
+  const data = await request("/api/admin/messages?limit=200", { auth: true });
+  return data?.messages ?? [];
+}
+
+export async function deleteMessage(id) {
+  return request(`/api/admin/messages/${id}`, { method: "DELETE", auth: true });
+}
+
+export async function listPlaylist() {
+  const data = await request("/api/playlist");
+  return data?.tracks ?? [];
+}
+
+export async function listAdminTracks() {
+  const data = await request("/api/admin/tracks", { auth: true });
+  return data?.tracks ?? [];
+}
+
+export async function createTrack(track) {
+  const data = await request("/api/admin/tracks", { method: "POST", auth: true, body: track });
+  return data?.track ?? null;
+}
+
+export async function saveTrack(id, track) {
+  const data = await request(`/api/admin/tracks/${id}`, { method: "PATCH", auth: true, body: track });
+  return data?.track ?? null;
+}
+
+export async function deleteTrack(id) {
+  return request(`/api/admin/tracks/${id}`, { method: "DELETE", auth: true });
+}
+
+export async function listTapSlots() {
+  try {
+    const data = await request("/api/tap");
+    return normalizeTapConfig(data);
+  } catch {
+    return emptyTapConfig();
+  }
+}
+
+export async function listAdminTapSlots() {
+  const data = await request("/api/admin/tap", { auth: true });
+  return normalizeTapConfig(data);
+}
+
+export async function saveTapSlot(kind, slot, next) {
+  const data = await request(`/api/admin/tap/${kind}/${slot}`, {
+    method: "PATCH",
+    auth: true,
+    body: next,
+  });
+  return data?.slot ?? null;
 }
