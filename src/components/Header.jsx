@@ -15,7 +15,7 @@ const NAV = [
   ["/notes", "手记", Feather],
   ["/timeline", "时光", Clock],
   ["/thinking", "思考", Lightbulb],
-  ["/komichi", "点按", AudioLines],
+  ["/komichi", "硅胶", AudioLines],
 ];
 
 const DRAWER_EXTRA = [
@@ -48,7 +48,7 @@ const PAGE_CHIPS = [
   ["/about", "关于我"],
   ["/message", "留言"],
   ["/categories", "分类"],
-  ["/komichi", "点按"],
+  ["/komichi", "硅胶"],
 ];
 
 function clipChip(text) {

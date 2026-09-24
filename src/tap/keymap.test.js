@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { emptyTapConfig, normalizeTapConfig, slotFromKey, slotFromPoint } from "./keymap.js";
+import { cellOfSlot, emptyTapConfig, normalizeTapConfig, slotFromKey, slotFromPoint } from "./keymap.js";
 
 describe("slotFromKey", () => {
   it("maps A-Z to 0-25", () => {
@@ -30,6 +30,16 @@ describe("slotFromPoint", () => {
     assert.equal(slotFromPoint(0, 399, 800, 400), 24);
     assert.equal(slotFromPoint(799, 399, 800, 400), 31);
     assert.equal(slotFromPoint(399, 0, 400, 800), 3);
+  });
+
+  it("cellOfSlot covers the 8x4 hit pad", () => {
+    const cell = cellOfSlot(7, 800, 400);
+    assert.equal(cell.x, 700);
+    assert.equal(cell.w, 100);
+    assert.equal(cell.h, 100);
+    const last = cellOfSlot(31, 800, 400);
+    assert.equal(last.x, 700);
+    assert.equal(last.y, 300);
   });
 });
 

@@ -95,7 +95,7 @@ const STATIC_TITLES = {
 
 function pageTitle(pathname) {
   if (pathname === "/") return "komichi";
-  if (pathname === "/komichi") return "点按 · komichi";
+  if (pathname === "/komichi") return "硅胶 · komichi";
   if (STATIC_TITLES[pathname]) return `${STATIC_TITLES[pathname]} · komichi`;
   if (pathname === "/about") return `${aboutPage.title || "关于我"} · komichi`;
   if (pathname === "/about-site") return `${aboutSitePage.title || "关于本站"} · komichi`;
@@ -362,7 +362,7 @@ export default function App() {
               <div className="footer-col">
                 <h4>更多</h4>
                  <Link to="/says" viewTransition>一言</Link>
-                 <Link to="/komichi" viewTransition>点按</Link>
+                 <Link to="/komichi" viewTransition>硅胶</Link>
                  <Link to="/message" viewTransition>写留言</Link>
                  <Link to="/admin" viewTransition>后台</Link>
               </div>

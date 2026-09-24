@@ -1,15 +1,21 @@
 import { BED_COUNT, HIT_COUNT } from "./keymap.js";
+import { BED_LENGTH, BED_STEP, BED_VOLUMES, bedPattern, bedUrl } from "./bed.js";
 
 const HIT_TYPES = ["sine", "triangle", "square", "sawtooth"];
 const HIT_STEPS = [0, 2, 4, 5, 7, 9, 11, 12];
+const PATTERN = bedPattern();
 
 export function createTapEngine() {
   let ctx = null;
   let master = null;
   let bedGain = null;
   let bedNodes = [];
+  let bedOn = false;
+  let bedStart = 0;
+  let bedStep = 0;
+  let bedRaf = 0;
   const customHits = Array(HIT_COUNT).fill(null);
-  const customBeds = Array(BED_COUNT).fill(null);
+  const beds = Array(BED_COUNT).fill(null);
 
   function ensure() {
     if (ctx) return;
@@ -19,7 +25,7 @@ export function createTapEngine() {
     master.gain.value = 0.72;
     master.connect(ctx.destination);
     bedGain = ctx.createGain();
-    bedGain.gain.value = 0.2;
+    bedGain.gain.value = 0.85;
     bedGain.connect(master);
   }
 
@@ -51,12 +57,15 @@ export function createTapEngine() {
     osc.stop(now + dur + 0.04);
   }
 
-  function playBuffer(buffer, loop, dest) {
+  function playBuffer(buffer, loop, dest, when, gainValue = 1) {
     const src = ctx.createBufferSource();
+    const gain = ctx.createGain();
     src.buffer = buffer;
     src.loop = Boolean(loop);
-    src.connect(dest);
-    src.start();
+    gain.gain.value = gainValue;
+    src.connect(gain);
+    gain.connect(dest);
+    src.start(when == null ? ctx.currentTime : when);
     return src;
   }
 
@@ -75,7 +84,65 @@ export function createTapEngine() {
     playHitSynth(index);
   }
 
+  function forgetNode(node) {
+    bedNodes = bedNodes.filter((item) => item !== node);
+  }
+
+  function playBedVoice(slot, when) {
+    const buf = beds[slot];
+    const vol = BED_VOLUMES[slot] ?? 1.2;
+    if (buf) {
+      try {
+        const src = playBuffer(buf, false, bedGain, when, vol);
+        bedNodes.push(src);
+        src.onended = () => forgetNode(src);
+        return;
+      } catch {
+        /* fall through */
+      }
+    }
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const freq = 110 * Math.pow(2, slot / 12);
+    osc.type = slot % 2 === 0 ? "triangle" : "sine";
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.0001, when);
+    gain.gain.exponentialRampToValueAtTime(0.18, when + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, when + 0.16);
+    osc.connect(gain);
+    gain.connect(bedGain);
+    osc.start(when);
+    osc.stop(when + 0.18);
+    bedNodes.push(osc);
+    osc.onended = () => forgetNode(osc);
+  }
+
+  function playStep(index, when) {
+    for (const layer of PATTERN) {
+      const slot = layer[index];
+      if (slot == null || slot < 0) continue;
+      playBedVoice(slot, when);
+    }
+  }
+
+  function pumpBed() {
+    if (!bedOn || !ctx) return;
+    const look = 0.18;
+    const now = ctx.currentTime;
+    while (bedStart + bedStep * BED_STEP < now + look) {
+      const when = Math.max(bedStart + bedStep * BED_STEP, now);
+      const index = ((bedStep % BED_LENGTH) + BED_LENGTH) % BED_LENGTH;
+      playStep(index, when);
+      bedStep += 1;
+    }
+    bedRaf = requestAnimationFrame(pumpBed);
+  }
+
   function stopBed() {
+    bedOn = false;
+    cancelAnimationFrame(bedRaf);
+    bedRaf = 0;
+    bedStep = 0;
     for (const node of bedNodes) {
       try {
         node.stop();
@@ -91,63 +158,59 @@ export function createTapEngine() {
     bedNodes = [];
   }
 
-  function startBedSynth(slot) {
+  function startBed() {
     ensure();
     stopBed();
-    const now = ctx.currentTime;
-    const root = 82 * Math.pow(2, slot / 11);
-    const intervals = slot % 2 === 0 ? [0, 7, 12] : [0, 5, 9];
-    for (const interval of intervals) {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = slot % 3 === 0 ? "triangle" : "sine";
-      osc.frequency.value = root * Math.pow(2, interval / 12);
-      gain.gain.value = 0.09;
-      osc.connect(gain);
-      gain.connect(bedGain);
-      osc.start(now);
-      bedNodes.push(osc);
-    }
+    bedOn = true;
+    bedStart = ctx.currentTime;
+    bedStep = 0;
+    pumpBed();
   }
 
-  function startBed(slot) {
-    const index = ((slot % BED_COUNT) + BED_COUNT) % BED_COUNT;
-    ensure();
-    stopBed();
-    const buf = customBeds[index];
-    if (buf) {
-      try {
-        bedNodes.push(playBuffer(buf, true, bedGain));
-        return;
-      } catch {
-        /* fall through */
-      }
-    }
-    startBedSynth(index);
+  async function decodeUrl(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("fetch");
+    const raw = await res.arrayBuffer();
+    return ctx.decodeAudioData(raw.slice(0));
   }
 
-  async function loadSlot(kind, slot, url) {
-    const list = kind === "bed" ? customBeds : customHits;
+  async function loadHit(slot, url) {
     if (!url) {
-      list[slot] = null;
+      customHits[slot] = null;
       return;
     }
     try {
       ensure();
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("fetch");
-      const raw = await res.arrayBuffer();
-      const buf = await ctx.decodeAudioData(raw.slice(0));
-      list[slot] = buf;
+      customHits[slot] = await decodeUrl(url);
     } catch {
-      list[slot] = null;
+      customHits[slot] = null;
     }
   }
 
-  async function applyConfig({ hits = [], beds = [] } = {}) {
+  async function loadBed(slot, url) {
+    const tries = [];
+    if (url) tries.push(url);
+    const fallback = bedUrl(slot);
+    if (!tries.includes(fallback)) tries.push(fallback);
+    ensure();
+    for (const item of tries) {
+      try {
+        beds[slot] = await decodeUrl(item);
+        return;
+      } catch {
+        /* try next */
+      }
+    }
+    beds[slot] = null;
+  }
+
+  async function applyConfig({ hits = [], beds: nextBeds = [] } = {}) {
     await Promise.all([
-      ...hits.map((item) => loadSlot("hit", item.slot, item.src)),
-      ...beds.map((item) => loadSlot("bed", item.slot, item.src)),
+      ...hits.map((item) => loadHit(item.slot, item.src)),
+      ...Array.from({ length: BED_COUNT }, (_, slot) => {
+        const src = nextBeds.find((item) => item.slot === slot)?.src || "";
+        return loadBed(slot, src);
+      }),
     ]);
   }
 

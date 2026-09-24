@@ -14,14 +14,27 @@ export function slotFromKey(key) {
   return -1;
 }
 
-export function slotFromPoint(x, y, width, height) {
+export function gridSize(width, height) {
   const landscape = width > height;
-  const cols = landscape ? 8 : 4;
-  const rows = landscape ? 4 : 8;
+  return { cols: landscape ? 8 : 4, rows: landscape ? 4 : 8 };
+}
+
+export function slotFromPoint(x, y, width, height) {
+  const { cols, rows } = gridSize(width, height);
   if (width <= 0 || height <= 0) return 0;
   const col = Math.min(cols - 1, Math.max(0, Math.floor((x / width) * cols)));
   const row = Math.min(rows - 1, Math.max(0, Math.floor((y / height) * rows)));
   return row * cols + col;
+}
+
+export function cellOfSlot(slot, width, height) {
+  const { cols, rows } = gridSize(width, height);
+  const index = ((slot % HIT_COUNT) + HIT_COUNT) % HIT_COUNT;
+  const col = index % cols;
+  const row = Math.min(rows - 1, Math.floor(index / cols));
+  const w = width / cols;
+  const h = height / rows;
+  return { x: col * w, y: row * h, w, h, cols, rows };
 }
 
 export function emptyTapConfig() {

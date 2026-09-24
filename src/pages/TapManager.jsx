@@ -98,7 +98,7 @@ export default function TapManager() {
       setBeds(config.beds);
       setFiles(nextFiles.filter((item) => String(item.mime || "").startsWith("audio/")));
     } catch (err) {
-      setHint(err.message || "读不到点按槽");
+      setHint(err.message || "读不到硅胶槽");
     } finally {
       setBusy("");
     }
@@ -129,8 +129,8 @@ export default function TapManager() {
     <>
       <header className="adm-top">
         <div>
-          <h1>点按</h1>
-          <p>32 个点按音、11 条底轨。空地址用合成占位音。和歌单分开。</p>
+          <h1>硅胶</h1>
+          <p>32 个硅胶音、11 条底轨。空地址用合成占位音。和歌单分开。</p>
         </div>
         <div className="adm-top-actions">
           <a className="adm-btn" href="/komichi" target="_blank" rel="noreferrer">
@@ -148,7 +148,7 @@ export default function TapManager() {
       {hits.length ? (
         <>
           <SlotList
-            title="点按音"
+            title="硅胶音"
             hint="A–Z 对应 00–25，[ ] ; ' , . 对应 26–31。"
             items={hits}
             files={files}

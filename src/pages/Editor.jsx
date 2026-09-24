@@ -230,7 +230,7 @@ function Sidebar({ pathname, onLogout, open, onClose }) {
           </Link>
           <Link className={`adm-nav-item ${isOn("/admin/tap") ? "is-on" : ""}`} to="/admin/tap">
             <AudioLines size={16} strokeWidth={1.8} />
-            <span>点按</span>
+            <span>硅胶</span>
           </Link>
           {KIND_GROUPS.map((group) => (
             <div className="adm-nav-group" key={group.name}>
@@ -1096,7 +1096,7 @@ export default function Editor() {
   else if (pathname === "/admin/files") crumbs.push({ label: "文件库" });
   else if (pathname === "/admin/comments") crumbs.push({ label: "评论" });
   else if (pathname === "/admin/playlist") crumbs.push({ label: "歌单" });
-  else if (pathname === "/admin/tap") crumbs.push({ label: "点按" });
+  else if (pathname === "/admin/tap") crumbs.push({ label: "硅胶" });
   else if (!entry) crumbs.push({ label: "未知分类" });
   else if (isSingleton) crumbs.push({ label: entry.group }, { label: entry.label, now: true });
   else if (isNew)

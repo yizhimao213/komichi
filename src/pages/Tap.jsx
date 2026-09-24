@@ -1,13 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createTapEngine } from "../tap/engine.js";
-import { BED_COUNT, emptyTapConfig, slotFromKey, slotFromPoint } from "../tap/keymap.js";
+import { emptyTapConfig, slotFromKey, slotFromPoint } from "../tap/keymap.js";
 import { createVisuals } from "../tap/visuals.js";
 import { listTapSlots } from "../contentApi.js";
-
-function randomBed() {
-  return Math.floor(Math.random() * BED_COUNT);
-}
 
 function canFullscreen() {
   return Boolean(document.fullscreenEnabled || document.webkitFullscreenEnabled);
@@ -101,7 +97,7 @@ export default function Tap() {
       visualsRef.current = visuals;
       visuals.start();
       playingRef.current = true;
-      if (bedOnRef.current) engine.startBed(randomBed());
+      if (bedOnRef.current) engine.startBed();
       setPhase("play");
       setAbout(false);
       showHudSoon();
@@ -132,7 +128,7 @@ export default function Tap() {
     bedOnRef.current = next;
     const engine = engineRef.current;
     if (!engine || !playingRef.current) return;
-    if (next) engine.startBed(randomBed());
+    if (next) engine.startBed();
     else engine.stopBed();
   };
 
@@ -218,7 +214,7 @@ export default function Tap() {
 
   return (
     <div className="tap-page" ref={pageRef}>
-      <canvas ref={canvasRef} className="tap-canvas" aria-label="点按画布" />
+      <canvas ref={canvasRef} className="tap-canvas" aria-label="硅胶画布" />
 
       {phase === "play" ? (
         <>
@@ -267,7 +263,7 @@ export default function Tap() {
               ×
             </button>
             <p>点击、拖动，或按键盘出声出图。</p>
-            <p>没有自定义音频时用合成占位音。站长可在后台换成自己的声音。</p>
+            <p>格子平时不画，触发时整格闪白。几何按对照站 15 种缓动弹出。开场循环 280 BPM 底轨，可随时开关。</p>
             <p className="tap-about-meta">
               结构对照 Joitap / Mikutap
               <br />
