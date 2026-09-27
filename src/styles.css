@@ -7723,6 +7723,44 @@ html[data-theme="dark"] .hx-toolbar {
   }
 }
 
+@media (max-width: 1100px) {
+  .np {
+    right: 16px;
+    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+    width: auto;
+    max-width: min(300px, calc(100vw - 28px));
+  }
+
+  .np:not(.is-open) {
+    width: 46px;
+  }
+
+  .np:not(.is-open) .np-dock {
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    gap: 0;
+    border-radius: 50%;
+    justify-content: center;
+  }
+
+  .np:not(.is-open) .np-dock-open {
+    width: 46px;
+    height: 46px;
+    justify-content: center;
+    gap: 0;
+  }
+
+  .np:not(.is-open) .np-dock-text,
+  .np:not(.is-open) .np-dock-play {
+    display: none;
+  }
+
+  .np.is-open {
+    width: min(300px, calc(100vw - 28px));
+  }
+}
+
 html.is-tap,
 html.is-tap body,
 html.is-tap #root {
