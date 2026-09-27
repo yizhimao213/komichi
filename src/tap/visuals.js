@@ -128,6 +128,7 @@ export function createVisuals(canvas, { reduced = false } = {}) {
   const flashes = [];
   let order = shuffle(KINDS);
   let raf = 0;
+  let running = false;
   let width = 0;
   let height = 0;
   let bg = "#88ccac";
@@ -202,7 +203,7 @@ export function createVisuals(canvas, { reduced = false } = {}) {
     const rot = rand(0, Math.PI * 2);
     let rad = 10;
     let size = 2;
-    for (let i = 0; i < 40; i += 1) {
+    for (let i = 0; i < 28; i += 1) {
       const a = ((25 * i) * Math.PI) / 180;
       fx.push({
         type: "spiral",
@@ -528,7 +529,7 @@ export function createVisuals(canvas, { reduced = false } = {}) {
       spawnWipe(now);
       untilWipe = 6 + Math.random() * 12;
     }
-    if (fx.length > 160) fx.splice(0, fx.length - 160);
+    if (fx.length > 72) fx.splice(0, fx.length - 72);
   }
 
   function pieClip(radius, rot, dir, offset, invert) {
@@ -891,6 +892,7 @@ export function createVisuals(canvas, { reduced = false } = {}) {
   }
 
   function tick() {
+    if (!running) return;
     const now = performance.now();
     ctx.fillStyle = flashing(now) ? "#ffffff" : bg;
     ctx.fillRect(0, 0, width, height);
@@ -921,16 +923,20 @@ export function createVisuals(canvas, { reduced = false } = {}) {
     bg = mix("#88ccac", readAccent(), 0.22) || "#88ccac";
     order = shuffle(KINDS);
     untilWipe = Math.random() * 16;
+    running = true;
     resize();
     cancelAnimationFrame(raf);
     raf = requestAnimationFrame(tick);
   }
 
   function stop() {
+    running = false;
     cancelAnimationFrame(raf);
+    raf = 0;
   }
 
   function reset() {
+    stop();
     fx.length = 0;
     flashes.length = 0;
     bg = mix("#88ccac", readAccent(), 0.22) || "#88ccac";

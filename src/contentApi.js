@@ -20,16 +20,31 @@ export function setToken(token) {
   }
 }
 
-async function request(path, { method = "GET", body, auth = false } = {}) {
+async function request(path, { method = "GET", body, auth = false, timeout = 12000 } = {}) {
   const headers = {};
   if (body !== undefined) headers["content-type"] = "application/json";
   if (auth) headers["authorization"] = `Bearer ${getToken()}`;
 
-  const res = await fetch(path, {
-    method,
-    headers,
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
+  const ctrl = timeout > 0 ? new AbortController() : null;
+  const timer = ctrl ? setTimeout(() => ctrl.abort(), timeout) : null;
+  let res;
+  try {
+    res = await fetch(path, {
+      method,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
+      signal: ctrl?.signal,
+    });
+  } catch (err) {
+    if (err?.name === "AbortError") {
+      const error = new Error("请求超时");
+      error.status = 408;
+      throw error;
+    }
+    throw err;
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 
   let data = null;
   try {

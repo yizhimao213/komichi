@@ -1,10 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { Eraser, LoaderCircle, RefreshCw, Save } from "lucide-react";
-import { listAdminTapSlots, listFiles, saveTapSlot } from "../contentApi.js";
+import { listAdminTapSlots, listFiles, saveTapSlot, uploadFile } from "../contentApi.js";
+import AdminDrop from "../components/AdminDrop.jsx";
 
-function SlotRow({ item, files, busy, onSave }) {
+const AUDIO_ACCEPT = "audio/*,.mp3,.wav,.ogg,.flac,.aac,.m4a,.webm";
+
+function SlotRow({ item, files, busy, onSave, onUpload }) {
   const [label, setLabel] = useState(item.label);
   const [src, setSrc] = useState(item.src);
+  const locked = Boolean(busy);
+  const uploading = busy === `${item.kind}-${item.slot}`;
 
   useEffect(() => {
     setLabel(item.label);
@@ -33,6 +38,16 @@ function SlotRow({ item, files, busy, onSave }) {
               ))}
             </select>
           ) : null}
+          <AdminDrop
+            compact
+            multiple={false}
+            accept={AUDIO_ACCEPT}
+            disabled={locked}
+            label={uploading ? "正在入库…" : "拖入或粘贴到此槽"}
+            onPick={(list) => {
+              if (list[0]) onUpload(list[0], { src, label });
+            }}
+          />
         </span>
       </div>
       <div className="adm-row-actions">
@@ -40,7 +55,7 @@ function SlotRow({ item, files, busy, onSave }) {
           className="adm-icon"
           type="button"
           title="保存"
-          disabled={busy}
+          disabled={locked}
           onClick={() => onSave({ src, label })}
         >
           <Save size={15} strokeWidth={1.8} />
@@ -49,7 +64,7 @@ function SlotRow({ item, files, busy, onSave }) {
           className="adm-icon"
           type="button"
           title="清空为占位音"
-          disabled={busy}
+          disabled={locked}
           onClick={() => {
             setSrc("");
             onSave({ src: "", label });
@@ -62,7 +77,7 @@ function SlotRow({ item, files, busy, onSave }) {
   );
 }
 
-function SlotList({ title, hint, items, files, busy, onSave }) {
+function SlotList({ title, hint, items, files, busy, onSave, onUpload }) {
   return (
     <section className="tap-admin-block">
       <h2>{title}</h2>
@@ -73,8 +88,9 @@ function SlotList({ title, hint, items, files, busy, onSave }) {
             key={`${item.kind}-${item.slot}`}
             item={item}
             files={files}
-            busy={busy === `${item.kind}-${item.slot}`}
+            busy={busy}
             onSave={(next) => onSave(item.kind, item.slot, next)}
+            onUpload={(file, next) => onUpload(item.kind, item.slot, file, next)}
           />
         ))}
       </ul>
@@ -108,6 +124,46 @@ export default function TapManager() {
     load();
   }, [load]);
 
+  const ingest = async (list) => {
+    const incoming = Array.from(list || []).filter(Boolean);
+    if (!incoming.length || busy) return;
+    setBusy("upload");
+    setHint("");
+    let ok = 0;
+    let fail = 0;
+    for (const file of incoming) {
+      try {
+        await uploadFile(file, undefined, "硅胶");
+        ok += 1;
+      } catch {
+        fail += 1;
+      }
+    }
+    await load();
+    if (fail && ok) setHint(`${ok} 个已入库，${fail} 个失败`);
+    else if (fail) setHint("上传失败");
+    else if (ok) setHint(`${ok} 个已放入「硅胶」，可在槽位下拉里选`);
+  };
+
+  const uploadToSlot = async (kind, slot, file, next) => {
+    if (!file || busy) return;
+    setBusy(`${kind}-${slot}`);
+    setHint("");
+    try {
+      const item = await uploadFile(file, undefined, "硅胶");
+      const saved = await saveTapSlot(kind, slot, { src: item.url, label: next.label });
+      const apply = (list) => list.map((row) => (row.slot === slot ? { ...row, ...saved } : row));
+      if (kind === "hit") setHits(apply);
+      else setBeds(apply);
+      await load();
+      setHint(`槽 ${String(slot).padStart(2, "0")} 已换上 ${item.name}`);
+    } catch (err) {
+      setHint(err.message || "上传失败");
+    } finally {
+      setBusy("");
+    }
+  };
+
   const save = async (kind, slot, next) => {
     if (busy) return;
     setBusy(`${kind}-${slot}`);
@@ -130,7 +186,7 @@ export default function TapManager() {
       <header className="adm-top">
         <div>
           <h1>硅胶</h1>
-          <p>32 个硅胶音、11 条底轨。空地址用合成占位音。和歌单分开。</p>
+          <p>32 个硅胶音、11 条底轨。可拖入、点选或粘贴音频。空地址用合成占位音。和歌单分开。</p>
         </div>
         <div className="adm-top-actions">
           <a className="adm-btn" href="/komichi" target="_blank" rel="noreferrer">
@@ -143,25 +199,35 @@ export default function TapManager() {
         </div>
       </header>
 
+      <AdminDrop
+        accept={AUDIO_ACCEPT}
+        windowPaste
+        disabled={Boolean(busy)}
+        label={busy === "upload" ? "正在入库…" : "拖入、点选或粘贴音频到「硅胶」文件夹"}
+        onPick={ingest}
+      />
+
       {hint ? <p className="adm-muted">{hint}</p> : null}
 
       {hits.length ? (
         <>
           <SlotList
             title="硅胶音"
-            hint="A–Z 对应 00–25，[ ] ; ' , . 对应 26–31。"
+            hint="A–Z 对应 00–25，[ ] ; ' , . 对应 26–31。也可直接拖到某一槽。"
             items={hits}
             files={files}
             busy={busy}
             onSave={save}
+            onUpload={uploadToSlot}
           />
           <SlotList
             title="底轨"
-            hint="开关打开时从这 11 条里抽一条循环。"
+            hint="开关打开时走 Joitap 280 BPM 音序。自定义地址会盖掉对应采样。"
             items={beds}
             files={files}
             busy={busy}
             onSave={save}
+            onUpload={uploadToSlot}
           />
         </>
       ) : (

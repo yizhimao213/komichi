@@ -1050,7 +1050,7 @@ export default function Editor() {
       setAuthed(true);
       return true;
     } catch (err) {
-      if (err?.status === 401 || err?.status === 403) {
+      if (err?.status === 401 || err?.status === 403 || err?.status === 408) {
         setAuthed(false);
         return false;
       }

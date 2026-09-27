@@ -10,7 +10,6 @@ import {
   RefreshCw,
   Search,
   Trash2,
-  Upload,
   X,
 } from "lucide-react";
 import {
@@ -23,6 +22,7 @@ import {
   renameFolder,
   uploadFile,
 } from "../contentApi.js";
+import AdminDrop from "../components/AdminDrop.jsx";
 
 const FILTERS = [
   { key: "", label: "全部" },
@@ -65,7 +65,6 @@ export default function FileManager() {
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState("");
   const [hint, setHint] = useState("");
-  const [drop, setDrop] = useState(false);
   const [draft, setDraft] = useState("");
 
   const load = useCallback(async () => {
@@ -235,17 +234,6 @@ export default function FileManager() {
         </div>
       </header>
 
-      <input
-        ref={inputRef}
-        className="adm-file-input"
-        type="file"
-        multiple
-        onChange={(e) => {
-          ingest(e.target.files);
-          e.target.value = "";
-        }}
-      />
-
       <div className="adm-files-layout">
         <aside className="adm-folders">
           <div className="adm-folders-head">
@@ -298,23 +286,13 @@ export default function FileManager() {
             </div>
           </div>
 
-          <div
-            className={`adm-drop ${drop ? "is-on" : ""}`}
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDrop(true);
-            }}
-            onDragLeave={() => setDrop(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setDrop(false);
-              ingest(e.dataTransfer.files);
-            }}
-            onClick={() => inputRef.current?.click()}
-          >
-            <Upload size={18} strokeWidth={1.8} />
-            <span>{busy === "upload" ? "正在入库…" : `拖到「${folder}」，或点选本地文件`}</span>
-          </div>
+          <AdminDrop
+            inputRef={inputRef}
+            windowPaste
+            disabled={Boolean(busy)}
+            label={busy === "upload" ? "正在入库…" : `拖到「${folder}」，或点选、粘贴`}
+            onPick={ingest}
+          />
 
           <div className="adm-toolbar adm-files-bar">
             <div className="adm-pills">

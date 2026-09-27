@@ -9,13 +9,14 @@ export function createTapEngine() {
   let ctx = null;
   let master = null;
   let bedGain = null;
-  let bedNodes = [];
   let bedOn = false;
   let bedStart = 0;
   let bedStep = 0;
-  let bedRaf = 0;
+  let bedTimer = 0;
   const customHits = Array(HIT_COUNT).fill(null);
   const beds = Array(BED_COUNT).fill(null);
+  const hitUrls = Array(HIT_COUNT).fill("");
+  const bedKeys = Array(BED_COUNT).fill("");
 
   function ensure() {
     if (ctx) return;
@@ -57,11 +58,10 @@ export function createTapEngine() {
     osc.stop(now + dur + 0.04);
   }
 
-  function playBuffer(buffer, loop, dest, when, gainValue = 1) {
+  function playBuffer(buffer, dest, when, gainValue = 1) {
     const src = ctx.createBufferSource();
     const gain = ctx.createGain();
     src.buffer = buffer;
-    src.loop = Boolean(loop);
     gain.gain.value = gainValue;
     src.connect(gain);
     gain.connect(dest);
@@ -75,7 +75,7 @@ export function createTapEngine() {
     const buf = customHits[index];
     if (buf) {
       try {
-        playBuffer(buf, false, master);
+        playBuffer(buf, master);
         return;
       } catch {
         /* fall through */
@@ -84,18 +84,12 @@ export function createTapEngine() {
     playHitSynth(index);
   }
 
-  function forgetNode(node) {
-    bedNodes = bedNodes.filter((item) => item !== node);
-  }
-
   function playBedVoice(slot, when) {
     const buf = beds[slot];
     const vol = BED_VOLUMES[slot] ?? 1.2;
     if (buf) {
       try {
-        const src = playBuffer(buf, false, bedGain, when, vol);
-        bedNodes.push(src);
-        src.onended = () => forgetNode(src);
+        playBuffer(buf, bedGain, when, vol);
         return;
       } catch {
         /* fall through */
@@ -113,8 +107,6 @@ export function createTapEngine() {
     gain.connect(bedGain);
     osc.start(when);
     osc.stop(when + 0.18);
-    bedNodes.push(osc);
-    osc.onended = () => forgetNode(osc);
   }
 
   function playStep(index, when) {
@@ -127,35 +119,41 @@ export function createTapEngine() {
 
   function pumpBed() {
     if (!bedOn || !ctx) return;
-    const look = 0.18;
+    const look = 0.24;
     const now = ctx.currentTime;
+    const due = Math.floor((now - bedStart) / BED_STEP);
+    if (due > bedStep) bedStep = due;
     while (bedStart + bedStep * BED_STEP < now + look) {
-      const when = Math.max(bedStart + bedStep * BED_STEP, now);
-      const index = ((bedStep % BED_LENGTH) + BED_LENGTH) % BED_LENGTH;
-      playStep(index, when);
+      const when = bedStart + bedStep * BED_STEP;
+      if (when >= now - 0.02) {
+        const index = ((bedStep % BED_LENGTH) + BED_LENGTH) % BED_LENGTH;
+        playStep(index, when);
+      }
       bedStep += 1;
     }
-    bedRaf = requestAnimationFrame(pumpBed);
+    bedTimer = window.setTimeout(pumpBed, 50);
   }
 
-  function stopBed() {
-    bedOn = false;
-    cancelAnimationFrame(bedRaf);
-    bedRaf = 0;
-    bedStep = 0;
-    for (const node of bedNodes) {
+  function rebuildBedGain() {
+    if (!ctx || !master) return;
+    if (bedGain) {
       try {
-        node.stop();
-      } catch {
-        /* already stopped */
-      }
-      try {
-        node.disconnect();
+        bedGain.disconnect();
       } catch {
         /* ignore */
       }
     }
-    bedNodes = [];
+    bedGain = ctx.createGain();
+    bedGain.gain.value = 0.85;
+    bedGain.connect(master);
+  }
+
+  function stopBed() {
+    bedOn = false;
+    window.clearTimeout(bedTimer);
+    bedTimer = 0;
+    bedStep = 0;
+    rebuildBedGain();
   }
 
   function startBed() {
@@ -175,22 +173,28 @@ export function createTapEngine() {
   }
 
   async function loadHit(slot, url) {
-    if (!url) {
+    const next = url || "";
+    if (hitUrls[slot] === next && (next === "" || customHits[slot])) return;
+    hitUrls[slot] = next;
+    if (!next) {
       customHits[slot] = null;
       return;
     }
     try {
       ensure();
-      customHits[slot] = await decodeUrl(url);
+      customHits[slot] = await decodeUrl(next);
     } catch {
       customHits[slot] = null;
     }
   }
 
   async function loadBed(slot, url) {
+    const fallback = bedUrl(slot);
+    const key = url || fallback;
+    if (bedKeys[slot] === key && beds[slot]) return;
+    bedKeys[slot] = key;
     const tries = [];
     if (url) tries.push(url);
-    const fallback = bedUrl(slot);
     if (!tries.includes(fallback)) tries.push(fallback);
     ensure();
     for (const item of tries) {
@@ -202,6 +206,7 @@ export function createTapEngine() {
       }
     }
     beds[slot] = null;
+    bedKeys[slot] = "";
   }
 
   async function applyConfig({ hits = [], beds: nextBeds = [] } = {}) {
@@ -216,9 +221,7 @@ export function createTapEngine() {
 
   function dispose() {
     stopBed();
-    if (ctx) {
-      ctx.close().catch(() => {});
-    }
+    if (ctx) ctx.close().catch(() => {});
     ctx = null;
     master = null;
     bedGain = null;

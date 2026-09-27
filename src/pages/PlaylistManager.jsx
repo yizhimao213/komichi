@@ -1,8 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { ChevronDown, ChevronUp, LoaderCircle, Music, Plus, RefreshCw, Save, Trash2 } from "lucide-react";
-import { createTrack, deleteTrack, listAdminTracks, listFiles, saveTrack } from "../contentApi.js";
+import { createTrack, deleteTrack, listAdminTracks, listFiles, saveTrack, uploadFile } from "../contentApi.js";
+import AdminDrop from "../components/AdminDrop.jsx";
 
 const emptyDraft = { title: "", artist: "", src: "", cover: "" };
+const AUDIO_ACCEPT = "audio/*,.mp3,.wav,.ogg,.flac,.aac,.m4a,.webm";
+const PLAYLIST_ACCEPT = `${AUDIO_ACCEPT},image/*,.jpg,.jpeg,.png,.gif,.webp`;
+
+function stem(name) {
+  return String(name || "").replace(/\.[^.]+$/, "");
+}
 
 export default function PlaylistManager() {
   const [tracks, setTracks] = useState([]);
@@ -28,6 +35,42 @@ export default function PlaylistManager() {
   useEffect(() => {
     load();
   }, [load]);
+
+  const ingest = async (list) => {
+    const incoming = Array.from(list || []).filter(Boolean);
+    if (!incoming.length || busy) return;
+    setBusy("upload");
+    setHint("");
+    let audio = null;
+    let image = null;
+    let ok = 0;
+    let fail = 0;
+    for (const file of incoming) {
+      try {
+        const mime = String(file.type || "");
+        const folder = mime.startsWith("image/") ? "图片" : "歌单";
+        const item = await uploadFile(file, undefined, folder);
+        ok += 1;
+        if (!audio && mime.startsWith("audio/")) audio = item;
+        if (!image && mime.startsWith("image/")) image = item;
+      } catch {
+        fail += 1;
+      }
+    }
+    await load();
+    setDraft((prev) => ({
+      ...prev,
+      src: audio?.url || prev.src,
+      title: prev.title || (audio ? stem(audio.name) : prev.title),
+      cover: image?.url || prev.cover,
+    }));
+    if (fail && ok) setHint(`${ok} 个已入库，${fail} 个失败`);
+    else if (fail) setHint("上传失败");
+    else if (audio && image) setHint("音频和封面已填入表单");
+    else if (audio) setHint("音频已填入表单");
+    else if (image) setHint("封面已填入表单");
+    else if (ok) setHint(`${ok} 个已入库`);
+  };
 
   const add = async (e) => {
     e.preventDefault();
@@ -101,7 +144,7 @@ export default function PlaylistManager() {
       <header className="adm-top">
         <div>
           <h1>歌单</h1>
-          <p>侧边播放器读这里的曲目。音频可先传到文件库，再把公开链接贴进来。</p>
+          <p>侧边播放器读这里的曲目。可拖入、点选或粘贴音频；图片会填封面。</p>
         </div>
         <div className="adm-top-actions">
           <button className="adm-btn" type="button" onClick={load} disabled={busy === "list"}>
@@ -112,6 +155,13 @@ export default function PlaylistManager() {
       </header>
 
       <form className="adm-track-form" onSubmit={add}>
+        <AdminDrop
+          accept={PLAYLIST_ACCEPT}
+          windowPaste
+          disabled={Boolean(busy)}
+          label={busy === "upload" ? "正在入库…" : "拖入、点选或粘贴音频；图片作封面"}
+          onPick={ingest}
+        />
         <label>
           <span>歌名</span>
           <input value={draft.title} placeholder="曲名" onChange={(e) => setDraft({ ...draft, title: e.target.value })} />

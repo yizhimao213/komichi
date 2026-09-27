@@ -69,7 +69,7 @@ export default function Tap() {
 
   const showHudSoon = () => {
     window.clearTimeout(idleTimer.current);
-    setHud(false);
+    setHud((on) => (on ? false : on));
     idleTimer.current = window.setTimeout(() => setHud(true), 1600);
   };
 
@@ -93,6 +93,7 @@ export default function Tap() {
       await engine.applyConfig(configRef.current);
       const reduced =
         typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      visualsRef.current?.stop();
       const visuals = createVisuals(canvas, { reduced });
       visualsRef.current = visuals;
       visuals.start();
@@ -111,6 +112,7 @@ export default function Tap() {
     const engine = engineRef.current;
     playingRef.current = false;
     engine?.stopBed();
+    visualsRef.current?.stop();
     visualsRef.current?.reset();
     window.clearTimeout(idleTimer.current);
     setHud(false);
@@ -156,7 +158,11 @@ export default function Tap() {
 
     const onDown = (e) => {
       if (!playingRef.current) return;
-      canvas.setPointerCapture(e.pointerId);
+      try {
+        canvas.setPointerCapture(e.pointerId);
+      } catch {
+        /* pointer already gone */
+      }
       const { x, y, w, h } = local(e);
       const slot = slotFromPoint(x, y, w, h);
       lastSlotRef.current = slot;
