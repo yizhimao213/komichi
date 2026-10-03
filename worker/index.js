@@ -8,7 +8,6 @@
 //   POST   /api/comments                 { kind, slug, nickname?, mail?, url?, parent_id?, content }
 //   POST   /api/comment-image            multipart field=file（访客评论配图）
 //   GET    /api/playlist
-//   GET    /api/tap                      点按页 32 点按音 + 11 底轨
 //   GET    /api/documents                覆盖层（仅未删除）
 //
 // 后台接口（需 ADMIN_TOKEN）
@@ -28,8 +27,6 @@
 // 公开文件
 //   GET    /files/:id/:filename
 //   GET    /api/playlist  侧边播放器歌单
-//   GET    /api/admin/tap
-//   PATCH  /api/admin/tap/:kind/:slot    kind=hit|bed
 
 const MAX_CONTENT_LEN = 2000;
 const MAX_NICKNAME_LEN = 40;
@@ -40,9 +37,6 @@ const COMMENT_IMAGE_MIME = new Set(["image/jpeg", "image/png", "image/gif", "ima
 const MAX_TRACK_TITLE = 80;
 const MAX_TRACK_ARTIST = 80;
 const MAX_TRACK_URL = 500;
-const MAX_TAP_LABEL = 40;
-const TAP_HIT_COUNT = 32;
-const TAP_BED_COUNT = 11;
 const MAX_BODY_LEN = 512 * 1024;
 const COMMENT_KINDS = new Set(["post", "note"]);
 const FILE_MIME = {
@@ -196,14 +190,6 @@ async function migrateStudioSchema(env) {
       created_at TEXT NOT NULL
     )`,
     "CREATE INDEX IF NOT EXISTS idx_tracks_sort ON tracks (sort, id)",
-    `CREATE TABLE IF NOT EXISTS tap_slots (
-      kind TEXT NOT NULL,
-      slot INTEGER NOT NULL,
-      src TEXT NOT NULL DEFAULT '',
-      label TEXT NOT NULL DEFAULT '',
-      updated_at TEXT NOT NULL,
-      PRIMARY KEY (kind, slot)
-    )`,
   ];
   for (const sql of statements) {
     try {
@@ -447,108 +433,6 @@ async function deleteTrack(env, id) {
   const res = await env.DB.prepare("DELETE FROM tracks WHERE id = ?").bind(id).run();
   if (!res.meta?.changes) return json({ ok: false, error: "not_found" }, 404);
   return json({ ok: true, id });
-}
-
-/* --------------------------------- 点按槽 --------------------------------- */
-
-function tapSlotCount(kind) {
-  if (kind === "hit") return TAP_HIT_COUNT;
-  if (kind === "bed") return TAP_BED_COUNT;
-  return 0;
-}
-
-function emptyTapSlot(kind, slot) {
-  return { kind, slot, src: "", label: "" };
-}
-
-function fillTapSlots(kind, rows) {
-  const count = tapSlotCount(kind);
-  const bySlot = new Map();
-  for (const row of rows ?? []) {
-    const slot = Number(row.slot);
-    if (!Number.isInteger(slot) || slot < 0 || slot >= count) continue;
-    bySlot.set(slot, {
-      kind,
-      slot,
-      src: row.src || "",
-      label: row.label || "",
-    });
-  }
-  const list = [];
-  for (let slot = 0; slot < count; slot += 1) {
-    list.push(bySlot.get(slot) || emptyTapSlot(kind, slot));
-  }
-  return list;
-}
-
-async function listTapConfig(env) {
-  await migrateStudioSchema(env);
-  try {
-    const { results } = await env.DB.prepare(
-      "SELECT kind, slot, src, label FROM tap_slots ORDER BY kind ASC, slot ASC"
-    ).all();
-    const hits = fillTapSlots(
-      "hit",
-      (results ?? []).filter((row) => row.kind === "hit")
-    );
-    const beds = fillTapSlots(
-      "bed",
-      (results ?? []).filter((row) => row.kind === "bed")
-    );
-    return json({ ok: true, hits, beds });
-  } catch {
-    return json({
-      ok: true,
-      hits: fillTapSlots("hit", []),
-      beds: fillTapSlots("bed", []),
-    });
-  }
-}
-
-async function patchTapSlot(env, kind, slotRaw, request) {
-  await migrateStudioSchema(env);
-  const count = tapSlotCount(kind);
-  const slot = Number(slotRaw);
-  if (!count || !Number.isInteger(slot) || slot < 0 || slot >= count) {
-    return json({ ok: false, error: "invalid_slot" }, 400);
-  }
-  const payload = await readJson(request);
-  if (!payload) return json({ ok: false, error: "invalid_json" }, 400);
-
-  const existing = await env.DB.prepare(
-    "SELECT kind, slot, src, label FROM tap_slots WHERE kind = ? AND slot = ?"
-  )
-    .bind(kind, slot)
-    .first();
-
-  let src = existing?.src || "";
-  if (payload.src !== undefined) {
-    const raw = String(payload.src ?? "").trim();
-    if (!raw) {
-      src = "";
-    } else {
-      src = tidyTrackUrl(raw);
-      if (!src) return json({ ok: false, error: "invalid_src" }, 400);
-    }
-  }
-
-  let label = existing?.label || "";
-  if (payload.label !== undefined) {
-    label = String(payload.label ?? "")
-      .trim()
-      .slice(0, MAX_TAP_LABEL);
-  }
-
-  const updated_at = new Date().toISOString();
-  await env.DB.prepare(
-    `INSERT INTO tap_slots (kind, slot, src, label, updated_at)
-     VALUES (?, ?, ?, ?, ?)
-     ON CONFLICT(kind, slot) DO UPDATE SET src = excluded.src, label = excluded.label, updated_at = excluded.updated_at`
-  )
-    .bind(kind, slot, src, label, updated_at)
-    .run();
-
-  return json({ ok: true, slot: { kind, slot, src, label } });
 }
 
 function parseDocRow(row) {
@@ -1076,11 +960,6 @@ export default {
       return json({ ok: false, error: "method_not_allowed" }, 405);
     }
 
-    if (path === "/api/tap") {
-      if (request.method === "GET") return listTapConfig(env);
-      return json({ ok: false, error: "method_not_allowed" }, 405);
-    }
-
     if (path === "/api/documents") {
       if (request.method === "GET") return listPublicDocuments(env);
       return json({ ok: false, error: "method_not_allowed" }, 405);
@@ -1140,21 +1019,6 @@ export default {
       if (denied) return denied;
       if (request.method === "PATCH") return patchTrack(env, Number(adminTrack[1]), request);
       if (request.method === "DELETE") return deleteTrack(env, Number(adminTrack[1]));
-      return json({ ok: false, error: "method_not_allowed" }, 405);
-    }
-
-    if (path === "/api/admin/tap") {
-      const denied = await requireAdmin(request, env);
-      if (denied) return denied;
-      if (request.method === "GET") return listTapConfig(env);
-      return json({ ok: false, error: "method_not_allowed" }, 405);
-    }
-
-    const adminTap = path.match(/^\/api\/admin\/tap\/(hit|bed)\/(\d+)$/);
-    if (adminTap) {
-      const denied = await requireAdmin(request, env);
-      if (denied) return denied;
-      if (request.method === "PATCH") return patchTapSlot(env, adminTap[1], adminTap[2], request);
       return json({ ok: false, error: "method_not_allowed" }, 405);
     }
 

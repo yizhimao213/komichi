@@ -14,7 +14,6 @@ const SPA_EXACT = new Set([
   "/timeline",
   "/thinking",
   "/categories",
-  "/komichi",
 ]);
 
 function shouldSpa(pathname) {

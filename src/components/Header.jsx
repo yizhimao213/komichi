@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { AudioLines, BookOpen, ChevronDown, Clock, Feather, House, Lightbulb, Menu, X } from "lucide-react";
+import { BookOpen, ChevronDown, Clock, Feather, House, Lightbulb, Menu, X } from "lucide-react";
 import { SEASON_LIST, useHeaderState } from "../context.jsx";
 import { categoryList, getCategory, seriesList } from "../content.js";
 import HomeMega from "./HomeMega.jsx";
@@ -15,7 +15,6 @@ const NAV = [
   ["/notes", "手记", Feather],
   ["/timeline", "时光", Clock],
   ["/thinking", "思考", Lightbulb],
-  ["/komichi", "硅胶", AudioLines],
 ];
 
 const DRAWER_EXTRA = [
@@ -48,7 +47,6 @@ const PAGE_CHIPS = [
   ["/about", "关于我"],
   ["/message", "留言"],
   ["/categories", "分类"],
-  ["/komichi", "硅胶"],
 ];
 
 function clipChip(text) {

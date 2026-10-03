@@ -74,6 +74,7 @@ function NestedDocDialogEditor({ initialValue, onEditorReady, persistUploads }) 
       onEditorReady={onEditorReady}
       imageUpload={fileUpload}
       fileUpload={fileUpload}
+      videoUpload={fileUpload}
     />
   );
 }
@@ -99,6 +100,7 @@ export default function HaklexEditor({
 }) {
   const theme = useSiteTheme();
   const [editor, setEditor] = useState(null);
+  const persist = persistUploads || variant === "article";
   const handleChange = useCallback(
     (next) => {
       onChange?.(next);
@@ -112,7 +114,7 @@ export default function HaklexEditor({
     },
     [onEditorReady]
   );
-  const fileUpload = uploadFn ?? (persistUploads ? libraryFileUpload : localFileUpload);
+  const fileUpload = uploadFn ?? (persist ? libraryFileUpload : localFileUpload);
 
   return (
     <div
@@ -125,7 +127,7 @@ export default function HaklexEditor({
           <MentionPlatformProvider platforms={mentionPlatforms}>
           <PollDataProvider adapter={pollAdapter}>
             <NestedDocDialogEditorProvider
-              value={(props) => <NestedDocDialogEditor {...props} persistUploads={persistUploads} />}
+              value={(props) => <NestedDocDialogEditor {...props} persistUploads={persist} />}
             >
               <ComposedEditor
                 variant={variant}

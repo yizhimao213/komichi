@@ -67,12 +67,3 @@ CREATE TABLE IF NOT EXISTS tracks (
 );
 
 CREATE INDEX IF NOT EXISTS idx_tracks_sort ON tracks (sort, id);
-
-CREATE TABLE IF NOT EXISTS tap_slots (
-  kind TEXT NOT NULL,
-  slot INTEGER NOT NULL,
-  src TEXT NOT NULL DEFAULT '',
-  label TEXT NOT NULL DEFAULT '',
-  updated_at TEXT NOT NULL,
-  PRIMARY KEY (kind, slot)
-);

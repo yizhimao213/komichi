@@ -1,5 +1,4 @@
 import { applyContentOverrides } from "./content.js";
-import { emptyTapConfig, normalizeTapConfig } from "./tap/keymap.js";
 
 const TOKEN_KEY = "komichi-admin-token";
 
@@ -294,27 +293,4 @@ export async function saveTrack(id, track) {
 
 export async function deleteTrack(id) {
   return request(`/api/admin/tracks/${id}`, { method: "DELETE", auth: true });
-}
-
-export async function listTapSlots() {
-  try {
-    const data = await request("/api/tap");
-    return normalizeTapConfig(data);
-  } catch {
-    return emptyTapConfig();
-  }
-}
-
-export async function listAdminTapSlots() {
-  const data = await request("/api/admin/tap", { auth: true });
-  return normalizeTapConfig(data);
-}
-
-export async function saveTapSlot(kind, slot, next) {
-  const data = await request(`/api/admin/tap/${kind}/${slot}`, {
-    method: "PATCH",
-    auth: true,
-    body: next,
-  });
-  return data?.slot ?? null;
 }
